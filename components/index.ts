@@ -5,6 +5,8 @@ export { QuickActions } from './home/QuickActions';
 export { RecentActivity } from './home/RecentActivity';
 export { UpcomingEvents } from './home/UpcomingEvents';
 export { TabBarIcon } from './layout/TabBarIcon';
+export { ClassRow } from './schedule/ClassRow';
+export { DayPicker } from './schedule/DayPicker';
 export { Banner } from './ui/Banner';
 export type { BannerProps } from './ui/Banner';
 export { Button } from './ui/Button';

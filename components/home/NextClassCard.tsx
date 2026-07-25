@@ -50,7 +50,9 @@ export function NextClassCard({ nextClass, onPress }: NextClassCardProps) {
           </Text>
           <Spacer size="xs" />
           <Text variant="caption">
-            {nextClass.coach} · {nextClass.room} · {nextClass.durationMinutes} min
+            {[nextClass.coach, nextClass.room, `${nextClass.durationMinutes} min`]
+              .filter(Boolean)
+              .join(' · ')}
           </Text>
         </View>
         <Animated.View style={[styles.badge, { opacity: accent }]}>

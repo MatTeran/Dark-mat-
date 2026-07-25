@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import {
@@ -16,7 +16,6 @@ import {
 } from '../../components';
 import { useAuth } from '../../hooks';
 import {
-  NEXT_CLASS,
   QUICK_ACTIONS,
   RECENT_ACTIVITY,
   UPCOMING_EVENTS,
@@ -24,7 +23,7 @@ import {
 import { spacing } from '../../lib/theme';
 import type { MainTabParamList } from '../../types';
 import type { QuickActionId } from '../../types/home';
-import { getFirstName, getGreeting } from '../../utils';
+import { getFirstName, getGreeting, toNextClassCardModel } from '../../utils';
 
 type HomeNavigation = BottomTabNavigationProp<MainTabParamList, 'Home'>;
 
@@ -32,6 +31,7 @@ export function HomeScreen() {
   const { user } = useAuth();
   const navigation = useNavigation<HomeNavigation>();
   const [checkInMessage, setCheckInMessage] = useState<string | null>(null);
+  const nextClass = useMemo(() => toNextClassCardModel(), []);
 
   const greeting = getGreeting();
   const firstName = getFirstName(user?.fullName);
@@ -48,7 +48,11 @@ export function HomeScreen() {
         navigation.navigate('Profile');
         break;
       case 'checkIn':
-        setCheckInMessage(`Checked in for ${NEXT_CLASS.title}. See you on the mat.`);
+        setCheckInMessage(
+          nextClass
+            ? `Checked in for ${nextClass.title}. See you on the mat.`
+            : 'Checked in. See you on the mat.',
+        );
         break;
       default:
         break;
@@ -65,12 +69,16 @@ export function HomeScreen() {
 
       <Spacer size="xl" />
 
-      <FadeIn delay={80}>
-        <NextClassCard
-          nextClass={NEXT_CLASS}
-          onPress={() => navigation.navigate('Schedule')}
-        />
-      </FadeIn>
+      {nextClass ? (
+        <>
+          <FadeIn delay={80}>
+            <NextClassCard
+              nextClass={nextClass}
+              onPress={() => navigation.navigate('Schedule')}
+            />
+          </FadeIn>
+        </>
+      ) : null}
 
       {checkInMessage ? (
         <>
