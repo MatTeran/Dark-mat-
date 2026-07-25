@@ -1,38 +1,43 @@
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { CompositeNavigationProp } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useMemo, useState } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useState } from 'react';
 import { Share, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   Banner,
-  BeltBadge,
   Button,
   FadeIn,
   ProfileActionButton,
+  ProfileAttendanceSnapshot,
+  ProfileAvatar,
+  ProfileHighlightTile,
   ProfileMenuGroup,
   ProfileMenuRow,
-  ProfileShieldAvatar,
+  ProfileMiniBelt,
+  ProfileSectionHeader,
   ProfileStatsRow,
   Screen,
   Spacer,
   Text,
-  WorkoutProgressCard,
 } from '../../components';
-import { useAuth } from '../../hooks';
+import { useAuth, useAppTheme } from '../../hooks';
+import {
+  formatMembershipPlan,
+  formatMembershipStatus,
+} from '../../lib/mocks/profile';
 import { useProfile } from '../../lib/providers/ProfileProvider';
-import { useWorkouts } from '../../lib/providers/WorkoutProvider';
 import { spacing } from '../../lib/theme';
 import type { MainTabParamList } from '../../types';
 import type { ProfileStackParamList } from '../../types/navigation';
-import type { WorkoutMetricFilter } from '../../types/workoutMetrics';
 import {
   getAuthErrorMessage,
   getFirstName,
   pickProfilePhoto,
   promptProfilePhotoActions,
 } from '../../utils';
-import { buildWorkoutProgressMetrics } from '../../utils/workoutMetrics';
 
 type Props = NativeStackScreenProps<ProfileStackParamList, 'ProfileHome'>;
 type ProfileNavigation = CompositeNavigationProp<
@@ -61,40 +66,25 @@ function formatMemberSince(iso: string): string {
   return `MEMBER SINCE ${year}`;
 }
 
-function formatRenewsOn(iso: string): string {
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
-}
-
 export function ProfileHomeScreen({ navigation }: Props) {
   const tabNavigation = navigation as ProfileNavigation;
+  const insets = useSafeAreaInsets();
+  const { isDark } = useAppTheme();
   const { user, signOut, isGuest } = useAuth();
   const {
     hub,
-    membershipLabel,
     beltLabel,
     stripesLabel,
     paymentLabel,
-    attendanceLabel,
     familyCountLabel,
     setAvatarUri,
   } = useProfile();
-  const { workouts } = useWorkouts();
-  const [filter, setFilter] = useState<WorkoutMetricFilter>('all');
   const [loading, setLoading] = useState(false);
   const [photoLoading, setPhotoLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const metrics = useMemo(
-    () => buildWorkoutProgressMetrics(workouts, filter),
-    [workouts, filter],
-  );
-
   const displayName = user?.fullName || 'Dark Mat Athlete';
-  const memberSinceLabel = formatMemberSince(hub.membership.memberSince);
+  const academyLine = hub.membership.academyName.toUpperCase();
 
   const handleSignOut = async () => {
     setError(null);
@@ -151,49 +141,65 @@ export function ProfileHomeScreen({ navigation }: Props) {
   };
 
   return (
-    <Screen scroll contentStyle={styles.content}>
-      <FadeIn>
-        <View style={styles.hero}>
-          <ProfileShieldAvatar
-            uri={hub.avatarUri}
-            initials={getInitials(user?.fullName)}
-            onPress={handleAvatarPress}
-          />
+    <Screen scroll flushTop padded contentStyle={styles.content}>
+      <View
+        style={[
+          styles.heroShell,
+          { paddingTop: insets.top + spacing.lg },
+        ]}
+      >
+        <LinearGradient
+          colors={
+            isDark
+              ? ['rgba(212,175,55,0.18)', 'rgba(13,13,13,0)']
+              : ['rgba(196,160,53,0.16)', 'rgba(245,245,243,0)']
+          }
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+          style={StyleSheet.absoluteFillObject}
+        />
 
-          <Spacer size="md" />
-          <Text variant="label" gold style={styles.memberSince}>
-            {isGuest ? 'GUEST DEMO' : memberSinceLabel}
-          </Text>
-          <Spacer size="xs" />
-          <Text variant="hero" style={styles.name} numberOfLines={2}>
-            {displayName}
-          </Text>
+        <FadeIn>
+          <View style={styles.hero}>
+            <ProfileAvatar
+              uri={hub.avatarUri}
+              initials={getInitials(user?.fullName)}
+              onPress={handleAvatarPress}
+              size={112}
+              ring
+            />
 
-          <Spacer size="sm" />
-          <BeltBadge
-            belt={hub.beltProgress.belt}
-            stripes={hub.beltProgress.stripes}
-            centered
-            compact
-          />
+            <Spacer size="md" />
+            <Text variant="label" gold style={styles.eyebrow}>
+              {isGuest ? 'GUEST DEMO' : formatMemberSince(hub.membership.memberSince)}
+            </Text>
+            <Spacer size="xs" />
+            <Text variant="hero" style={styles.name} numberOfLines={2}>
+              {displayName}
+            </Text>
+            <Spacer size="xxs" />
+            <Text variant="caption" muted style={styles.academy}>
+              {academyLine}
+            </Text>
 
-          {photoLoading ? (
-            <>
-              <Spacer size="xs" />
-              <Text variant="caption" gold>
-                Updating photo…
-              </Text>
-            </>
-          ) : !hub.avatarUri ? (
-            <>
-              <Spacer size="xs" />
-              <Text variant="caption" muted>
-                Tap shield to add a photo, {getFirstName(user?.fullName)}
-              </Text>
-            </>
-          ) : null}
-        </View>
-      </FadeIn>
+            {photoLoading ? (
+              <>
+                <Spacer size="xs" />
+                <Text variant="caption" gold>
+                  Updating photo…
+                </Text>
+              </>
+            ) : !hub.avatarUri ? (
+              <>
+                <Spacer size="xs" />
+                <Text variant="caption" muted>
+                  Add a photo, {getFirstName(user?.fullName)}
+                </Text>
+              </>
+            ) : null}
+          </View>
+        </FadeIn>
+      </View>
 
       <Spacer size="lg" />
 
@@ -216,20 +222,21 @@ export function ProfileHomeScreen({ navigation }: Props) {
         />
       </FadeIn>
 
-      <Spacer size="lg" />
+      <Spacer size="md" />
 
       <FadeIn delay={70}>
         <View style={styles.actions}>
           <ProfileActionButton
-            label="Share profile"
-            icon="qr-code-outline"
+            label="Share"
+            icon="share-outline"
             onPress={() => {
               void handleShareProfile();
             }}
           />
           <ProfileActionButton
-            label="Edit"
+            label="Edit profile"
             icon="create-outline"
+            variant="filled"
             onPress={() => navigation.navigate('Settings')}
           />
         </View>
@@ -238,42 +245,44 @@ export function ProfileHomeScreen({ navigation }: Props) {
       <Spacer size="xl" />
 
       <FadeIn delay={100}>
-        <WorkoutProgressCard
-          metrics={metrics}
-          filter={filter}
-          onFilterChange={setFilter}
-          onSeeMore={() =>
-            tabNavigation.navigate('WorkoutLog', { screen: 'WorkoutList' })
-          }
+        <View style={styles.tiles}>
+          <ProfileHighlightTile
+            label="Belt"
+            title={beltLabel}
+            subtitle={stripesLabel}
+            icon="ribbon-outline"
+            onPress={() => navigation.navigate('BeltRank')}
+            media={
+              <ProfileMiniBelt
+                belt={hub.beltProgress.belt}
+                stripes={hub.beltProgress.stripes}
+              />
+            }
+          />
+          <ProfileHighlightTile
+            label="Membership"
+            title={formatMembershipPlan(hub.membership.plan)}
+            subtitle={formatMembershipStatus(hub.membership.status)}
+            icon="card-outline"
+            onPress={() => navigation.navigate('Membership')}
+          />
+        </View>
+      </FadeIn>
+
+      <Spacer size="md" />
+
+      <FadeIn delay={120}>
+        <ProfileAttendanceSnapshot
+          summary={hub.attendanceSummary}
+          onPress={() => navigation.navigate('Attendance')}
         />
       </FadeIn>
 
       <Spacer size="xl" />
 
-      <FadeIn delay={130}>
+      <FadeIn delay={140}>
+        <ProfileSectionHeader title="Training" />
         <ProfileMenuGroup>
-          <ProfileMenuRow
-            icon="card-outline"
-            label="Membership"
-            value={`${membershipLabel} · Renews ${formatRenewsOn(hub.membership.renewsOn)}`}
-            onPress={() => navigation.navigate('Membership')}
-            showDivider
-            accent
-          />
-          <ProfileMenuRow
-            icon="ribbon-outline"
-            label="Belt Rank"
-            value={`${beltLabel} · ${stripesLabel}`}
-            onPress={() => navigation.navigate('BeltRank')}
-            showDivider
-          />
-          <ProfileMenuRow
-            icon="stats-chart-outline"
-            label="Attendance"
-            value={attendanceLabel}
-            onPress={() => navigation.navigate('Attendance')}
-            showDivider
-          />
           <ProfileMenuRow
             icon="map-outline"
             label="Journey"
@@ -282,7 +291,24 @@ export function ProfileHomeScreen({ navigation }: Props) {
               tabNavigation.navigate('Home', { screen: 'Journey' })
             }
             showDivider
+            accent
           />
+          <ProfileMenuRow
+            icon="barbell-outline"
+            label="Workout Log"
+            value="Sessions & mat time"
+            onPress={() =>
+              tabNavigation.navigate('WorkoutLog', { screen: 'WorkoutList' })
+            }
+          />
+        </ProfileMenuGroup>
+      </FadeIn>
+
+      <Spacer size="lg" />
+
+      <FadeIn delay={160}>
+        <ProfileSectionHeader title="Account" />
+        <ProfileMenuGroup>
           <ProfileMenuRow
             icon="wallet-outline"
             label="Payment Method"
@@ -290,6 +316,20 @@ export function ProfileHomeScreen({ navigation }: Props) {
             onPress={() => navigation.navigate('PaymentMethod')}
             showDivider
           />
+          <ProfileMenuRow
+            icon="people-outline"
+            label="Linked Family"
+            value={familyCountLabel}
+            onPress={() => navigation.navigate('LinkedFamily')}
+          />
+        </ProfileMenuGroup>
+      </FadeIn>
+
+      <Spacer size="lg" />
+
+      <FadeIn delay={180}>
+        <ProfileSectionHeader title="Preferences" />
+        <ProfileMenuGroup>
           <ProfileMenuRow
             icon="settings-outline"
             label="Settings"
@@ -302,13 +342,6 @@ export function ProfileHomeScreen({ navigation }: Props) {
             label="Notifications"
             value="Manage alerts"
             onPress={() => navigation.navigate('Notifications')}
-            showDivider
-          />
-          <ProfileMenuRow
-            icon="people-outline"
-            label="Linked Family"
-            value={familyCountLabel}
-            onPress={() => navigation.navigate('LinkedFamily')}
           />
         </ProfileMenuGroup>
       </FadeIn>
@@ -322,16 +355,13 @@ export function ProfileHomeScreen({ navigation }: Props) {
 
       <Spacer size="xl" />
 
-      <FadeIn delay={160}>
+      <FadeIn delay={200}>
         <Button
           label="Log out"
-          variant="ghost"
+          variant="secondary"
           loading={loading}
           onPress={handleSignOut}
         />
-        <Text variant="caption" muted style={styles.academy}>
-          {hub.membership.academyName}
-        </Text>
       </FadeIn>
 
       <View style={styles.bottomSpace} />
@@ -343,28 +373,38 @@ const styles = StyleSheet.create({
   content: {
     width: '100%',
   },
+  heroShell: {
+    marginHorizontal: -spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.md,
+    overflow: 'hidden',
+  },
   hero: {
     width: '100%',
     alignItems: 'center',
-    paddingTop: spacing.sm,
   },
-  memberSince: {
-    letterSpacing: 1.2,
+  eyebrow: {
+    letterSpacing: 1.4,
     textAlign: 'center',
   },
   name: {
     textAlign: 'center',
     fontSize: 34,
+    lineHeight: 40,
+  },
+  academy: {
+    textAlign: 'center',
+    letterSpacing: 0.8,
   },
   actions: {
     flexDirection: 'row',
     gap: spacing.sm,
   },
-  academy: {
-    textAlign: 'center',
-    marginTop: spacing.sm,
+  tiles: {
+    flexDirection: 'row',
+    gap: spacing.md,
   },
   bottomSpace: {
-    height: spacing.xl,
+    height: spacing.xxl,
   },
 });

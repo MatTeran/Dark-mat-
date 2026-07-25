@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import { useAppTheme } from '../../lib/providers/ThemeProvider';
-import { spacing } from '../../lib/theme';
+import { radii, spacing } from '../../lib/theme';
 import { Text } from '../ui/Text';
 
 export interface ProfileStatItem {
@@ -18,7 +18,13 @@ export function ProfileStatsRow({ stats }: ProfileStatsRowProps) {
 
   return (
     <View
-      style={styles.row}
+      style={[
+        styles.row,
+        {
+          backgroundColor: colors.secondaryBackground,
+          borderColor: colors.border,
+        },
+      ]}
       accessibilityRole="summary"
       accessibilityLabel={stats
         .map((stat) => `${stat.value} ${stat.label}`)
@@ -32,7 +38,7 @@ export function ProfileStatsRow({ stats }: ProfileStatsRowProps) {
             />
           ) : null}
           <View style={styles.copy}>
-            <Text variant="subtitle" style={styles.value}>
+            <Text variant="title" style={styles.value}>
               {stat.value}
             </Text>
             <Text variant="caption" muted>
@@ -50,6 +56,9 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'stretch',
+    borderRadius: radii.xl,
+    borderWidth: 1,
+    paddingVertical: spacing.md,
   },
   stat: {
     flex: 1,
@@ -64,10 +73,10 @@ const styles = StyleSheet.create({
   copy: {
     flex: 1,
     alignItems: 'center',
-    gap: 2,
+    gap: 4,
     paddingHorizontal: spacing.xs,
   },
   value: {
-    fontSize: 20,
+    fontSize: 22,
   },
 });

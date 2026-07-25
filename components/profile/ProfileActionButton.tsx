@@ -12,14 +12,17 @@ interface ProfileActionButtonProps {
   label: string;
   icon: IconName;
   onPress: () => void;
+  variant?: 'filled' | 'outline';
 }
 
 export function ProfileActionButton({
   label,
   icon,
   onPress,
+  variant = 'outline',
 }: ProfileActionButtonProps) {
   const { colors } = useAppTheme();
+  const filled = variant === 'filled';
 
   return (
     <Pressable
@@ -29,13 +32,24 @@ export function ProfileActionButton({
         styles.button,
         {
           borderColor: colors.goldAccent,
-          opacity: pressed ? 0.85 : 1,
+          backgroundColor: filled ? colors.goldAccent : 'transparent',
+          opacity: pressed ? 0.88 : 1,
         },
       ]}
     >
       <View style={styles.inner}>
-        <Ionicons name={icon} size={16} color={colors.goldAccent} />
-        <Text variant="body" style={{ color: colors.goldAccent }}>
+        <Ionicons
+          name={icon}
+          size={16}
+          color={filled ? colors.primaryBackground : colors.goldAccent}
+        />
+        <Text
+          variant="body"
+          style={{
+            color: filled ? colors.primaryBackground : colors.goldAccent,
+            fontSize: 15,
+          }}
+        >
           {label}
         </Text>
       </View>
@@ -48,7 +62,7 @@ const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 1.5,
     borderRadius: radii.pill,
-    minHeight: 44,
+    minHeight: 46,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.md,
