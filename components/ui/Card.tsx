@@ -2,6 +2,7 @@ import { PropsWithChildren } from 'react';
 import {
   Pressable,
   PressableProps,
+  StyleProp,
   StyleSheet,
   View,
   ViewStyle,
@@ -12,33 +13,48 @@ import { colors, radii, spacing } from '../../lib/theme';
 export interface CardProps extends PropsWithChildren {
   onPress?: PressableProps['onPress'];
   padded?: boolean;
-  style?: ViewStyle;
+  /** Layout styles for the outer wrapper (width/flex). Applied to Pressable when interactive. */
+  style?: StyleProp<ViewStyle>;
+  /** Visual styles for the inner surface (overflow, background overrides). */
+  contentStyle?: StyleProp<ViewStyle>;
 }
 
 /**
  * Elevated dark surface for interactive dashboard modules.
+ * Layout styles must land on the outer wrapper so flex/grid sizing works.
  */
 export function Card({
   children,
   onPress,
   padded = true,
   style,
+  contentStyle,
 }: CardProps) {
-  const content = (
-    <View style={[styles.card, padded && styles.padded, style]}>{children}</View>
+  const surface = (
+    <View
+      style={[
+        styles.card,
+        padded && styles.padded,
+        onPress ? styles.fill : null,
+        !onPress ? style : null,
+        contentStyle,
+      ]}
+    >
+      {children}
+    </View>
   );
 
   if (!onPress) {
-    return content;
+    return surface;
   }
 
   return (
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
-      style={({ pressed }) => [pressed && styles.pressed]}
+      style={({ pressed }) => [style, pressed && styles.pressed]}
     >
-      {content}
+      {surface}
     </Pressable>
   );
 }
@@ -54,6 +70,9 @@ const styles = StyleSheet.create({
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 10 },
     elevation: 6,
+  },
+  fill: {
+    alignSelf: 'stretch',
   },
   padded: {
     padding: spacing.lg,

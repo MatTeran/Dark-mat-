@@ -36,7 +36,7 @@ export function NextClassCard({ nextClass, onPress }: NextClassCardProps) {
   }, [accent]);
 
   return (
-    <Card onPress={onPress} style={styles.card}>
+    <Card onPress={onPress} contentStyle={styles.card}>
       <View style={styles.row}>
         <View style={styles.copy}>
           <Text variant="label" gold>

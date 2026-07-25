@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import type { QuickAction, QuickActionId } from '../../types/home';
 import { Card } from '../ui/Card';
@@ -12,7 +12,15 @@ interface QuickActionsProps {
   onAction: (id: QuickActionId) => void;
 }
 
+const COLUMNS = 2;
+const GRID_GAP = spacing.md;
+
 export function QuickActions({ actions, onAction }: QuickActionsProps) {
+  const { width: windowWidth } = useWindowDimensions();
+  // Screen horizontal padding is spacing.lg on each side.
+  const contentWidth = windowWidth - spacing.lg * 2;
+  const tileWidth = (contentWidth - GRID_GAP * (COLUMNS - 1)) / COLUMNS;
+
   return (
     <View>
       <Text variant="subtitle">Quick Actions</Text>
@@ -22,7 +30,7 @@ export function QuickActions({ actions, onAction }: QuickActionsProps) {
           <Card
             key={action.id}
             onPress={() => onAction(action.id)}
-            style={styles.tile}
+            style={{ width: tileWidth }}
             padded={false}
           >
             <View style={styles.tileInner}>
@@ -34,10 +42,12 @@ export function QuickActions({ actions, onAction }: QuickActionsProps) {
                 />
               </View>
               <Spacer size="sm" />
-              <Text variant="subtitle" style={styles.label}>
+              <Text variant="subtitle" style={styles.label} numberOfLines={2}>
                 {action.label}
               </Text>
-              <Text variant="caption">{action.subtitle}</Text>
+              <Text variant="caption" numberOfLines={1}>
+                {action.subtitle}
+              </Text>
             </View>
           </Card>
         ))}
@@ -50,15 +60,12 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.md,
-  },
-  tile: {
-    width: '47.5%',
-    flexGrow: 1,
+    gap: GRID_GAP,
   },
   tileInner: {
     padding: spacing.md,
     minHeight: 118,
+    justifyContent: 'flex-start',
   },
   iconWrap: {
     width: 36,
