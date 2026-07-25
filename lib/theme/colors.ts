@@ -11,7 +11,7 @@ export const colors = {
   error: '#FF4D4D',
   success: '#22C55E',
 
-  /** Subtle elevation / dividers on dark surfaces */
+  elevatedSurface: '#1D1D1D',
   border: '#2A2A2A',
   overlay: 'rgba(13, 13, 13, 0.72)',
   goldMuted: 'rgba(212, 175, 55, 0.16)',

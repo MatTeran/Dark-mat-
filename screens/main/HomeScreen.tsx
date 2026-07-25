@@ -4,13 +4,14 @@ import {
 } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useMemo, useState } from 'react';
+import * as Haptics from 'expo-haptics';
+import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import {
-  Banner,
-  Card,
   FadeIn,
+  HomeGreeting,
+  JourneySummaryCard,
   LatestAnnouncementCard,
   NextClassCard,
   QuickActions,
@@ -20,17 +21,25 @@ import {
   UpcomingEvents,
 } from '../../components';
 import { useAuth } from '../../hooks';
-import { QUICK_ACTIONS, UPCOMING_EVENTS } from '../../lib/mocks/home';
+import {
+  HOME_USER_SUMMARY,
+  NEXT_CLASS_SUMMARY,
+  QUICK_ACTIONS,
+  UPCOMING_EVENTS,
+} from '../../lib/mocks/home';
 import { useCommunity } from '../../lib/providers/CommunityProvider';
 import { useJourney } from '../../lib/providers/JourneyProvider';
-import { colors, radii, spacing } from '../../lib/theme';
+import { spacing } from '../../lib/theme';
 import type { HomeStackParamList, MainTabParamList } from '../../types';
-import type { QuickActionId } from '../../types/home';
+import type {
+  HomeUserSummary,
+  NextClassReservationStatus,
+  QuickActionId,
+} from '../../types/home';
 import {
-  formatXp,
   getFirstName,
   getGreeting,
-  toNextClassCardModel,
+  getMotivationalMessage,
 } from '../../utils';
 
 type HomeNavigation = CompositeNavigationProp<
@@ -38,39 +47,116 @@ type HomeNavigation = CompositeNavigationProp<
   BottomTabNavigationProp<MainTabParamList>
 >;
 
+const CHECK_IN_XP = 100;
+
 export function HomeScreen() {
   const { user } = useAuth();
   const { announcements } = useCommunity();
-  const { profile } = useJourney();
+  const { profile, streak, awardXp } = useJourney();
   const navigation = useNavigation<HomeNavigation>();
-  const [checkInMessage, setCheckInMessage] = useState<string | null>(null);
-  const nextClass = useMemo(() => toNextClassCardModel(), []);
+
+  const [reservationStatus, setReservationStatus] =
+    useState<NextClassReservationStatus>(
+      NEXT_CLASS_SUMMARY.reservationStatus,
+    );
+  const [actionLoading, setActionLoading] = useState(false);
+  const [xpEarnedLabel, setXpEarnedLabel] = useState<string | null>(null);
+  const [weeklyClassesCompleted, setWeeklyClassesCompleted] = useState(
+    HOME_USER_SUMMARY.weeklyClassesCompleted,
+  );
+
   const latestAnnouncement = useMemo(() => {
     return [...announcements].sort(
       (a, b) => +new Date(b.createdAt) - +new Date(a.createdAt),
     )[0];
   }, [announcements]);
 
+  const journeySummary: HomeUserSummary = useMemo(
+    () => ({
+      firstName: getFirstName(user?.fullName),
+      level: profile.level,
+      currentXP: profile.currentLevelXP,
+      nextLevelXP: profile.nextLevelXP,
+      weeklyClassesCompleted,
+      weeklyClassGoal: HOME_USER_SUMMARY.weeklyClassGoal,
+      weeklyTrainingDays:
+        streak.weeklyTrainingDays || HOME_USER_SUMMARY.weeklyTrainingDays,
+      currentStreak: streak.currentStreak || HOME_USER_SUMMARY.currentStreak,
+      bestStreak: streak.bestStreak || HOME_USER_SUMMARY.bestStreak,
+    }),
+    [
+      profile.currentLevelXP,
+      profile.level,
+      profile.nextLevelXP,
+      streak.bestStreak,
+      streak.currentStreak,
+      streak.weeklyTrainingDays,
+      user?.fullName,
+      weeklyClassesCompleted,
+    ],
+  );
+
   const greeting = getGreeting();
   const firstName = getFirstName(user?.fullName);
+  const motivationalMessage = getMotivationalMessage({
+    weeklyClassesCompleted,
+    weeklyClassGoal: HOME_USER_SUMMARY.weeklyClassGoal,
+  });
+
+  useEffect(() => {
+    if (!xpEarnedLabel) {
+      return;
+    }
+    const timer = setTimeout(() => setXpEarnedLabel(null), 2800);
+    return () => clearTimeout(timer);
+  }, [xpEarnedLabel]);
+
+  const wait = (ms: number) =>
+    new Promise<void>((resolve) => {
+      setTimeout(resolve, ms);
+    });
+
+  const handlePrimaryClassAction = async () => {
+    if (actionLoading) {
+      return;
+    }
+    setActionLoading(true);
+    try {
+      await wait(450);
+      if (reservationStatus === 'available') {
+        setReservationStatus('check_in');
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        return;
+      }
+      if (reservationStatus === 'check_in') {
+        setReservationStatus('checked_in');
+        setWeeklyClassesCompleted((current) =>
+          Math.min(current + 1, HOME_USER_SUMMARY.weeklyClassGoal),
+        );
+        awardXp(CHECK_IN_XP, `Checked in · ${NEXT_CLASS_SUMMARY.title}`);
+        setXpEarnedLabel(`+${CHECK_IN_XP} XP`);
+        await Haptics.notificationAsync(
+          Haptics.NotificationFeedbackType.Success,
+        );
+      }
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   const handleQuickAction = (id: QuickActionId) => {
     switch (id) {
-      case 'schedule':
+      case 'reserveClass':
+      case 'viewSchedule':
         navigation.navigate('Schedule');
         break;
-      case 'logWorkout':
+      case 'logTraining':
         navigation.navigate('WorkoutLog');
         break;
-      case 'journey':
-        navigation.navigate('Journey');
-        break;
-      case 'checkIn':
-        setCheckInMessage(
-          nextClass
-            ? `Checked in for ${nextClass.title}. See you on the mat.`
-            : 'Checked in. See you on the mat.',
-        );
+      case 'logTechnique':
+        navigation.navigate('WorkoutLog', {
+          screen: 'WorkoutDetails',
+        });
         break;
       default:
         break;
@@ -80,26 +166,45 @@ export function HomeScreen() {
   return (
     <Screen scroll contentStyle={styles.content}>
       <FadeIn>
-        <Text variant="hero">
-          {greeting}, {firstName}
-        </Text>
+        <HomeGreeting
+          greeting={greeting}
+          firstName={firstName}
+          motivationalMessage={motivationalMessage}
+        />
       </FadeIn>
 
-      <Spacer size="xl" />
+      <Spacer size="lg" />
 
-      {nextClass ? (
-        <FadeIn delay={80}>
-          <NextClassCard
-            nextClass={nextClass}
-            onPress={() => navigation.navigate('Schedule')}
-          />
-        </FadeIn>
-      ) : null}
+      <FadeIn delay={60}>
+        <NextClassCard
+          nextClass={NEXT_CLASS_SUMMARY}
+          reservationStatus={reservationStatus}
+          actionLoading={actionLoading}
+          xpEarnedLabel={xpEarnedLabel}
+          onPrimaryAction={() => {
+            void handlePrimaryClassAction();
+          }}
+          onOpenDetails={() => navigation.navigate('Schedule')}
+        />
+      </FadeIn>
+
+      <Spacer size="md" />
+
+      <FadeIn delay={100}>
+        <JourneySummaryCard
+          summary={journeySummary}
+          onOpenJourney={() => navigation.navigate('Journey')}
+        />
+      </FadeIn>
 
       {latestAnnouncement ? (
         <>
-          <Spacer size="xl" />
-          <FadeIn delay={120}>
+          <Spacer size="md" />
+          <FadeIn delay={140}>
+            <Text variant="subtitle" style={styles.sectionTitle}>
+              Academy Announcement
+            </Text>
+            <Spacer size="sm" />
             <LatestAnnouncementCard
               announcement={latestAnnouncement}
               onPress={() =>
@@ -113,47 +218,15 @@ export function HomeScreen() {
         </>
       ) : null}
 
-      <Spacer size="xl" />
+      <Spacer size="lg" />
 
-      <FadeIn delay={140}>
-        <Card onPress={() => navigation.navigate('Journey')}>
-          <Text variant="caption" gold>
-            Progress
-          </Text>
-          <Spacer size="xs" />
-          <Text variant="subtitle">Journey</Text>
-          <Spacer size="xs" />
-          <Text variant="bodyMuted">
-            Level {profile.level} · {formatXp(profile.currentLevelXP)} /{' '}
-            {formatXp(profile.nextLevelXP)} XP
-          </Text>
-          <Spacer size="sm" />
-          <View style={styles.journeyPill}>
-            <Text variant="caption" style={styles.journeyPillText}>
-              Open Journey
-            </Text>
-          </View>
-        </Card>
-      </FadeIn>
-
-      {checkInMessage ? (
-        <>
-          <Spacer size="md" />
-          <FadeIn>
-            <Banner tone="success" message={checkInMessage} />
-          </FadeIn>
-        </>
-      ) : null}
-
-      <Spacer size="xl" />
-
-      <FadeIn delay={160}>
+      <FadeIn delay={180}>
         <QuickActions actions={QUICK_ACTIONS} onAction={handleQuickAction} />
       </FadeIn>
 
-      <Spacer size="xl" />
+      <Spacer size="lg" />
 
-      <FadeIn delay={240}>
+      <FadeIn delay={220}>
         <UpcomingEvents events={UPCOMING_EVENTS} />
       </FadeIn>
 
@@ -163,18 +236,13 @@ export function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: {},
-  journeyPill: {
-    alignSelf: 'flex-start',
-    borderRadius: radii.pill,
-    backgroundColor: colors.goldMuted,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
+  content: {
+    width: '100%',
   },
-  journeyPillText: {
-    color: colors.goldAccent,
+  sectionTitle: {
+    fontSize: 17,
   },
   bottomSpace: {
-    height: spacing.lg,
+    height: spacing.xl,
   },
 });

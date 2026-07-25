@@ -1,45 +1,64 @@
 import type {
   ActivityItem,
-  NextClass,
+  HomeUserSummary,
+  NextClassSummary,
   QuickAction,
   UpcomingEvent,
 } from '../../types/home';
 import { toNextClassCardModel } from '../../utils/schedule';
 
-/** Live next class from the official weekly board. */
-export const NEXT_CLASS: NextClass = toNextClassCardModel() ?? {
-  id: 'fallback-open-gym',
-  title: 'Open Gym',
-  coach: 'Open Mat Academy',
-  startsAt: new Date().toISOString(),
-  room: 'Tracy · Naglee Rd',
-  durationMinutes: 60,
+export const HOME_USER_SUMMARY: HomeUserSummary = {
+  firstName: 'Mat',
+  level: 14,
+  currentXP: 4820,
+  nextLevelXP: 5000,
+  weeklyClassesCompleted: 3,
+  weeklyClassGoal: 4,
+  weeklyTrainingDays: 4,
+  currentStreak: 7,
+  bestStreak: 30,
+};
+
+const scheduleNext = toNextClassCardModel();
+
+/** Prefer live schedule next class; enrich with Home interaction fields. */
+export const NEXT_CLASS_SUMMARY: NextClassSummary = {
+  id: scheduleNext?.id ?? 'next-competition-positional',
+  title: scheduleNext?.title ?? 'Competition Positional',
+  coach: scheduleNext?.coach ?? 'Coach Mendes',
+  startsAt: scheduleNext?.startsAt ?? new Date().toISOString(),
+  room: scheduleNext?.room ?? 'Tracy',
+  durationMinutes: scheduleNext?.durationMinutes ?? 60,
+  format: 'Gi',
+  location: scheduleNext?.room?.split('·')[0]?.trim() || 'Tracy',
+  status: 'soon',
+  reservationStatus: 'available',
 };
 
 export const QUICK_ACTIONS: QuickAction[] = [
   {
-    id: 'schedule',
-    label: 'Schedule',
-    subtitle: 'Classes',
-    icon: 'calendar-outline',
+    id: 'reserveClass',
+    label: 'Reserve Class',
+    subtitle: 'Find and reserve your next session.',
+    icon: 'ticket-outline',
   },
   {
-    id: 'logWorkout',
-    label: 'Log Workout',
-    subtitle: 'Training',
+    id: 'logTraining',
+    label: 'Log Training',
+    subtitle: 'Record today’s rounds and notes.',
     icon: 'barbell-outline',
   },
   {
-    id: 'checkIn',
-    label: 'Check In',
-    subtitle: 'Tonight',
-    icon: 'checkmark-circle-outline',
+    id: 'logTechnique',
+    label: 'Log Technique',
+    subtitle: 'Save something you learned.',
+    icon: 'bulb-outline',
   },
   {
-    id: 'journey',
-    label: 'Journey',
-    subtitle: 'Progress',
-    icon: 'map-outline',
+    id: 'viewSchedule',
+    label: 'View Schedule',
+    subtitle: 'See all upcoming classes.',
+    icon: 'calendar-outline',
   },
 ];
 

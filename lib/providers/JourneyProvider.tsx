@@ -33,6 +33,7 @@ interface JourneyContextValue {
   getBadge: (id: string) => AchievementBadge | undefined;
   celebrateChallenge: (challengeId: string) => void;
   celebratedChallengeIds: string[];
+  awardXp: (amount: number, description?: string) => void;
 }
 
 const JourneyContext = createContext<JourneyContextValue | null>(null);
@@ -114,6 +115,32 @@ export function JourneyProvider({ children }: PropsWithChildren) {
     );
   }, []);
 
+  const awardXp = useCallback((amount: number, description = 'XP earned') => {
+    if (amount <= 0) {
+      return;
+    }
+    setProfile((current) => {
+      const progress = getLevelProgress(current.totalXP + amount);
+      return {
+        ...current,
+        totalXP: progress.totalXP,
+        level: progress.level,
+        currentLevelXP: progress.currentLevelXP,
+        nextLevelXP: progress.nextLevelXP,
+      };
+    });
+    setXpActivities((current) => [
+      {
+        id: `xp-${Date.now()}`,
+        activityType: 'complete_class',
+        description,
+        xpAmount: amount,
+        createdAt: new Date().toISOString(),
+      },
+      ...current,
+    ]);
+  }, []);
+
   const value = useMemo<JourneyContextValue>(
     () => ({
       isLoading,
@@ -129,6 +156,7 @@ export function JourneyProvider({ children }: PropsWithChildren) {
       getBadge,
       celebrateChallenge,
       celebratedChallengeIds,
+      awardXp,
     }),
     [
       isLoading,
@@ -144,6 +172,7 @@ export function JourneyProvider({ children }: PropsWithChildren) {
       getBadge,
       celebrateChallenge,
       celebratedChallengeIds,
+      awardXp,
     ],
   );
 

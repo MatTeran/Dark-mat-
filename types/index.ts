@@ -7,7 +7,11 @@ export type {
 } from './auth';
 export type {
   ActivityItem,
+  AnnouncementSummary,
+  HomeUserSummary,
   NextClass,
+  NextClassReservationStatus,
+  NextClassSummary,
   QuickAction,
   QuickActionId,
   UpcomingEvent,

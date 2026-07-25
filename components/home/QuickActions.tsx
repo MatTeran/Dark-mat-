@@ -21,12 +21,12 @@ function chunkActions(actions: QuickAction[], size: number) {
 }
 
 export function QuickActions({ actions, onAction }: QuickActionsProps) {
-  const rows = chunkActions(actions, 2);
+  const rows = chunkActions(actions.slice(0, 4), 2);
 
   return (
     <View>
       <Text variant="subtitle">Quick Actions</Text>
-      <Spacer size="md" />
+      <Spacer size="sm" />
       <View style={styles.stack}>
         {rows.map((row) => (
           <View key={row.map((item) => item.id).join('-')} style={styles.row}>
@@ -37,19 +37,24 @@ export function QuickActions({ actions, onAction }: QuickActionsProps) {
                   padded={false}
                   style={styles.card}
                 >
-                  <View style={styles.tileInner}>
+                  <View
+                    accessible
+                    accessibilityRole="button"
+                    accessibilityLabel={`${action.label}. ${action.subtitle}`}
+                    style={styles.tileInner}
+                  >
                     <View style={styles.iconWrap}>
                       <Ionicons
                         name={action.icon}
-                        size={20}
+                        size={18}
                         color={colors.goldAccent}
                       />
                     </View>
                     <Spacer size="sm" />
-                    <Text variant="subtitle" style={styles.label} numberOfLines={1}>
+                    <Text variant="body" style={styles.label} numberOfLines={1}>
                       {action.label}
                     </Text>
-                    <Text variant="caption" numberOfLines={1}>
+                    <Text variant="caption" numberOfLines={2}>
                       {action.subtitle}
                     </Text>
                   </View>
@@ -66,11 +71,11 @@ export function QuickActions({ actions, onAction }: QuickActionsProps) {
 
 const styles = StyleSheet.create({
   stack: {
-    gap: spacing.md,
+    gap: spacing.sm,
   },
   row: {
     flexDirection: 'row',
-    gap: spacing.md,
+    gap: spacing.sm,
   },
   tile: {
     flex: 1,
@@ -78,10 +83,11 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '100%',
+    backgroundColor: colors.elevatedSurface,
   },
   tileInner: {
     padding: spacing.md,
-    minHeight: 118,
+    minHeight: 124,
   },
   iconWrap: {
     width: 36,
@@ -92,6 +98,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.goldMuted,
   },
   label: {
-    fontSize: 16,
+    fontSize: 15,
   },
 });

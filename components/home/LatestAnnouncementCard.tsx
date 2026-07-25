@@ -2,10 +2,10 @@ import { StyleSheet, View } from 'react-native';
 
 import type { Announcement } from '../../types/community';
 import { formatShortDate } from '../../utils';
+import { colors, radii, spacing } from '../../lib/theme';
 import { Card } from '../ui/Card';
 import { Spacer } from '../ui/Spacer';
 import { Text } from '../ui/Text';
-import { colors, radii, spacing } from '../../lib/theme';
 
 interface LatestAnnouncementCardProps {
   announcement: Announcement;
@@ -17,10 +17,8 @@ export function LatestAnnouncementCard({
   onPress,
 }: LatestAnnouncementCardProps) {
   return (
-    <View>
-      <Text variant="subtitle">Academy Announcement</Text>
-      <Spacer size="md" />
-      <Card onPress={onPress}>
+    <Card onPress={onPress} style={styles.card} padded={false}>
+      <View style={styles.inner}>
         <View style={styles.header}>
           <Text variant="label" gold>
             Latest
@@ -28,40 +26,60 @@ export function LatestAnnouncementCard({
           <Text variant="caption">{formatShortDate(announcement.createdAt)}</Text>
         </View>
         <Spacer size="xs" />
-        <Text variant="subtitle">{announcement.title}</Text>
-        <Spacer size="xs" />
+        <Text variant="subtitle" numberOfLines={2} style={styles.title}>
+          {announcement.title}
+        </Text>
+        <Spacer size="xxs" />
         <Text variant="bodyMuted" numberOfLines={2}>
           {announcement.body}
         </Text>
         <Spacer size="sm" />
         <View style={styles.footer}>
-          <Text variant="caption">{announcement.authorName}</Text>
+          <Text variant="caption" numberOfLines={1} style={styles.author}>
+            {announcement.authorName}
+          </Text>
           <View style={styles.cta}>
             <Text variant="caption" gold>
               View
             </Text>
           </View>
         </View>
-      </Card>
-    </View>
+      </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
+  card: {
+    backgroundColor: colors.elevatedSurface,
+  },
+  inner: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  title: {
+    fontSize: 17,
+  },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: spacing.md,
+  },
+  author: {
+    flex: 1,
   },
   cta: {
     borderRadius: radii.pill,
     backgroundColor: colors.goldMuted,
     paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
+    paddingVertical: 4,
+    minHeight: 28,
+    justifyContent: 'center',
   },
 });
