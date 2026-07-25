@@ -5,7 +5,7 @@ import { StyleSheet, View } from 'react-native';
 import { Button, Input, Screen, Spacer, Text } from '../../components';
 import { spacing } from '../../lib/theme';
 import type { AuthStackParamList } from '../../types';
-import { getPasswordError, isValidEmail } from '../../utils';
+import { isValidEmail } from '../../utils';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Register'> & {
   onAuthenticated: () => void;
@@ -20,57 +20,61 @@ export function RegisterScreen({ navigation, onAuthenticated }: Props) {
   const nameError = submitted && !fullName.trim() ? 'Name is required.' : null;
   const emailError =
     submitted && !isValidEmail(email) ? 'Enter a valid email address.' : null;
-  const passwordError = submitted ? getPasswordError(password) : null;
 
   const handleRegister = () => {
     setSubmitted(true);
-    if (!fullName.trim() || !isValidEmail(email) || getPasswordError(password)) {
+    if (!fullName.trim() || !isValidEmail(email)) {
       return;
     }
-    // Placeholder: wire to services/supabase/auth once env is configured.
+    // Placeholder auth gate — password optional until Supabase is wired.
     onAuthenticated();
   };
 
   return (
-    <Screen scroll contentStyle={styles.content}>
-      <View style={styles.header}>
-        <Text variant="hero">Join Dark Mat</Text>
-        <Spacer size="sm" />
-        <Text variant="bodyMuted">
-          Create your athlete profile and start logging mat time.
-        </Text>
-      </View>
+    <Screen scroll keyboard contentStyle={styles.content}>
+      <View>
+        <View style={styles.header}>
+          <Text variant="hero">Join Dark Mat</Text>
+          <Spacer size="sm" />
+          <Text variant="bodyMuted">
+            Create your athlete profile and start logging mat time.
+          </Text>
+        </View>
 
-      <View style={styles.form}>
-        <Input
-          label="Full name"
-          autoComplete="name"
-          value={fullName}
-          onChangeText={setFullName}
-          error={nameError}
-          placeholder="Your name"
-        />
-        <Spacer size="md" />
-        <Input
-          label="Email"
-          autoCapitalize="none"
-          autoComplete="email"
-          keyboardType="email-address"
-          value={email}
-          onChangeText={setEmail}
-          error={emailError}
-          placeholder="you@email.com"
-        />
-        <Spacer size="md" />
-        <Input
-          label="Password"
-          secureTextEntry
-          autoComplete="new-password"
-          value={password}
-          onChangeText={setPassword}
-          error={passwordError}
-          placeholder="At least 8 characters"
-        />
+        <View style={styles.form}>
+          <Input
+            label="Full name"
+            autoComplete="name"
+            value={fullName}
+            onChangeText={setFullName}
+            error={nameError}
+            placeholder="Your name"
+            returnKeyType="next"
+          />
+          <Spacer size="md" />
+          <Input
+            label="Email"
+            autoCapitalize="none"
+            autoComplete="email"
+            keyboardType="email-address"
+            value={email}
+            onChangeText={setEmail}
+            error={emailError}
+            placeholder="you@email.com"
+            returnKeyType="next"
+          />
+          <Spacer size="md" />
+          <Input
+            label="Password"
+            secureTextEntry
+            autoComplete="new-password"
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Any password for now"
+            returnKeyType="done"
+            onSubmitEditing={handleRegister}
+          />
+        </View>
       </View>
 
       <View style={styles.actions}>
@@ -81,6 +85,12 @@ export function RegisterScreen({ navigation, onAuthenticated }: Props) {
           variant="ghost"
           onPress={() => navigation.navigate('Login')}
         />
+        <Spacer size="xs" />
+        <Button
+          label="Continue without account"
+          variant="secondary"
+          onPress={onAuthenticated}
+        />
       </View>
     </Screen>
   );
@@ -88,16 +98,18 @@ export function RegisterScreen({ navigation, onAuthenticated }: Props) {
 
 const styles = StyleSheet.create({
   content: {
-    flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    paddingBottom: spacing.xl,
   },
   header: {
     marginBottom: spacing.xxl,
+    marginTop: spacing.lg,
   },
   form: {
     marginBottom: spacing.xl,
   },
   actions: {
-    marginTop: spacing.md,
+    marginTop: spacing.lg,
+    gap: spacing.xxs,
   },
 });

@@ -6,7 +6,7 @@ import { Button, Input, Screen, Spacer, Text } from '../../components';
 import { APP_NAME } from '../../lib/constants';
 import { spacing } from '../../lib/theme';
 import type { AuthStackParamList } from '../../types';
-import { getPasswordError, isValidEmail } from '../../utils';
+import { isValidEmail } from '../../utils';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Login'> & {
   onAuthenticated: () => void;
@@ -19,48 +19,51 @@ export function LoginScreen({ navigation, onAuthenticated }: Props) {
 
   const emailError =
     submitted && !isValidEmail(email) ? 'Enter a valid email address.' : null;
-  const passwordError = submitted ? getPasswordError(password) : null;
 
   const handleLogin = () => {
     setSubmitted(true);
-    if (!isValidEmail(email) || getPasswordError(password)) {
+    if (!isValidEmail(email)) {
       return;
     }
-    // Placeholder: wire to services/supabase/auth once env is configured.
+    // Placeholder auth gate — password optional until Supabase is wired.
     onAuthenticated();
   };
 
   return (
-    <Screen scroll contentStyle={styles.content}>
-      <View style={styles.header}>
-        <Text variant="brand" gold>
-          {APP_NAME.toUpperCase()}
-        </Text>
-        <Spacer size="sm" />
-        <Text variant="bodyMuted">Sign in to your academy.</Text>
-      </View>
+    <Screen scroll keyboard contentStyle={styles.content}>
+      <View>
+        <View style={styles.header}>
+          <Text variant="brand" gold>
+            {APP_NAME.toUpperCase()}
+          </Text>
+          <Spacer size="sm" />
+          <Text variant="bodyMuted">Sign in to your academy.</Text>
+        </View>
 
-      <View style={styles.form}>
-        <Input
-          label="Email"
-          autoCapitalize="none"
-          autoComplete="email"
-          keyboardType="email-address"
-          value={email}
-          onChangeText={setEmail}
-          error={emailError}
-          placeholder="you@email.com"
-        />
-        <Spacer size="md" />
-        <Input
-          label="Password"
-          secureTextEntry
-          autoComplete="password"
-          value={password}
-          onChangeText={setPassword}
-          error={passwordError}
-          placeholder="••••••••"
-        />
+        <View style={styles.form}>
+          <Input
+            label="Email"
+            autoCapitalize="none"
+            autoComplete="email"
+            keyboardType="email-address"
+            value={email}
+            onChangeText={setEmail}
+            error={emailError}
+            placeholder="you@email.com"
+            returnKeyType="next"
+          />
+          <Spacer size="md" />
+          <Input
+            label="Password"
+            secureTextEntry
+            autoComplete="password"
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Any password for now"
+            returnKeyType="done"
+            onSubmitEditing={handleLogin}
+          />
+        </View>
       </View>
 
       <View style={styles.actions}>
@@ -71,6 +74,12 @@ export function LoginScreen({ navigation, onAuthenticated }: Props) {
           variant="ghost"
           onPress={() => navigation.navigate('Register')}
         />
+        <Spacer size="xs" />
+        <Button
+          label="Continue without account"
+          variant="secondary"
+          onPress={onAuthenticated}
+        />
       </View>
     </Screen>
   );
@@ -78,16 +87,18 @@ export function LoginScreen({ navigation, onAuthenticated }: Props) {
 
 const styles = StyleSheet.create({
   content: {
-    flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    paddingBottom: spacing.xl,
   },
   header: {
     marginBottom: spacing.xxl,
+    marginTop: spacing.xl,
   },
   form: {
     marginBottom: spacing.xl,
   },
   actions: {
-    marginTop: spacing.md,
+    marginTop: spacing.lg,
+    gap: spacing.xxs,
   },
 });
