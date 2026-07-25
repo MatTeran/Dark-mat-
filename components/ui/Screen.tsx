@@ -1,7 +1,8 @@
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, ReactElement } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
+  RefreshControlProps,
   ScrollView,
   StyleSheet,
   View,
@@ -17,6 +18,7 @@ export interface ScreenProps extends PropsWithChildren {
   keyboard?: boolean;
   style?: ViewStyle;
   contentStyle?: ViewStyle;
+  refreshControl?: ReactElement<RefreshControlProps>;
 }
 
 /**
@@ -30,6 +32,7 @@ export function Screen({
   keyboard = false,
   style,
   contentStyle,
+  refreshControl,
 }: ScreenProps) {
   const insets = useSafeAreaInsets();
   const safePadding = {
@@ -45,6 +48,7 @@ export function Screen({
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode="on-drag"
       showsVerticalScrollIndicator={false}
+      refreshControl={refreshControl}
     >
       {children}
     </ScrollView>

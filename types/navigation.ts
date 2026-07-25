@@ -12,6 +12,11 @@ export type WorkoutStackParamList = {
   WorkoutDetails: { workoutId?: string } | undefined;
 };
 
+export type HomeStackParamList = {
+  HomeMain: undefined;
+  Journey: undefined;
+};
+
 export type CommunityStackParamList = {
   CommunityHome: undefined;
   AnnouncementDetail: { announcementId: string };
@@ -30,7 +35,7 @@ export type ProfileStackParamList = {
 };
 
 export type MainTabParamList = {
-  Home: undefined;
+  Home: NavigatorScreenParams<HomeStackParamList> | undefined;
   Schedule: undefined;
   Community: NavigatorScreenParams<CommunityStackParamList> | undefined;
   WorkoutLog: NavigatorScreenParams<WorkoutStackParamList> | undefined;

@@ -2,12 +2,13 @@ import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import { TabBarIcon } from '../components';
-import { HomeScreen, ScheduleScreen } from '../screens';
+import { ScheduleScreen } from '../screens';
 import { colors, fontFamilies } from '../lib/theme';
 import {
   CommunityNavigator,
   shouldHideCommunityTabBar,
 } from './CommunityNavigator';
+import { HomeNavigator, shouldHideHomeTabBar } from './HomeNavigator';
 import {
   ProfileNavigator,
   shouldHideProfileTabBar,
@@ -42,12 +43,15 @@ export function MainTabNavigator() {
     >
       <Tab.Screen
         name="Home"
-        component={HomeScreen}
-        options={{
+        component={HomeNavigator}
+        options={({ route }) => ({
+          tabBarStyle: shouldHideHomeTabBar(route)
+            ? { display: 'none' }
+            : tabBarStyle,
           tabBarIcon: ({ focused }) => (
             <TabBarIcon name={focused ? 'home' : 'home-outline'} focused={focused} />
           ),
-        }}
+        })}
       />
       <Tab.Screen
         name="Schedule"

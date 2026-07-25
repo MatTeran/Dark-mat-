@@ -13,6 +13,25 @@ export type {
   UpcomingEvent,
 } from './home';
 export type {
+  AchievementBadge,
+  BadgeCategory,
+  BadgeRarity,
+  BadgeRequirementType,
+  Challenge,
+  ChallengePeriod,
+  ChallengeProgress,
+  ChallengeStatus,
+  ChallengeType,
+  LevelProgress,
+  RecentAchievement,
+  TrainingDayStatus,
+  TrainingStreak,
+  UserGamificationProfile,
+  XPActivity,
+  XPActivityType,
+  XPRewardConfig,
+} from './journey';
+export type {
   Announcement,
   AnnouncementComment,
   ChatMessage,
@@ -23,6 +42,7 @@ export type {
 export type {
   AuthStackParamList,
   CommunityStackParamList,
+  HomeStackParamList,
   MainTabParamList,
   ProfileStackParamList,
   RootStackParamList,

@@ -36,10 +36,10 @@ export const QUICK_ACTIONS: QuickAction[] = [
     icon: 'checkmark-circle-outline',
   },
   {
-    id: 'profile',
-    label: 'Profile',
-    subtitle: 'Account',
-    icon: 'person-outline',
+    id: 'journey',
+    label: 'Journey',
+    subtitle: 'Progress',
+    icon: 'map-outline',
   },
 ];
 

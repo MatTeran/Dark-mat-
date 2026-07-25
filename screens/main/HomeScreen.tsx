@@ -1,10 +1,15 @@
-import { useNavigation } from '@react-navigation/native';
+import {
+  CompositeNavigationProp,
+  useNavigation,
+} from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import {
   Banner,
+  Card,
   FadeIn,
   LatestAnnouncementCard,
   NextClassCard,
@@ -17,16 +22,26 @@ import {
 import { useAuth } from '../../hooks';
 import { QUICK_ACTIONS, UPCOMING_EVENTS } from '../../lib/mocks/home';
 import { useCommunity } from '../../lib/providers/CommunityProvider';
-import { spacing } from '../../lib/theme';
-import type { MainTabParamList } from '../../types';
+import { useJourney } from '../../lib/providers/JourneyProvider';
+import { colors, radii, spacing } from '../../lib/theme';
+import type { HomeStackParamList, MainTabParamList } from '../../types';
 import type { QuickActionId } from '../../types/home';
-import { getFirstName, getGreeting, toNextClassCardModel } from '../../utils';
+import {
+  formatXp,
+  getFirstName,
+  getGreeting,
+  toNextClassCardModel,
+} from '../../utils';
 
-type HomeNavigation = BottomTabNavigationProp<MainTabParamList, 'Home'>;
+type HomeNavigation = CompositeNavigationProp<
+  NativeStackNavigationProp<HomeStackParamList, 'HomeMain'>,
+  BottomTabNavigationProp<MainTabParamList>
+>;
 
 export function HomeScreen() {
   const { user } = useAuth();
   const { announcements } = useCommunity();
+  const { profile } = useJourney();
   const navigation = useNavigation<HomeNavigation>();
   const [checkInMessage, setCheckInMessage] = useState<string | null>(null);
   const nextClass = useMemo(() => toNextClassCardModel(), []);
@@ -47,8 +62,8 @@ export function HomeScreen() {
       case 'logWorkout':
         navigation.navigate('WorkoutLog');
         break;
-      case 'profile':
-        navigation.navigate('Profile');
+      case 'journey':
+        navigation.navigate('Journey');
         break;
       case 'checkIn':
         setCheckInMessage(
@@ -98,6 +113,29 @@ export function HomeScreen() {
         </>
       ) : null}
 
+      <Spacer size="xl" />
+
+      <FadeIn delay={140}>
+        <Card onPress={() => navigation.navigate('Journey')}>
+          <Text variant="caption" gold>
+            Progress
+          </Text>
+          <Spacer size="xs" />
+          <Text variant="subtitle">Journey</Text>
+          <Spacer size="xs" />
+          <Text variant="bodyMuted">
+            Level {profile.level} · {formatXp(profile.currentLevelXP)} /{' '}
+            {formatXp(profile.nextLevelXP)} XP
+          </Text>
+          <Spacer size="sm" />
+          <View style={styles.journeyPill}>
+            <Text variant="caption" style={styles.journeyPillText}>
+              Open Journey
+            </Text>
+          </View>
+        </Card>
+      </FadeIn>
+
       {checkInMessage ? (
         <>
           <Spacer size="md" />
@@ -126,6 +164,16 @@ export function HomeScreen() {
 
 const styles = StyleSheet.create({
   content: {},
+  journeyPill: {
+    alignSelf: 'flex-start',
+    borderRadius: radii.pill,
+    backgroundColor: colors.goldMuted,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+  },
+  journeyPillText: {
+    color: colors.goldAccent,
+  },
   bottomSpace: {
     height: spacing.lg,
   },

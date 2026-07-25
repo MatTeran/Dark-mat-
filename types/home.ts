@@ -21,11 +21,19 @@ export interface UpcomingEvent {
   meta: string;
 }
 
-export type QuickActionId = 'schedule' | 'logWorkout' | 'checkIn' | 'profile';
+export type QuickActionId =
+  | 'schedule'
+  | 'logWorkout'
+  | 'checkIn'
+  | 'journey';
 
 export interface QuickAction {
   id: QuickActionId;
   label: string;
   subtitle: string;
-  icon: 'calendar-outline' | 'barbell-outline' | 'checkmark-circle-outline' | 'person-outline';
+  icon:
+    | 'calendar-outline'
+    | 'barbell-outline'
+    | 'checkmark-circle-outline'
+    | 'map-outline';
 }

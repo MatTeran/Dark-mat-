@@ -148,6 +148,15 @@ export function ProfileHomeScreen({ navigation }: Props) {
       <FadeIn delay={100}>
         <ProfileMenuGroup>
           <ProfileMenuRow
+            icon="map-outline"
+            label="Journey"
+            value="XP, streaks & badges"
+            onPress={() =>
+              navigation.getParent()?.navigate('Home', { screen: 'Journey' })
+            }
+            showDivider
+          />
+          <ProfileMenuRow
             icon="card-outline"
             label="Membership"
             value={membershipLabel}

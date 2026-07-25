@@ -8,6 +8,7 @@ export {
   CommunityProvider,
   useCommunity,
 } from './providers/CommunityProvider';
+export { JourneyProvider, useJourney } from './providers/JourneyProvider';
 export { ProfileProvider, useProfile } from './providers/ProfileProvider';
 export { WorkoutProvider, useWorkouts } from './providers/WorkoutProvider';
 
