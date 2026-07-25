@@ -8,7 +8,7 @@ import {
   Spacer,
   Text,
 } from '../../components';
-import { ACADEMY } from '../../lib/constants';
+import { APP_NAME } from '../../lib/constants';
 import { colors, spacing } from '../../lib/theme';
 import type { Weekday } from '../../types/schedule';
 import {
@@ -32,7 +32,7 @@ export function ScheduleScreen() {
       <Text variant="hero">Schedule</Text>
       <Spacer size="sm" />
       <Text variant="bodyMuted">
-        {ACADEMY.name} · {ACADEMY.city}
+        {APP_NAME} · Tracy, California
       </Text>
 
       <Spacer size="lg" />
