@@ -37,7 +37,7 @@ export { WeeklyCalendar } from './schedule/WeeklyCalendar';
 export { Banner } from './ui/Banner';
 export type { BannerProps } from './ui/Banner';
 export { Button } from './ui/Button';
-export type { ButtonProps } from './ui/Button';
+export type { ButtonProps, ButtonVariant } from './ui/Button';
 export { Card } from './ui/Card';
 export type { CardProps } from './ui/Card';
 export { Input } from './ui/Input';
