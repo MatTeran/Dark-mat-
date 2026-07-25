@@ -44,7 +44,30 @@ cp .env.example .env
 npm start
 ```
 
-Fill `.env` with your Supabase and Stripe keys before enabling live auth/payments.
+### Supabase auth setup
+
+1. Create a project at [supabase.com](https://supabase.com)
+2. Copy **Project URL** and **anon public** key into `.env`:
+
+```bash
+EXPO_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...
+```
+
+3. In Supabase → **Authentication → URL Configuration**, add redirect URLs:
+   - `darkmat://`
+   - `darkmat://auth/reset`
+   - Expo Go URLs as needed for local testing
+4. Restart Expo after changing `.env` (`npx expo start --clear`)
+
+Auth features included:
+
+- Email/password **Login** and **Register**
+- **Forgot Password** reset email
+- Form validation, loading states, inline errors
+- **Persistent sessions** via AsyncStorage
+- Auto-route to **Home** after login
+- Sign out from **Profile**
 
 ## Scripts
 
@@ -54,7 +77,5 @@ Fill `.env` with your Supabase and Stripe keys before enabling live auth/payment
 
 ## Navigation map
 
-1. **Auth stack** — Splash → Login / Register
+1. **Auth stack** — Splash → Login / Register / Forgot Password
 2. **Main tabs** — Home · Schedule · Workout Log · Profile
-
-Auth is currently a local placeholder gate so UI can be developed without backend credentials.
