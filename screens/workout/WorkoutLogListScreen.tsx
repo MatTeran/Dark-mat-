@@ -1,22 +1,55 @@
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import type { CompositeNavigationProp } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import {
   FadeIn,
   FloatingActionButton,
+  LogSegmentControl,
+  ProgressInsightCard,
   Screen,
   Spacer,
+  StreaksMiniCard,
   Text,
+  TrainingLogMiniCard,
   WorkoutCard,
+  WorkoutProgressCard,
 } from '../../components';
 import { useWorkouts } from '../../lib/providers/WorkoutProvider';
 import { spacing } from '../../lib/theme';
-import type { WorkoutStackParamList } from '../../types/navigation';
+import type { MainTabParamList, WorkoutStackParamList } from '../../types';
+import type {
+  LogTabSegment,
+  WorkoutMetricFilter,
+} from '../../types/workoutMetrics';
+import { buildWorkoutProgressMetrics } from '../../utils/workoutMetrics';
 
 type Props = NativeStackScreenProps<WorkoutStackParamList, 'WorkoutList'>;
+type LogNavigation = CompositeNavigationProp<
+  Props['navigation'],
+  BottomTabNavigationProp<MainTabParamList>
+>;
 
 export function WorkoutLogListScreen({ navigation }: Props) {
+  const tabNavigation = navigation as LogNavigation;
   const { workouts } = useWorkouts();
+  const [segment, setSegment] = useState<LogTabSegment>('progress');
+  const [filter, setFilter] = useState<WorkoutMetricFilter>('all');
+
+  const metrics = useMemo(
+    () => buildWorkoutProgressMetrics(workouts, filter),
+    [workouts, filter],
+  );
+
+  const openJourney = () => {
+    tabNavigation.navigate('Home', { screen: 'Journey' });
+  };
+
+  const openSessions = () => {
+    setSegment('sessions');
+  };
 
   return (
     <View style={styles.root}>
@@ -25,13 +58,46 @@ export function WorkoutLogListScreen({ navigation }: Props) {
           <Text variant="hero">Workout Log</Text>
           <Spacer size="sm" />
           <Text variant="bodyMuted">
-            Every round. Every detail. Your mat history.
+            Track mat time, rounds, and every session.
           </Text>
         </FadeIn>
 
-        <Spacer size="xl" />
+        <Spacer size="lg" />
+        <LogSegmentControl value={segment} onChange={setSegment} />
+        <Spacer size="lg" />
 
-        {workouts.length === 0 ? (
+        {segment === 'progress' ? (
+          <FadeIn delay={40}>
+            <WorkoutProgressCard
+              metrics={metrics}
+              filter={filter}
+              onFilterChange={setFilter}
+              onSeeMore={openJourney}
+            />
+
+            <Spacer size="md" />
+            <View style={styles.miniRow}>
+              <View style={styles.miniCol}>
+                <StreaksMiniCard
+                  weeklyStreak={metrics.weeklyStreak}
+                  onPress={openJourney}
+                />
+              </View>
+              <View style={styles.miniCol}>
+                <TrainingLogMiniCard
+                  thisWeekDays={metrics.thisWeekDays}
+                  lastWeekDays={metrics.lastWeekDays}
+                  onPress={openSessions}
+                />
+              </View>
+            </View>
+
+            <Spacer size="md" />
+            <ProgressInsightCard
+              sessionsToInsight={metrics.sessionsToInsight}
+            />
+          </FadeIn>
+        ) : workouts.length === 0 ? (
           <FadeIn delay={80}>
             <View style={styles.empty}>
               <Text variant="subtitle" gold>
@@ -75,6 +141,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {},
+  miniRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  miniCol: {
+    flex: 1,
+  },
   list: {
     gap: spacing.md,
   },

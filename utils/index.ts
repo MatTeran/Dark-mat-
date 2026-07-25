@@ -5,3 +5,4 @@ export * from './journey';
 export * from './profilePhoto';
 export * from './schedule';
 export * from './validation';
+export * from './workoutMetrics';

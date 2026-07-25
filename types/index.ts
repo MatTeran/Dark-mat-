@@ -83,4 +83,12 @@ export type {
   WorkoutDraft,
   WorkoutMood,
 } from './workout';
+export type {
+  LogTabSegment,
+  WeekDayDot,
+  WeeklyMetricPoint,
+  WorkoutMetricFilter,
+  WorkoutProgressMetrics,
+  WorkoutWeekSummary,
+} from './workoutMetrics';
 
