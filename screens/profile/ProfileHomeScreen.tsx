@@ -42,7 +42,7 @@ function getInitials(fullName: string | null | undefined): string {
 
 export function ProfileHomeScreen({ navigation }: Props) {
   const { colors } = useAppTheme();
-  const { user, signOut } = useAuth();
+  const { user, signOut, isGuest } = useAuth();
   const {
     hub,
     membershipLabel,
@@ -135,6 +135,14 @@ export function ProfileHomeScreen({ navigation }: Props) {
             <Text variant="caption" numberOfLines={1}>
               {user?.email}
             </Text>
+            {isGuest ? (
+              <>
+                <Spacer size="xs" />
+                <Text variant="caption" gold>
+                  Guest demo mode
+                </Text>
+              </>
+            ) : null}
             <Spacer size="sm" />
             <BeltBadge
               belt={hub.beltProgress.belt}

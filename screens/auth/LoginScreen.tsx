@@ -2,7 +2,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { AuthScreen, Banner, Button, Input, Spacer } from '../../components';
+import { AuthScreen, Banner, Button, Input, Spacer, Text } from '../../components';
 import { useAuth } from '../../hooks';
 import { APP_NAME } from '../../lib/constants';
 import { spacing } from '../../lib/theme';
@@ -12,15 +12,17 @@ import { getAuthErrorMessage, getEmailError, getPasswordError } from '../../util
 type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
 export function LoginScreen({ navigation }: Props) {
-  const { signIn, isConfigured } = useAuth();
+  const { signIn, continueAsGuest, isConfigured } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [guestLoading, setGuestLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   const emailError = submitted ? getEmailError(email) : null;
   const passwordError = submitted ? getPasswordError(password) : null;
+  const busy = loading || guestLoading;
 
   const handleLogin = async () => {
     setSubmitted(true);
@@ -34,7 +36,7 @@ export function LoginScreen({ navigation }: Props) {
 
     if (!isConfigured) {
       setFormError(
-        'Supabase is not configured. Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY to .env.',
+        'Supabase is not configured. Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY to .env, or continue as guest.',
       );
       return;
     }
@@ -42,11 +44,22 @@ export function LoginScreen({ navigation }: Props) {
     setLoading(true);
     try {
       await signIn({ email, password });
-      // RootNavigator switches to Home when session becomes authenticated.
     } catch (error) {
       setFormError(getAuthErrorMessage(error));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGuest = async () => {
+    setFormError(null);
+    setGuestLoading(true);
+    try {
+      await continueAsGuest();
+    } catch (error) {
+      setFormError(getAuthErrorMessage(error));
+    } finally {
+      setGuestLoading(false);
     }
   };
 
@@ -57,18 +70,33 @@ export function LoginScreen({ navigation }: Props) {
       brand
       footer={
         <View>
-          <Button label="Sign In" loading={loading} onPress={handleLogin} />
+          <Button label="Sign In" loading={loading} disabled={busy} onPress={handleLogin} />
+          <Spacer size="sm" />
+          <Button
+            label="Continue as Guest"
+            variant="secondary"
+            loading={guestLoading}
+            disabled={busy}
+            onPress={() => {
+              void handleGuest();
+            }}
+            accessibilityHint="Opens Dark Mat in demo mode without an account"
+          />
+          <Spacer size="xs" />
+          <Text variant="caption" style={styles.guestHint}>
+            Demo only — explores the app with sample data.
+          </Text>
           <Spacer size="sm" />
           <Button
             label="Forgot password?"
             variant="ghost"
-            disabled={loading}
+            disabled={busy}
             onPress={() => navigation.navigate('ForgotPassword')}
           />
           <Button
             label="Create account"
             variant="ghost"
-            disabled={loading}
+            disabled={busy}
             onPress={() => navigation.navigate('Register')}
           />
         </View>
@@ -78,7 +106,7 @@ export function LoginScreen({ navigation }: Props) {
         <>
           <Banner
             tone="info"
-            message="Connect Supabase via .env to enable live authentication."
+            message="Connect Supabase via .env for live auth, or continue as guest for a demo."
           />
           <Spacer size="md" />
         </>
@@ -102,7 +130,7 @@ export function LoginScreen({ navigation }: Props) {
           onChangeText={setEmail}
           error={emailError}
           placeholder="you@email.com"
-          editable={!loading}
+          editable={!busy}
           returnKeyType="next"
         />
         <Spacer size="md" />
@@ -115,7 +143,7 @@ export function LoginScreen({ navigation }: Props) {
           onChangeText={setPassword}
           error={passwordError}
           placeholder="••••••••"
-          editable={!loading}
+          editable={!busy}
           returnKeyType="done"
           onSubmitEditing={handleLogin}
         />
@@ -127,5 +155,8 @@ export function LoginScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   form: {
     marginBottom: spacing.md,
+  },
+  guestHint: {
+    textAlign: 'center',
   },
 });
