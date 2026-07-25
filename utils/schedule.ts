@@ -1,6 +1,12 @@
 import { WEEKDAYS, WEEKLY_SCHEDULE } from '../lib/data/schedule';
 import type { NextClass } from '../types/home';
-import type { ScheduleClass, Weekday } from '../types/schedule';
+import type {
+  ClassLevel,
+  GiType,
+  ScheduleClass,
+  ScheduleFilter,
+  Weekday,
+} from '../types/schedule';
 
 const WEEKDAY_BY_JS_DAY: Weekday[] = [
   'sun',
@@ -40,9 +46,45 @@ export function formatClock(time: string): string {
   return `${hour12}:${String(minuteRaw).padStart(2, '0')} ${period}`;
 }
 
-export function getClassesForDay(day: Weekday): ScheduleClass[] {
-  return WEEKLY_SCHEDULE.filter((item) => item.day === day).sort(
+export function formatGiType(giType: GiType): string {
+  return giType === 'gi' ? 'Gi' : 'No-Gi';
+}
+
+export function getClassesForDay(
+  day: Weekday,
+  filter: ScheduleFilter = 'all',
+): ScheduleClass[] {
+  return WEEKLY_SCHEDULE.filter((item) => {
+    if (item.day !== day) {
+      return false;
+    }
+    if (filter === 'all') {
+      return true;
+    }
+    return item.level === filter;
+  }).sort(
     (a, b) => parseTimeToMinutes(a.startTime) - parseTimeToMinutes(b.startTime),
+  );
+}
+
+/** Dates for the week containing `anchor` (Mon–Sun). */
+export function getWeekDates(anchor = new Date()): Record<Weekday, Date> {
+  const date = new Date(anchor);
+  date.setHours(12, 0, 0, 0);
+  const jsDay = date.getDay();
+  const mondayOffset = jsDay === 0 ? -6 : 1 - jsDay;
+
+  const monday = new Date(date);
+  monday.setDate(date.getDate() + mondayOffset);
+
+  return WEEKDAYS.reduce(
+    (acc, day, index) => {
+      const value = new Date(monday);
+      value.setDate(monday.getDate() + index);
+      acc[day.key] = value;
+      return acc;
+    },
+    {} as Record<Weekday, Date>,
   );
 }
 
@@ -55,20 +97,17 @@ function buildOccurrenceDate(from: Date, dayOffset: number, time: string): Date 
   return date;
 }
 
-/**
- * Next upcoming class from the weekly board, looking up to 7 days ahead.
- */
 export function getNextScheduledClass(now = new Date()): {
   classItem: ScheduleClass;
   startsAt: Date;
 } | null {
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  const todayIndex = now.getDay(); // 0 Sun
+  const todayIndex = now.getDay();
 
   for (let offset = 0; offset < 7; offset += 1) {
     const jsDay = (todayIndex + offset) % 7;
     const weekday = WEEKDAY_BY_JS_DAY[jsDay];
-    const classes = getClassesForDay(weekday);
+    const classes = getClassesForDay(weekday, 'all');
 
     for (const classItem of classes) {
       const startMinutes = parseTimeToMinutes(classItem.startTime);
@@ -95,12 +134,22 @@ export function toNextClassCardModel(now = new Date()): NextClass | null {
   return {
     id: next.classItem.id,
     title: next.classItem.title,
-    coach: next.classItem.notes ?? 'Open Mat Academy',
+    coach: next.classItem.instructor,
     startsAt: next.startsAt.toISOString(),
-    room: 'Tracy · Naglee Rd',
+    room: `${formatGiType(next.classItem.giType)} · Tracy`,
     durationMinutes: durationMinutes(
       next.classItem.startTime,
       next.classItem.endTime,
     ),
   };
+}
+
+export function isClassLevel(value: string): value is ClassLevel {
+  return (
+    value === 'kids' ||
+    value === 'fundamentals' ||
+    value === 'advanced' ||
+    value === 'competition' ||
+    value === 'open_mat'
+  );
 }

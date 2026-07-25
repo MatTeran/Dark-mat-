@@ -7,18 +7,17 @@ export type Weekday =
   | 'sat'
   | 'sun';
 
-export type Discipline =
-  | 'adult_bjj'
-  | 'youth_bjj'
-  | 'pee_wee_bjj'
-  | 'womens_bjj'
-  | 'boxing'
-  | 'muay_thai'
-  | 'wrestling'
-  | 'peak_performance'
-  | 'tae_kwon_do'
-  | 'open_mat'
-  | 'open_gym';
+export type GiType = 'gi' | 'no_gi';
+
+/** Filterable class tracks on the Schedule screen */
+export type ClassLevel =
+  | 'kids'
+  | 'fundamentals'
+  | 'advanced'
+  | 'competition'
+  | 'open_mat';
+
+export type ScheduleFilter = ClassLevel | 'all';
 
 export interface ScheduleClass {
   id: string;
@@ -26,6 +25,8 @@ export interface ScheduleClass {
   title: string;
   startTime: string; // HH:mm 24h
   endTime: string; // HH:mm 24h
-  discipline: Discipline;
-  notes?: string;
+  instructor: string;
+  giType: GiType;
+  level: ClassLevel;
+  spotsLeft?: number;
 }

@@ -17,5 +17,11 @@ export type {
   MainTabParamList,
   RootStackParamList,
 } from './navigation';
-export type { Discipline, ScheduleClass, Weekday } from './schedule';
+export type {
+  ClassLevel,
+  GiType,
+  ScheduleClass,
+  ScheduleFilter,
+  Weekday,
+} from './schedule';
 export type { BeltRank, UserProfile } from './user';

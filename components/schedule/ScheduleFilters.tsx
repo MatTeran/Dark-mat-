@@ -1,35 +1,35 @@
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet } from 'react-native';
 
-import { WEEKDAYS } from '../../lib/data/schedule';
+import { SCHEDULE_FILTERS } from '../../lib/data/schedule';
 import { colors, radii, spacing } from '../../lib/theme';
-import type { Weekday } from '../../types/schedule';
+import type { ScheduleFilter } from '../../types/schedule';
 import { Text } from '../ui/Text';
 
-interface DayPickerProps {
-  selected: Weekday;
-  onSelect: (day: Weekday) => void;
+interface ScheduleFiltersProps {
+  selected: ScheduleFilter;
+  onSelect: (filter: ScheduleFilter) => void;
 }
 
-export function DayPicker({ selected, onSelect }: DayPickerProps) {
+export function ScheduleFilters({ selected, onSelect }: ScheduleFiltersProps) {
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.row}
     >
-      {WEEKDAYS.map((day) => {
-        const active = day.key === selected;
+      {SCHEDULE_FILTERS.map((filter) => {
+        const active = filter.key === selected;
         return (
           <Pressable
-            key={day.key}
-            onPress={() => onSelect(day.key)}
+            key={filter.key}
+            onPress={() => onSelect(filter.key)}
             style={[styles.chip, active && styles.chipActive]}
           >
             <Text
               variant="caption"
               style={[styles.label, active && styles.labelActive]}
             >
-              {day.short}
+              {filter.label}
             </Text>
           </Pressable>
         );
@@ -44,8 +44,7 @@ const styles = StyleSheet.create({
     paddingRight: spacing.md,
   },
   chip: {
-    minWidth: 52,
-    height: 40,
+    height: 36,
     borderRadius: radii.pill,
     alignItems: 'center',
     justifyContent: 'center',
@@ -60,7 +59,7 @@ const styles = StyleSheet.create({
   },
   label: {
     color: colors.secondaryText,
-    letterSpacing: 0.4,
+    letterSpacing: 0.3,
   },
   labelActive: {
     color: colors.goldAccent,

@@ -2,15 +2,17 @@ import { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import {
-  ClassRow,
-  DayPicker,
+  Banner,
+  ClassCard,
+  ScheduleFilters,
   Screen,
   Spacer,
   Text,
+  WeeklyCalendar,
 } from '../../components';
 import { APP_NAME } from '../../lib/constants';
-import { colors, spacing } from '../../lib/theme';
-import type { Weekday } from '../../types/schedule';
+import { spacing } from '../../lib/theme';
+import type { ScheduleFilter, Weekday } from '../../types/schedule';
 import {
   getClassesForDay,
   getWeekdayFromDate,
@@ -21,11 +23,31 @@ export function ScheduleScreen() {
   const [selectedDay, setSelectedDay] = useState<Weekday>(() =>
     getWeekdayFromDate(new Date()),
   );
+  const [filter, setFilter] = useState<ScheduleFilter>('all');
+  const [reservedIds, setReservedIds] = useState<string[]>([]);
+  const [reservingId, setReservingId] = useState<string | null>(null);
+  const [banner, setBanner] = useState<string | null>(null);
 
   const classes = useMemo(
-    () => getClassesForDay(selectedDay),
-    [selectedDay],
+    () => getClassesForDay(selectedDay, filter),
+    [filter, selectedDay],
   );
+
+  const handleReserve = (classId: string, title: string) => {
+    if (reservedIds.includes(classId)) {
+      return;
+    }
+
+    setReservingId(classId);
+    setBanner(null);
+
+    // Mock reservation latency
+    setTimeout(() => {
+      setReservedIds((current) => [...current, classId]);
+      setReservingId(null);
+      setBanner(`Reserved · ${title}`);
+    }, 450);
+  };
 
   return (
     <Screen scroll contentStyle={styles.content}>
@@ -37,7 +59,13 @@ export function ScheduleScreen() {
 
       <Spacer size="lg" />
 
-      <DayPicker selected={selectedDay} onSelect={setSelectedDay} />
+      <WeeklyCalendar selected={selectedDay} onSelect={setSelectedDay} />
+
+      <Spacer size="lg" />
+
+      <Text variant="label">Filter</Text>
+      <Spacer size="sm" />
+      <ScheduleFilters selected={filter} onSelect={setFilter} />
 
       <Spacer size="lg" />
 
@@ -47,26 +75,34 @@ export function ScheduleScreen() {
         {classes.length} class{classes.length === 1 ? '' : 'es'}
       </Text>
 
+      {banner ? (
+        <>
+          <Spacer size="md" />
+          <Banner tone="success" message={banner} />
+        </>
+      ) : null}
+
       <Spacer size="md" />
 
       {classes.length === 0 ? (
         <View style={styles.empty}>
-          <Text variant="bodyMuted">No classes on this day.</Text>
+          <Text variant="bodyMuted">
+            No classes match this filter for {getWeekdayLabel(selectedDay)}.
+          </Text>
         </View>
       ) : (
         <View style={styles.list}>
           {classes.map((item) => (
-            <ClassRow key={item.id} item={item} />
+            <ClassCard
+              key={item.id}
+              item={item}
+              reserved={reservedIds.includes(item.id)}
+              reserving={reservingId === item.id}
+              onReserve={() => handleReserve(item.id, item.title)}
+            />
           ))}
         </View>
       )}
-
-      <Spacer size="xl" />
-
-      <Text variant="caption" style={styles.footnote}>
-        Morning GI “Roll Call” classes require registration on the Band App.
-        Boxing open hours: 10:00 AM – 8:30 PM (except during class times).
-      </Text>
 
       <View style={styles.bottomSpace} />
     </Screen>
@@ -80,10 +116,6 @@ const styles = StyleSheet.create({
   },
   empty: {
     paddingVertical: spacing.xl,
-  },
-  footnote: {
-    color: colors.secondaryText,
-    lineHeight: 18,
   },
   bottomSpace: {
     height: spacing.lg,
