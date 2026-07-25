@@ -9,18 +9,13 @@ import {
   LatestAnnouncementCard,
   NextClassCard,
   QuickActions,
-  RecentActivity,
   Screen,
   Spacer,
   Text,
   UpcomingEvents,
 } from '../../components';
 import { useAuth } from '../../hooks';
-import {
-  QUICK_ACTIONS,
-  RECENT_ACTIVITY,
-  UPCOMING_EVENTS,
-} from '../../lib/mocks/home';
+import { QUICK_ACTIONS, UPCOMING_EVENTS } from '../../lib/mocks/home';
 import { useCommunity } from '../../lib/providers/CommunityProvider';
 import { spacing } from '../../lib/theme';
 import type { MainTabParamList } from '../../types';
@@ -121,12 +116,6 @@ export function HomeScreen() {
       <Spacer size="xl" />
 
       <FadeIn delay={240}>
-        <RecentActivity items={RECENT_ACTIVITY} />
-      </FadeIn>
-
-      <Spacer size="xl" />
-
-      <FadeIn delay={320}>
         <UpcomingEvents events={UPCOMING_EVENTS} />
       </FadeIn>
 
