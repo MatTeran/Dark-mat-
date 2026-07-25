@@ -234,7 +234,7 @@ export function ProfileHomeScreen({ navigation }: Props) {
             }}
           />
           <ProfileActionButton
-            label="Edit profile"
+            label="Edit"
             icon="create-outline"
             variant="filled"
             onPress={() => navigation.navigate('Settings')}
@@ -397,7 +397,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   actions: {
+    width: '100%',
     flexDirection: 'row',
+    alignItems: 'stretch',
     gap: spacing.sm,
   },
   tiles: {
