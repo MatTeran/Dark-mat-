@@ -1,9 +1,9 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, View } from 'react-native';
+import { Animated, Easing, Image, StyleSheet, View } from 'react-native';
 
 import { Text } from '../../components';
-import { APP_NAME, APP_TAGLINE, AUTH_SPLASH_DURATION_MS } from '../../lib/constants';
+import { APP_TAGLINE, AUTH_SPLASH_DURATION_MS } from '../../lib/constants';
 import { colors, spacing } from '../../lib/theme';
 import type { AuthStackParamList } from '../../types';
 
@@ -15,7 +15,6 @@ type Props = NativeStackScreenProps<AuthStackParamList, 'Splash'>;
 export function SplashScreen({ navigation }: Props) {
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(12)).current;
-  const lineWidth = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.parallel([
@@ -31,13 +30,6 @@ export function SplashScreen({ navigation }: Props) {
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }),
-      Animated.timing(lineWidth, {
-        toValue: 72,
-        duration: 600,
-        delay: 280,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: false,
-      }),
     ]).start();
 
     const timer = setTimeout(() => {
@@ -45,7 +37,7 @@ export function SplashScreen({ navigation }: Props) {
     }, AUTH_SPLASH_DURATION_MS);
 
     return () => clearTimeout(timer);
-  }, [lineWidth, navigation, opacity, translateY]);
+  }, [navigation, opacity, translateY]);
 
   return (
     <View style={styles.container}>
@@ -58,10 +50,12 @@ export function SplashScreen({ navigation }: Props) {
           },
         ]}
       >
-        <Text variant="brand" gold style={styles.brand}>
-          {APP_NAME.toUpperCase()}
-        </Text>
-        <Animated.View style={[styles.accent, { width: lineWidth }]} />
+        <Image
+          source={require('../../assets/brand-logo.png')}
+          style={styles.logo}
+          resizeMode="contain"
+          accessibilityLabel="Dark Mat"
+        />
         <Text variant="bodyMuted" style={styles.tagline}>
           {APP_TAGLINE}
         </Text>
@@ -81,13 +75,9 @@ const styles = StyleSheet.create({
   content: {
     alignItems: 'center',
   },
-  brand: {
-    textAlign: 'center',
-  },
-  accent: {
-    height: 2,
-    backgroundColor: colors.goldAccent,
-    marginTop: spacing.md,
+  logo: {
+    width: 220,
+    height: 220,
     marginBottom: spacing.md,
   },
   tagline: {
