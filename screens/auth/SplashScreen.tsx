@@ -10,8 +10,7 @@ import type { AuthStackParamList } from '../../types';
 type Props = NativeStackScreenProps<AuthStackParamList, 'Splash'>;
 
 /**
- * Branded launch moment — mark is the hero, then soft transition to auth.
- * Uses RN Animated (not Reanimated) for Expo Go stability.
+ * Branded launch moment — then soft transition into Login.
  */
 export function SplashScreen({ navigation }: Props) {
   const opacity = useRef(new Animated.Value(0)).current;

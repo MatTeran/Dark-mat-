@@ -2,6 +2,7 @@ export type {
   AuthCredentials,
   AuthSession,
   AuthStatus,
+  AuthUser,
   RegisterPayload,
 } from './auth';
 export type {

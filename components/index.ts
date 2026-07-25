@@ -1,4 +1,7 @@
+export { AuthScreen } from './auth/AuthScreen';
 export { TabBarIcon } from './layout/TabBarIcon';
+export { Banner } from './ui/Banner';
+export type { BannerProps } from './ui/Banner';
 export { Button } from './ui/Button';
 export type { ButtonProps } from './ui/Button';
 export { Input } from './ui/Input';

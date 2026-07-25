@@ -15,3 +15,9 @@ export interface AuthSession {
   userId: string;
   expiresAt: number;
 }
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  fullName: string | null;
+}

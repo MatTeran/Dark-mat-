@@ -1,17 +1,21 @@
 import { StyleSheet, View } from 'react-native';
 
 import { Screen, Spacer, Text } from '../../components';
+import { useAuth } from '../../hooks';
 import { ACADEMY } from '../../lib/constants';
 import { colors, radii, spacing } from '../../lib/theme';
 
 export function HomeScreen() {
+  const { user } = useAuth();
+  const firstName = user?.fullName?.split(' ')[0] ?? 'Athlete';
+
   return (
     <Screen>
       <Text variant="label" gold>
         Today
       </Text>
       <Spacer size="xs" />
-      <Text variant="hero">Ready for the mat.</Text>
+      <Text variant="hero">Welcome back, {firstName}.</Text>
       <Spacer size="sm" />
       <Text variant="bodyMuted">
         {ACADEMY.name} · {ACADEMY.discipline}

@@ -1,3 +1,4 @@
+export { ForgotPasswordScreen } from './auth/ForgotPasswordScreen';
 export { LoginScreen } from './auth/LoginScreen';
 export { RegisterScreen } from './auth/RegisterScreen';
 export { SplashScreen } from './auth/SplashScreen';

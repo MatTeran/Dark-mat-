@@ -12,11 +12,7 @@ import type { MainTabParamList } from './types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
-interface MainTabNavigatorProps {
-  onSignOut: () => void;
-}
-
-export function MainTabNavigator({ onSignOut }: MainTabNavigatorProps) {
+export function MainTabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -73,6 +69,7 @@ export function MainTabNavigator({ onSignOut }: MainTabNavigatorProps) {
       />
       <Tab.Screen
         name="Profile"
+        component={ProfileScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <TabBarIcon
@@ -81,9 +78,7 @@ export function MainTabNavigator({ onSignOut }: MainTabNavigatorProps) {
             />
           ),
         }}
-      >
-        {() => <ProfileScreen onSignOut={onSignOut} />}
-      </Tab.Screen>
+      />
     </Tab.Navigator>
   );
 }

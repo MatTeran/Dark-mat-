@@ -4,31 +4,28 @@ import { StyleSheet, View } from 'react-native';
 
 import { AuthScreen, Banner, Button, Input, Spacer } from '../../components';
 import { useAuth } from '../../hooks';
-import { APP_NAME } from '../../lib/constants';
 import { spacing } from '../../lib/theme';
 import type { AuthStackParamList } from '../../types';
-import { getAuthErrorMessage, getEmailError, getPasswordError } from '../../utils';
+import { getAuthErrorMessage, getEmailError } from '../../utils';
 
-type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
+type Props = NativeStackScreenProps<AuthStackParamList, 'ForgotPassword'>;
 
-export function LoginScreen({ navigation }: Props) {
-  const { signIn, isConfigured } = useAuth();
+export function ForgotPasswordScreen({ navigation }: Props) {
+  const { resetPassword, isConfigured } = useAuth();
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const emailError = submitted ? getEmailError(email) : null;
-  const passwordError = submitted ? getPasswordError(password) : null;
 
-  const handleLogin = async () => {
+  const handleReset = async () => {
     setSubmitted(true);
     setFormError(null);
+    setSuccessMessage(null);
 
-    const nextEmailError = getEmailError(email);
-    const nextPasswordError = getPasswordError(password);
-    if (nextEmailError || nextPasswordError) {
+    if (getEmailError(email)) {
       return;
     }
 
@@ -41,8 +38,10 @@ export function LoginScreen({ navigation }: Props) {
 
     setLoading(true);
     try {
-      await signIn({ email, password });
-      // RootNavigator switches to Home when session becomes authenticated.
+      await resetPassword(email);
+      setSuccessMessage(
+        'If an account exists for that email, a reset link is on the way.',
+      );
     } catch (error) {
       setFormError(getAuthErrorMessage(error));
     } finally {
@@ -52,24 +51,21 @@ export function LoginScreen({ navigation }: Props) {
 
   return (
     <AuthScreen
-      title={APP_NAME.toUpperCase()}
-      subtitle="Sign in to your academy."
-      brand
+      title="Reset password"
+      subtitle="Enter your email and we’ll send a secure reset link."
       footer={
         <View>
-          <Button label="Sign In" loading={loading} onPress={handleLogin} />
+          <Button
+            label="Send Reset Link"
+            loading={loading}
+            onPress={handleReset}
+          />
           <Spacer size="sm" />
           <Button
-            label="Forgot password?"
+            label="Back to sign in"
             variant="ghost"
             disabled={loading}
-            onPress={() => navigation.navigate('ForgotPassword')}
-          />
-          <Button
-            label="Create account"
-            variant="ghost"
-            disabled={loading}
-            onPress={() => navigation.navigate('Register')}
+            onPress={() => navigation.navigate('Login')}
           />
         </View>
       }
@@ -78,7 +74,7 @@ export function LoginScreen({ navigation }: Props) {
         <>
           <Banner
             tone="info"
-            message="Connect Supabase via .env to enable live authentication."
+            message="Connect Supabase via .env to enable password reset."
           />
           <Spacer size="md" />
         </>
@@ -87,6 +83,13 @@ export function LoginScreen({ navigation }: Props) {
       {formError ? (
         <>
           <Banner message={formError} />
+          <Spacer size="md" />
+        </>
+      ) : null}
+
+      {successMessage ? (
+        <>
+          <Banner tone="success" message={successMessage} />
           <Spacer size="md" />
         </>
       ) : null}
@@ -103,21 +106,8 @@ export function LoginScreen({ navigation }: Props) {
           error={emailError}
           placeholder="you@email.com"
           editable={!loading}
-          returnKeyType="next"
-        />
-        <Spacer size="md" />
-        <Input
-          label="Password"
-          secureTextEntry
-          autoComplete="password"
-          textContentType="password"
-          value={password}
-          onChangeText={setPassword}
-          error={passwordError}
-          placeholder="••••••••"
-          editable={!loading}
           returnKeyType="done"
-          onSubmitEditing={handleLogin}
+          onSubmitEditing={handleReset}
         />
       </View>
     </AuthScreen>

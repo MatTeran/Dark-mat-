@@ -1,14 +1,28 @@
+import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { Button, Screen, Spacer, Text } from '../../components';
+import { Banner, Button, Screen, Spacer, Text } from '../../components';
+import { useAuth } from '../../hooks';
 import { colors, radii, spacing } from '../../lib/theme';
-import { formatBeltLabel } from '../../utils';
+import { getAuthErrorMessage } from '../../utils';
 
-interface ProfileScreenProps {
-  onSignOut: () => void;
-}
+export function ProfileScreen() {
+  const { user, signOut } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-export function ProfileScreen({ onSignOut }: ProfileScreenProps) {
+  const handleSignOut = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      await signOut();
+    } catch (err) {
+      setError(getAuthErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Screen>
       <Text variant="hero">Profile</Text>
@@ -20,13 +34,25 @@ export function ProfileScreen({ onSignOut }: ProfileScreenProps) {
       <View style={styles.card}>
         <Text variant="subtitle">Athlete</Text>
         <Spacer size="xs" />
-        <Text variant="body">Jordan Silva</Text>
-        <Text variant="caption">{formatBeltLabel('blue', 2)}</Text>
+        <Text variant="body">{user?.fullName || 'Dark Mat Athlete'}</Text>
+        <Text variant="caption">{user?.email}</Text>
       </View>
+
+      {error ? (
+        <>
+          <Spacer size="md" />
+          <Banner message={error} />
+        </>
+      ) : null}
 
       <Spacer size="lg" />
 
-      <Button label="Sign Out" variant="secondary" onPress={onSignOut} />
+      <Button
+        label="Sign Out"
+        variant="secondary"
+        loading={loading}
+        onPress={handleSignOut}
+      />
     </Screen>
   );
 }
