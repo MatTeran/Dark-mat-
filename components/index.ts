@@ -1,9 +1,16 @@
 export { AuthScreen } from './auth/AuthScreen';
+export { FadeIn } from './home/FadeIn';
+export { NextClassCard } from './home/NextClassCard';
+export { QuickActions } from './home/QuickActions';
+export { RecentActivity } from './home/RecentActivity';
+export { UpcomingEvents } from './home/UpcomingEvents';
 export { TabBarIcon } from './layout/TabBarIcon';
 export { Banner } from './ui/Banner';
 export type { BannerProps } from './ui/Banner';
 export { Button } from './ui/Button';
 export type { ButtonProps } from './ui/Button';
+export { Card } from './ui/Card';
+export type { CardProps } from './ui/Card';
 export { Input } from './ui/Input';
 export type { InputProps } from './ui/Input';
 export { Screen } from './ui/Screen';

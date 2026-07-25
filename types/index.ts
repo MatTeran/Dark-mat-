@@ -6,6 +6,13 @@ export type {
   RegisterPayload,
 } from './auth';
 export type {
+  ActivityItem,
+  NextClass,
+  QuickAction,
+  QuickActionId,
+  UpcomingEvent,
+} from './home';
+export type {
   AuthStackParamList,
   MainTabParamList,
   RootStackParamList,
