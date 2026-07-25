@@ -28,58 +28,74 @@ export function ProfileAttendanceSnapshot({
       accessibilityRole="button"
       accessibilityLabel={`Attendance ${summary.classesAttended} of ${summary.goal} classes`}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.card,
-        {
-          backgroundColor: colors.secondaryBackground,
-          borderColor: colors.border,
-          opacity: pressed ? 0.94 : 1,
-        },
-      ]}
+      style={({ pressed }) => [pressed && styles.pressed]}
     >
-      <View style={styles.header}>
-        <View>
-          <Text variant="caption" gold>
-            This month
+      <View
+        style={[
+          styles.card,
+          {
+            backgroundColor: colors.secondaryBackground,
+            borderColor: colors.border,
+          },
+        ]}
+      >
+        <View style={styles.header}>
+          <View style={styles.headerCopy}>
+            <Text variant="caption" style={{ color: colors.goldAccent }}>
+              This month
+            </Text>
+            <Spacer size="xxs" />
+            <Text variant="subtitle" style={{ color: colors.text }}>
+              {summary.monthLabel}
+            </Text>
+          </View>
+          <Ionicons
+            name="chevron-forward"
+            size={18}
+            color={colors.secondaryText}
+          />
+        </View>
+
+        <Spacer size="md" />
+
+        <View style={styles.metrics}>
+          <Text variant="title" style={[styles.bigStat, { color: colors.text }]}>
+            {summary.classesAttended}
+            <Text style={{ color: colors.secondaryText, fontSize: 18 }}>
+              {' '}
+              / {summary.goal}
+            </Text>
           </Text>
-          <Spacer size="xxs" />
-          <Text variant="subtitle">{summary.monthLabel}</Text>
+          <Text variant="caption" style={{ color: colors.secondaryText }}>
+            classes toward your goal
+          </Text>
         </View>
-        <Ionicons
-          name="chevron-forward"
-          size={18}
-          color={colors.secondaryText}
+
+        <Spacer size="sm" />
+        <ProgressBar
+          progress={percent}
+          height={7}
+          accessibilityLabel={`${percent} percent of monthly class goal`}
         />
-      </View>
 
-      <Spacer size="md" />
-
-      <View style={styles.metrics}>
-        <Text variant="title" style={styles.bigStat}>
-          {summary.classesAttended}
-          <Text variant="bodyMuted"> / {summary.goal}</Text>
-        </Text>
-        <Text variant="caption" muted>
-          classes toward your goal
-        </Text>
-      </View>
-
-      <Spacer size="sm" />
-      <ProgressBar
-        progress={percent}
-        height={7}
-        accessibilityLabel={`${percent} percent of monthly class goal`}
-      />
-
-      <Spacer size="md" />
-      <View style={styles.footer}>
-        <View style={styles.footerItem}>
-          <Ionicons name="flame" size={14} color={colors.goldAccent} />
-          <Text variant="caption">{summary.streakDays}-day streak</Text>
-        </View>
-        <View style={styles.footerItem}>
-          <Ionicons name="people-outline" size={14} color={colors.goldAccent} />
-          <Text variant="caption">{summary.openMats} open mats</Text>
+        <Spacer size="md" />
+        <View style={styles.footer}>
+          <View style={styles.footerItem}>
+            <Ionicons name="flame" size={14} color={colors.goldAccent} />
+            <Text variant="caption" style={{ color: colors.text }}>
+              {summary.streakDays}-day streak
+            </Text>
+          </View>
+          <View style={styles.footerItem}>
+            <Ionicons
+              name="people-outline"
+              size={14}
+              color={colors.goldAccent}
+            />
+            <Text variant="caption" style={{ color: colors.text }}>
+              {summary.openMats} open mats
+            </Text>
+          </View>
         </View>
       </View>
     </Pressable>
@@ -87,6 +103,9 @@ export function ProfileAttendanceSnapshot({
 }
 
 const styles = StyleSheet.create({
+  pressed: {
+    opacity: 0.94,
+  },
   card: {
     borderRadius: radii.xl,
     borderWidth: 1,
@@ -94,11 +113,16 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     justifyContent: 'space-between',
   },
+  headerCopy: {
+    flex: 1,
+    minWidth: 0,
+    paddingRight: spacing.sm,
+  },
   metrics: {
-    gap: 2,
+    gap: 4,
   },
   bigStat: {
     fontSize: 28,

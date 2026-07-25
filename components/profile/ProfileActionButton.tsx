@@ -29,15 +29,19 @@ export function ProfileActionButton({
       accessibilityRole="button"
       onPress={onPress}
       style={({ pressed }) => [
-        styles.button,
-        {
-          borderColor: colors.goldAccent,
-          backgroundColor: filled ? colors.goldAccent : 'transparent',
-          opacity: pressed ? 0.88 : 1,
-        },
+        styles.pressable,
+        pressed && styles.pressed,
       ]}
     >
-      <View style={styles.inner}>
+      <View
+        style={[
+          styles.button,
+          {
+            borderColor: colors.goldAccent,
+            backgroundColor: filled ? colors.goldAccent : 'transparent',
+          },
+        ]}
+      >
         <Ionicons
           name={icon}
           size={16}
@@ -58,19 +62,22 @@ export function ProfileActionButton({
 }
 
 const styles = StyleSheet.create({
-  button: {
+  pressable: {
     flex: 1,
+  },
+  pressed: {
+    opacity: 0.88,
+  },
+  button: {
+    width: '100%',
     borderWidth: 1.5,
     borderRadius: radii.pill,
     minHeight: 46,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  inner: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
 });

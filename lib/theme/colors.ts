@@ -9,7 +9,7 @@ export const darkColors = {
   goldAccent: '#D4AF37',
   goldPressed: '#B8952F',
   text: '#FFFFFF',
-  secondaryText: '#A0A0A0',
+  secondaryText: '#B8B8B8',
   error: '#FF4D4D',
   success: '#22C55E',
   elevatedSurface: '#1D1D1D',

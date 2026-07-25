@@ -32,39 +32,52 @@ export function ProfileHighlightTile({
       accessibilityRole="button"
       accessibilityLabel={`${label}: ${title}`}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.tile,
-        {
-          backgroundColor: colors.secondaryBackground,
-          borderColor: colors.border,
-          opacity: pressed ? 0.92 : 1,
-        },
-      ]}
+      style={({ pressed }) => [{ flex: 1 }, pressed && styles.pressed]}
     >
-      <View style={styles.header}>
-        <Text variant="caption" gold>
-          {label}
+      <View
+        style={[
+          styles.tile,
+          {
+            backgroundColor: colors.secondaryBackground,
+            borderColor: colors.border,
+          },
+        ]}
+      >
+        <View style={styles.header}>
+          <Text variant="caption" style={{ color: colors.goldAccent }}>
+            {label}
+          </Text>
+          <Ionicons name={icon} size={16} color={colors.goldAccent} />
+        </View>
+
+        {media ? <View style={styles.media}>{media}</View> : null}
+
+        <Text
+          variant="subtitle"
+          numberOfLines={1}
+          style={[styles.title, { color: colors.text }]}
+        >
+          {title}
         </Text>
-        <Ionicons name={icon} size={16} color={colors.goldAccent} />
+        {subtitle ? (
+          <Text
+            variant="caption"
+            numberOfLines={2}
+            style={[styles.subtitle, { color: colors.secondaryText }]}
+          >
+            {subtitle}
+          </Text>
+        ) : null}
       </View>
-
-      {media ? <View style={styles.media}>{media}</View> : null}
-
-      <Text variant="subtitle" numberOfLines={1} style={styles.title}>
-        {title}
-      </Text>
-      {subtitle ? (
-        <Text variant="caption" muted numberOfLines={2} style={styles.subtitle}>
-          {subtitle}
-        </Text>
-      ) : null}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
+  pressed: {
+    opacity: 0.92,
+  },
   tile: {
-    flex: 1,
     minHeight: 132,
     borderRadius: radii.xl,
     borderWidth: 1,
