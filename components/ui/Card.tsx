@@ -24,26 +24,27 @@ export function Card({
   padded = true,
   style,
 }: CardProps) {
-  const content = (
-    <View style={[styles.card, padded && styles.padded, style]}>{children}</View>
-  );
+  const cardStyle = [styles.card, padded && styles.padded, style];
 
   if (!onPress) {
-    return content;
+    return <View style={cardStyle}>{children}</View>;
   }
 
   return (
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
-      style={({ pressed }) => [pressed && styles.pressed]}
+      style={({ pressed }) => [styles.pressable, pressed && styles.pressed]}
     >
-      {content}
+      <View style={cardStyle}>{children}</View>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
+  pressable: {
+    width: '100%',
+  },
   card: {
     backgroundColor: colors.secondaryBackground,
     borderRadius: radii.lg,

@@ -2,44 +2,62 @@ import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, View } from 'react-native';
 
 import type { QuickAction, QuickActionId } from '../../types/home';
+import { colors, radii, spacing } from '../../lib/theme';
 import { Card } from '../ui/Card';
 import { Spacer } from '../ui/Spacer';
 import { Text } from '../ui/Text';
-import { colors, radii, spacing } from '../../lib/theme';
 
 interface QuickActionsProps {
   actions: QuickAction[];
   onAction: (id: QuickActionId) => void;
 }
 
+function chunkActions(actions: QuickAction[], size: number) {
+  const rows: QuickAction[][] = [];
+  for (let i = 0; i < actions.length; i += size) {
+    rows.push(actions.slice(i, i + size));
+  }
+  return rows;
+}
+
 export function QuickActions({ actions, onAction }: QuickActionsProps) {
+  const rows = chunkActions(actions, 2);
+
   return (
     <View>
       <Text variant="subtitle">Quick Actions</Text>
       <Spacer size="md" />
-      <View style={styles.grid}>
-        {actions.map((action) => (
-          <Card
-            key={action.id}
-            onPress={() => onAction(action.id)}
-            style={styles.tile}
-            padded={false}
-          >
-            <View style={styles.tileInner}>
-              <View style={styles.iconWrap}>
-                <Ionicons
-                  name={action.icon}
-                  size={20}
-                  color={colors.goldAccent}
-                />
+      <View style={styles.stack}>
+        {rows.map((row) => (
+          <View key={row.map((item) => item.id).join('-')} style={styles.row}>
+            {row.map((action) => (
+              <View key={action.id} style={styles.tile}>
+                <Card
+                  onPress={() => onAction(action.id)}
+                  padded={false}
+                  style={styles.card}
+                >
+                  <View style={styles.tileInner}>
+                    <View style={styles.iconWrap}>
+                      <Ionicons
+                        name={action.icon}
+                        size={20}
+                        color={colors.goldAccent}
+                      />
+                    </View>
+                    <Spacer size="sm" />
+                    <Text variant="subtitle" style={styles.label} numberOfLines={1}>
+                      {action.label}
+                    </Text>
+                    <Text variant="caption" numberOfLines={1}>
+                      {action.subtitle}
+                    </Text>
+                  </View>
+                </Card>
               </View>
-              <Spacer size="sm" />
-              <Text variant="subtitle" style={styles.label}>
-                {action.label}
-              </Text>
-              <Text variant="caption">{action.subtitle}</Text>
-            </View>
-          </Card>
+            ))}
+            {row.length === 1 ? <View style={styles.tile} /> : null}
+          </View>
         ))}
       </View>
     </View>
@@ -47,14 +65,19 @@ export function QuickActions({ actions, onAction }: QuickActionsProps) {
 }
 
 const styles = StyleSheet.create({
-  grid: {
+  stack: {
+    gap: spacing.md,
+  },
+  row: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: spacing.md,
   },
   tile: {
-    width: '47.5%',
-    flexGrow: 1,
+    flex: 1,
+    minWidth: 0,
+  },
+  card: {
+    width: '100%',
   },
   tileInner: {
     padding: spacing.md,

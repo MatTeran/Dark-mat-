@@ -21,6 +21,7 @@ export interface ScreenProps extends PropsWithChildren {
 
 /**
  * Standard screen shell with Dark Mat background + safe areas.
+ * Safe-area padding is applied last so callers cannot override it.
  */
 export function Screen({
   children,
@@ -31,7 +32,7 @@ export function Screen({
   contentStyle,
 }: ScreenProps) {
   const insets = useSafeAreaInsets();
-  const paddingStyle = {
+  const safePadding = {
     paddingTop: insets.top + (padded ? spacing.md : 0),
     paddingBottom: insets.bottom + (padded ? spacing.lg : 0),
     paddingHorizontal: padded ? spacing.lg : 0,
@@ -40,7 +41,7 @@ export function Screen({
   const body = scroll ? (
     <ScrollView
       style={styles.base}
-      contentContainerStyle={[styles.scrollContent, paddingStyle, contentStyle]}
+      contentContainerStyle={[styles.scrollContent, contentStyle, safePadding]}
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode="on-drag"
       showsVerticalScrollIndicator={false}
@@ -48,7 +49,7 @@ export function Screen({
       {children}
     </ScrollView>
   ) : (
-    <View style={[styles.base, paddingStyle, style, contentStyle]}>{children}</View>
+    <View style={[styles.base, contentStyle, style, safePadding]}>{children}</View>
   );
 
   if (!keyboard) {

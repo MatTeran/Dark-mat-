@@ -106,7 +106,7 @@ export function HomeScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    paddingTop: spacing.sm,
+    // Safe-area padding comes from Screen — do not override paddingTop here.
   },
   bottomSpace: {
     height: spacing.lg,
