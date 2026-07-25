@@ -1,6 +1,7 @@
 import type { AthleteHub } from '../../types/profile';
 
 export const DEFAULT_ATHLETE_HUB: AthleteHub = {
+  avatarUri: null,
   beltProgress: {
     belt: 'blue',
     stripes: 2,

@@ -13,6 +13,8 @@ export { UpcomingEvents } from './home/UpcomingEvents';
 export { TabBarIcon } from './layout/TabBarIcon';
 export { BeltBadge } from './profile/BeltBadge';
 export { FamilyMemberCard } from './profile/FamilyMemberCard';
+export { ProfileAvatar } from './profile/ProfileAvatar';
+export { ProfileMenuGroup } from './profile/ProfileMenuGroup';
 export { ProfileMenuRow } from './profile/ProfileMenuRow';
 export { SettingToggleRow } from './profile/SettingToggleRow';
 export { ClassCard } from './schedule/ClassCard';

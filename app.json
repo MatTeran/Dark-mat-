@@ -16,7 +16,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.darkmat.app",
       "infoPlist": {
-        "UIBackgroundModes": []
+        "UIBackgroundModes": [],
+        "NSCameraUsageDescription": "Dark Mat uses the camera so you can set a profile photo.",
+        "NSPhotoLibraryUsageDescription": "Dark Mat uses your photo library so you can set a profile photo."
       }
     },
     "android": {
@@ -27,7 +29,11 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "package": "com.darkmat.app",
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_MEDIA_IMAGES"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -41,6 +47,13 @@
           "backgroundColor": "#0D0D0D",
           "image": "./assets/splash-icon.png",
           "imageWidth": 200
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Dark Mat to access your photos for a profile picture.",
+          "cameraPermission": "Allow Dark Mat to use the camera for a profile picture."
         }
       ],
       [

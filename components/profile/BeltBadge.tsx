@@ -64,15 +64,19 @@ export function BeltBadge({ belt, stripes, size = 'md' }: BeltBadgeProps) {
 
 const styles = StyleSheet.create({
   wrap: {
-    gap: spacing.sm,
+    width: '100%',
+    gap: spacing.xs,
   },
   belt: {
+    width: '100%',
+    maxWidth: 220,
     borderRadius: radii.sm,
     borderWidth: 1,
     justifyContent: 'center',
     paddingHorizontal: spacing.sm,
   },
   stripeTrack: {
+    width: '100%',
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',

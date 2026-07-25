@@ -1,8 +1,10 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   createContext,
   PropsWithChildren,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -22,6 +24,8 @@ import type {
 } from '../../types/profile';
 import type { BeltRank } from '../../types/user';
 
+const AVATAR_STORAGE_KEY = '@dark-mat/profile-avatar-uri';
+
 interface ProfileContextValue {
   hub: AthleteHub;
   membershipLabel: string;
@@ -34,6 +38,7 @@ interface ProfileContextValue {
   updateSettings: (patch: Partial<AppSettings>) => void;
   setPaymentMethod: (method: PaymentMethod | null) => void;
   setBeltProgress: (belt: BeltRank, stripes: 0 | 1 | 2 | 3 | 4) => void;
+  setAvatarUri: (uri: string | null) => Promise<void>;
   unlinkFamilyMember: (memberId: string) => void;
   addFamilyMember: (member: Omit<FamilyMember, 'id'>) => void;
 }
@@ -42,6 +47,27 @@ const ProfileContext = createContext<ProfileContextValue | null>(null);
 
 export function ProfileProvider({ children }: PropsWithChildren) {
   const [hub, setHub] = useState<AthleteHub>(DEFAULT_ATHLETE_HUB);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function restoreAvatar() {
+      try {
+        const stored = await AsyncStorage.getItem(AVATAR_STORAGE_KEY);
+        if (!mounted || !stored) {
+          return;
+        }
+        setHub((current) => ({ ...current, avatarUri: stored }));
+      } catch {
+        // Ignore restore failures; initials fallback remains.
+      }
+    }
+
+    void restoreAvatar();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const updateNotifications = useCallback(
     (patch: Partial<NotificationSettings>) => {
@@ -81,6 +107,19 @@ export function ProfileProvider({ children }: PropsWithChildren) {
     [],
   );
 
+  const setAvatarUri = useCallback(async (uri: string | null) => {
+    setHub((current) => ({ ...current, avatarUri: uri }));
+    try {
+      if (uri) {
+        await AsyncStorage.setItem(AVATAR_STORAGE_KEY, uri);
+      } else {
+        await AsyncStorage.removeItem(AVATAR_STORAGE_KEY);
+      }
+    } catch {
+      // Keep in-memory photo even if persistence fails.
+    }
+  }, []);
+
   const unlinkFamilyMember = useCallback((memberId: string) => {
     setHub((current) => ({
       ...current,
@@ -119,6 +158,7 @@ export function ProfileProvider({ children }: PropsWithChildren) {
       updateSettings,
       setPaymentMethod,
       setBeltProgress,
+      setAvatarUri,
       unlinkFamilyMember,
       addFamilyMember,
     };
@@ -128,6 +168,7 @@ export function ProfileProvider({ children }: PropsWithChildren) {
     updateSettings,
     setPaymentMethod,
     setBeltProgress,
+    setAvatarUri,
     unlinkFamilyMember,
     addFamilyMember,
   ]);

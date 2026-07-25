@@ -74,6 +74,7 @@ export interface BeltProgress {
 }
 
 export interface AthleteHub {
+  avatarUri: string | null;
   beltProgress: BeltProgress;
   membership: Membership;
   paymentMethod: PaymentMethod | null;

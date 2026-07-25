@@ -7,6 +7,8 @@ import {
   BeltBadge,
   Button,
   FadeIn,
+  ProfileAvatar,
+  ProfileMenuGroup,
   ProfileMenuRow,
   Screen,
   Spacer,
@@ -16,9 +18,27 @@ import { useAuth } from '../../hooks';
 import { useProfile } from '../../lib/providers/ProfileProvider';
 import { colors, radii, spacing } from '../../lib/theme';
 import type { ProfileStackParamList } from '../../types/navigation';
-import { getAuthErrorMessage } from '../../utils';
+import {
+  getAuthErrorMessage,
+  getFirstName,
+  pickProfilePhoto,
+  promptProfilePhotoActions,
+} from '../../utils';
 
 type Props = NativeStackScreenProps<ProfileStackParamList, 'ProfileHome'>;
+
+function getInitials(fullName: string | null | undefined): string {
+  if (!fullName?.trim()) {
+    return 'DM';
+  }
+  return fullName
+    .split(' ')
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
 
 export function ProfileHomeScreen({ navigation }: Props) {
   const { user, signOut } = useAuth();
@@ -30,8 +50,10 @@ export function ProfileHomeScreen({ navigation }: Props) {
     paymentLabel,
     attendanceLabel,
     familyCountLabel,
+    setAvatarUri,
   } = useProfile();
   const [loading, setLoading] = useState(false);
+  const [photoLoading, setPhotoLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSignOut = async () => {
@@ -46,6 +68,40 @@ export function ProfileHomeScreen({ navigation }: Props) {
     }
   };
 
+  const applyPhoto = async (source: 'camera' | 'library') => {
+    setError(null);
+    setPhotoLoading(true);
+    try {
+      const uri = await pickProfilePhoto(source);
+      if (uri) {
+        await setAvatarUri(uri);
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Could not update profile photo.',
+      );
+    } finally {
+      setPhotoLoading(false);
+    }
+  };
+
+  const handleAvatarPress = () => {
+    promptProfilePhotoActions({
+      hasPhoto: Boolean(hub.avatarUri),
+      onTakePhoto: () => {
+        void applyPhoto('camera');
+      },
+      onChooseLibrary: () => {
+        void applyPhoto('library');
+      },
+      onRemove: () => {
+        void setAvatarUri(null);
+      },
+    });
+  };
+
+  const displayName = user?.fullName || 'Dark Mat Athlete';
+
   return (
     <Screen scroll contentStyle={styles.content}>
       <FadeIn>
@@ -58,24 +114,31 @@ export function ProfileHomeScreen({ navigation }: Props) {
 
       <FadeIn delay={60}>
         <View style={styles.identity}>
-          <View style={styles.avatar}>
-            <Text variant="title" gold>
-              {(user?.fullName || 'DM')
-                .split(' ')
-                .map((part) => part[0])
-                .join('')
-                .slice(0, 2)
-                .toUpperCase()}
-            </Text>
-          </View>
+          <ProfileAvatar
+            uri={hub.avatarUri}
+            initials={getInitials(user?.fullName)}
+            onPress={handleAvatarPress}
+          />
           <View style={styles.identityCopy}>
-            <Text variant="subtitle">{user?.fullName || 'Dark Mat Athlete'}</Text>
-            <Text variant="caption">{user?.email}</Text>
+            <Text variant="subtitle" numberOfLines={1}>
+              {displayName}
+            </Text>
+            <Text variant="caption" numberOfLines={1}>
+              {user?.email}
+            </Text>
             <Spacer size="sm" />
             <BeltBadge
               belt={hub.beltProgress.belt}
               stripes={hub.beltProgress.stripes}
             />
+            <Spacer size="xs" />
+            <Text variant="caption" gold>
+              {photoLoading
+                ? 'Updating photo…'
+                : hub.avatarUri
+                  ? 'Tap photo to change'
+                  : `Add a photo, ${getFirstName(user?.fullName)}`}
+            </Text>
           </View>
         </View>
       </FadeIn>
@@ -83,48 +146,55 @@ export function ProfileHomeScreen({ navigation }: Props) {
       <Spacer size="xl" />
 
       <FadeIn delay={100}>
-        <View style={styles.menu}>
+        <ProfileMenuGroup>
           <ProfileMenuRow
             icon="card-outline"
             label="Membership"
             value={membershipLabel}
             onPress={() => navigation.navigate('Membership')}
+            showDivider
           />
           <ProfileMenuRow
             icon="ribbon-outline"
             label="Belt Rank"
             value={beltLabel}
             onPress={() => navigation.navigate('BeltRank')}
+            showDivider
           />
           <ProfileMenuRow
             icon="remove-outline"
             label="Stripes"
             value={stripesLabel}
             onPress={() => navigation.navigate('BeltRank')}
+            showDivider
           />
           <ProfileMenuRow
             icon="wallet-outline"
             label="Payment Method"
             value={paymentLabel}
             onPress={() => navigation.navigate('PaymentMethod')}
+            showDivider
           />
           <ProfileMenuRow
             icon="stats-chart-outline"
             label="Attendance"
             value={attendanceLabel}
             onPress={() => navigation.navigate('Attendance')}
+            showDivider
           />
           <ProfileMenuRow
             icon="settings-outline"
             label="Settings"
             value="Preferences"
             onPress={() => navigation.navigate('Settings')}
+            showDivider
           />
           <ProfileMenuRow
             icon="notifications-outline"
             label="Notifications"
             value="Manage alerts"
             onPress={() => navigation.navigate('Notifications')}
+            showDivider
           />
           <ProfileMenuRow
             icon="people-outline"
@@ -132,7 +202,7 @@ export function ProfileHomeScreen({ navigation }: Props) {
             value={familyCountLabel}
             onPress={() => navigation.navigate('LinkedFamily')}
           />
-        </View>
+        </ProfileMenuGroup>
       </FadeIn>
 
       {error ? (
@@ -159,9 +229,13 @@ export function ProfileHomeScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  content: {},
+  content: {
+    width: '100%',
+  },
   identity: {
+    width: '100%',
     flexDirection: 'row',
+    alignItems: 'flex-start',
     gap: spacing.md,
     backgroundColor: colors.secondaryBackground,
     borderRadius: radii.lg,
@@ -169,21 +243,11 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     padding: spacing.lg,
   },
-  avatar: {
-    width: 64,
-    height: 64,
-    borderRadius: radii.md,
-    backgroundColor: colors.goldMuted,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   identityCopy: {
     flex: 1,
-  },
-  menu: {
-    gap: spacing.sm,
+    minWidth: 0,
   },
   bottomSpace: {
-    height: spacing.lg,
+    height: spacing.xl,
   },
 });

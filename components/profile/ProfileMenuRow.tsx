@@ -12,51 +12,68 @@ interface ProfileMenuRowProps {
   label: string;
   value?: string;
   onPress: () => void;
+  showDivider?: boolean;
 }
 
+/**
+ * Horizontal settings row: icon | label + value | chevron.
+ */
 export function ProfileMenuRow({
   icon,
   label,
   value,
   onPress,
+  showDivider = false,
 }: ProfileMenuRowProps) {
   return (
-    <Pressable
-      accessibilityRole="button"
-      onPress={onPress}
-      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
-    >
-      <View style={styles.iconWrap}>
-        <Ionicons name={icon} size={18} color={colors.goldAccent} />
-      </View>
-      <View style={styles.copy}>
-        <Text variant="body">{label}</Text>
-        {value ? (
-          <Text variant="caption" numberOfLines={1}>
-            {value}
+    <View style={styles.shell}>
+      <Pressable
+        accessibilityRole="button"
+        onPress={onPress}
+        style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+      >
+        <View style={styles.iconWrap}>
+          <Ionicons name={icon} size={18} color={colors.goldAccent} />
+        </View>
+
+        <View style={styles.copy}>
+          <Text variant="body" numberOfLines={1} style={styles.label}>
+            {label}
           </Text>
-        ) : null}
-      </View>
-      <Ionicons name="chevron-forward" size={18} color={colors.secondaryText} />
-    </Pressable>
+          {value ? (
+            <Text variant="caption" numberOfLines={1} style={styles.value}>
+              {value}
+            </Text>
+          ) : null}
+        </View>
+
+        <View style={styles.trailing}>
+          <Ionicons
+            name="chevron-forward"
+            size={18}
+            color={colors.secondaryText}
+          />
+        </View>
+      </Pressable>
+      {showDivider ? <View style={styles.divider} /> : null}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  shell: {
+    width: '100%',
+  },
   row: {
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: colors.secondaryBackground,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
+    minHeight: 64,
   },
   pressed: {
-    opacity: 0.9,
-    transform: [{ scale: 0.99 }],
+    backgroundColor: 'rgba(255,255,255,0.03)',
   },
   iconWrap: {
     width: 36,
@@ -65,9 +82,30 @@ const styles = StyleSheet.create({
     backgroundColor: colors.goldMuted,
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: spacing.md,
   },
   copy: {
-    flex: 1,
-    gap: 2,
+    flexGrow: 1,
+    flexShrink: 1,
+    minWidth: 0,
+    justifyContent: 'center',
+    paddingRight: spacing.sm,
+  },
+  label: {
+    color: colors.text,
+  },
+  value: {
+    marginTop: 2,
+    color: colors.secondaryText,
+  },
+  trailing: {
+    marginLeft: spacing.xs,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  divider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: colors.border,
+    marginLeft: spacing.md + 36 + spacing.md,
   },
 });
