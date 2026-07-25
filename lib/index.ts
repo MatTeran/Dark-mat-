@@ -8,5 +8,6 @@ export {
   CommunityProvider,
   useCommunity,
 } from './providers/CommunityProvider';
+export { ProfileProvider, useProfile } from './providers/ProfileProvider';
 export { WorkoutProvider, useWorkouts } from './providers/WorkoutProvider';
 

@@ -18,12 +18,23 @@ export type CommunityStackParamList = {
   TeamChat: undefined;
 };
 
+export type ProfileStackParamList = {
+  ProfileHome: undefined;
+  Membership: undefined;
+  BeltRank: undefined;
+  PaymentMethod: undefined;
+  Attendance: undefined;
+  Settings: undefined;
+  Notifications: undefined;
+  LinkedFamily: undefined;
+};
+
 export type MainTabParamList = {
   Home: undefined;
   Schedule: undefined;
   Community: NavigatorScreenParams<CommunityStackParamList> | undefined;
   WorkoutLog: NavigatorScreenParams<WorkoutStackParamList> | undefined;
-  Profile: undefined;
+  Profile: NavigatorScreenParams<ProfileStackParamList> | undefined;
 };
 
 /** High-level root routes — detailed params live in navigation/types.ts */

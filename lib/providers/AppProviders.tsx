@@ -7,6 +7,7 @@ import { queryClient } from '../queryClient';
 import { colors } from '../theme';
 import { AuthProvider } from './AuthProvider';
 import { CommunityProvider } from './CommunityProvider';
+import { ProfileProvider } from './ProfileProvider';
 import { WorkoutProvider } from './WorkoutProvider';
 
 /**
@@ -20,7 +21,9 @@ export function AppProviders({ children }: PropsWithChildren) {
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
             <CommunityProvider>
-              <WorkoutProvider>{children}</WorkoutProvider>
+              <WorkoutProvider>
+                <ProfileProvider>{children}</ProfileProvider>
+              </WorkoutProvider>
             </CommunityProvider>
           </AuthProvider>
         </QueryClientProvider>

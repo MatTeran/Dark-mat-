@@ -2,12 +2,16 @@ import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import { TabBarIcon } from '../components';
-import { HomeScreen, ProfileScreen, ScheduleScreen } from '../screens';
+import { HomeScreen, ScheduleScreen } from '../screens';
 import { colors, fontFamilies } from '../lib/theme';
 import {
   CommunityNavigator,
   shouldHideCommunityTabBar,
 } from './CommunityNavigator';
+import {
+  ProfileNavigator,
+  shouldHideProfileTabBar,
+} from './ProfileNavigator';
 import type { MainTabParamList } from './types';
 import { WorkoutLogNavigator } from './WorkoutLogNavigator';
 
@@ -94,15 +98,18 @@ export function MainTabNavigator() {
       />
       <Tab.Screen
         name="Profile"
-        component={ProfileScreen}
-        options={{
+        component={ProfileNavigator}
+        options={({ route }) => ({
+          tabBarStyle: shouldHideProfileTabBar(route)
+            ? { display: 'none' }
+            : tabBarStyle,
           tabBarIcon: ({ focused }) => (
             <TabBarIcon
               name={focused ? 'person' : 'person-outline'}
               focused={focused}
             />
           ),
-        }}
+        })}
       />
     </Tab.Navigator>
   );
