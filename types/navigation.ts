@@ -5,6 +5,11 @@ export type AuthStackParamList = {
   ForgotPassword: undefined;
 };
 
+export type WorkoutStackParamList = {
+  WorkoutList: undefined;
+  WorkoutDetails: { workoutId?: string } | undefined;
+};
+
 export type MainTabParamList = {
   Home: undefined;
   Schedule: undefined;

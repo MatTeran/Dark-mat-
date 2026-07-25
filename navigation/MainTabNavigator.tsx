@@ -1,29 +1,28 @@
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import { TabBarIcon } from '../components';
-import {
-  HomeScreen,
-  ProfileScreen,
-  ScheduleScreen,
-  WorkoutLogScreen,
-} from '../screens';
+import { HomeScreen, ProfileScreen, ScheduleScreen } from '../screens';
 import { colors, fontFamilies } from '../lib/theme';
 import type { MainTabParamList } from './types';
+import { WorkoutLogNavigator } from './WorkoutLogNavigator';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
+
+const tabBarStyle = {
+  backgroundColor: colors.primaryBackground,
+  borderTopColor: colors.border,
+  height: 64,
+  paddingTop: 6,
+  paddingBottom: 8,
+};
 
 export function MainTabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarStyle: {
-          backgroundColor: colors.primaryBackground,
-          borderTopColor: colors.border,
-          height: 64,
-          paddingTop: 6,
-          paddingBottom: 8,
-        },
+        tabBarStyle,
         tabBarActiveTintColor: colors.goldAccent,
         tabBarInactiveTintColor: colors.secondaryText,
         tabBarLabelStyle: {
@@ -56,15 +55,22 @@ export function MainTabNavigator() {
       />
       <Tab.Screen
         name="WorkoutLog"
-        component={WorkoutLogScreen}
-        options={{
-          title: 'Log',
-          tabBarIcon: ({ focused }) => (
-            <TabBarIcon
-              name={focused ? 'barbell' : 'barbell-outline'}
-              focused={focused}
-            />
-          ),
+        component={WorkoutLogNavigator}
+        options={({ route }) => {
+          const routeName =
+            getFocusedRouteNameFromRoute(route) ?? 'WorkoutList';
+          const hideTabBar = routeName === 'WorkoutDetails';
+
+          return {
+            title: 'Log',
+            tabBarStyle: hideTabBar ? { display: 'none' } : tabBarStyle,
+            tabBarIcon: ({ focused }) => (
+              <TabBarIcon
+                name={focused ? 'barbell' : 'barbell-outline'}
+                focused={focused}
+              />
+            ),
+          };
         }}
       />
       <Tab.Screen
