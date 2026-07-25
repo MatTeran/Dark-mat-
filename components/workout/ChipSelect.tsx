@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
-import { colors, radii, spacing } from '../../lib/theme';
+import { radii, spacing } from '../../lib/theme';
+import { useThemedStyles } from '../../lib/theme/useThemedStyles';
 import { Text } from '../ui/Text';
 
 interface ChipOption<T extends string> {
@@ -23,6 +24,33 @@ export function ChipSelect<T extends string>({
   onChange,
   multi = true,
 }: ChipSelectProps<T>) {
+  const styles = useThemedStyles((colors) => ({
+    wrap: {
+      flexDirection: 'row' as const,
+      flexWrap: 'wrap' as const,
+      gap: spacing.xs,
+      marginTop: spacing.sm,
+    },
+    chip: {
+      borderRadius: radii.pill,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.secondaryBackground,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+    },
+    chipActive: {
+      backgroundColor: colors.goldMuted,
+      borderColor: colors.goldAccent,
+    },
+    chipText: {
+      color: colors.secondaryText,
+    },
+    chipTextActive: {
+      color: colors.goldAccent,
+    },
+  }));
+
   const toggle = (value: T) => {
     if (!multi) {
       onChange([value]);
@@ -61,30 +89,3 @@ export function ChipSelect<T extends string>({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xs,
-    marginTop: spacing.sm,
-  },
-  chip: {
-    borderRadius: radii.pill,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.secondaryBackground,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-  },
-  chipActive: {
-    backgroundColor: colors.goldMuted,
-    borderColor: colors.goldAccent,
-  },
-  chipText: {
-    color: colors.secondaryText,
-  },
-  chipTextActive: {
-    color: colors.goldAccent,
-  },
-});

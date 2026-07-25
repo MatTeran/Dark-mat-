@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { colors, spacing } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { spacing } from '../../lib/theme';
 import { Text } from '../ui/Text';
 
 interface StarRatingProps {
@@ -10,6 +11,8 @@ interface StarRatingProps {
 }
 
 export function StarRating({ value, onChange }: StarRatingProps) {
+  const { colors } = useAppTheme();
+
   return (
     <View>
       <Text variant="label">Rating</Text>

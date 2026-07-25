@@ -4,7 +4,8 @@ import {
   getClassTypeLabel,
   getTechniqueLabel,
 } from '../../lib/data/workoutOptions';
-import { colors, radii, spacing } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { radii, spacing } from '../../lib/theme';
 import type { Workout } from '../../types/workout';
 import { formatShortDate } from '../../utils';
 import { Card } from '../ui/Card';
@@ -17,6 +18,8 @@ interface WorkoutCardProps {
 }
 
 export function WorkoutCard({ workout, onPress }: WorkoutCardProps) {
+  const { colors } = useAppTheme();
+
   return (
     <Card onPress={onPress}>
       <View style={styles.header}>
@@ -26,25 +29,39 @@ export function WorkoutCard({ workout, onPress }: WorkoutCardProps) {
         <View
           style={[
             styles.badge,
-            workout.giType === 'gi' ? styles.badgeGi : styles.badgeNoGi,
+            workout.giType === 'gi'
+              ? { backgroundColor: colors.goldMuted }
+              : styles.badgeNoGi,
           ]}
         >
-          <Text variant="caption" style={styles.badgeText}>
+          <Text variant="caption" style={{ color: colors.text }}>
             {workout.giType === 'gi' ? 'Gi' : 'No-Gi'}
           </Text>
         </View>
       </View>
 
       <Spacer size="xs" />
-      <Text variant="subtitle">{workout.className || getClassTypeLabel(workout.classType)}</Text>
+      <Text variant="subtitle">
+        {workout.className || getClassTypeLabel(workout.classType)}
+      </Text>
       <Spacer size="xxs" />
       <Text variant="bodyMuted">{workout.instructor}</Text>
 
       <Spacer size="md" />
 
       <View style={styles.stats}>
-        <Stat label="Duration" value={`${workout.durationMinutes}m`} />
-        <Stat label="Rounds" value={`${workout.rounds}`} />
+        <Stat
+          label="Duration"
+          value={`${workout.durationMinutes}m`}
+          backgroundColor={colors.primaryBackground}
+          borderColor={colors.border}
+        />
+        <Stat
+          label="Rounds"
+          value={`${workout.rounds}`}
+          backgroundColor={colors.primaryBackground}
+          borderColor={colors.border}
+        />
         <Stat
           label="Favorite"
           value={
@@ -52,15 +69,27 @@ export function WorkoutCard({ workout, onPress }: WorkoutCardProps) {
               ? getTechniqueLabel(workout.favoriteTechnique)
               : '—'
           }
+          backgroundColor={colors.primaryBackground}
+          borderColor={colors.border}
         />
       </View>
     </Card>
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({
+  label,
+  value,
+  backgroundColor,
+  borderColor,
+}: {
+  label: string;
+  value: string;
+  backgroundColor: string;
+  borderColor: string;
+}) {
   return (
-    <View style={styles.stat}>
+    <View style={[styles.stat, { backgroundColor, borderColor }]}>
       <Text variant="caption">{label}</Text>
       <Text variant="body" numberOfLines={1} style={styles.statValue}>
         {value}
@@ -80,14 +109,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xxs,
   },
-  badgeGi: {
-    backgroundColor: colors.goldMuted,
-  },
   badgeNoGi: {
     backgroundColor: 'rgba(91, 140, 255, 0.18)',
-  },
-  badgeText: {
-    color: colors.text,
   },
   stats: {
     flexDirection: 'row',
@@ -96,10 +119,8 @@ const styles = StyleSheet.create({
   stat: {
     flex: 1,
     minWidth: 0,
-    backgroundColor: colors.primaryBackground,
     borderRadius: radii.md,
     borderWidth: 1,
-    borderColor: colors.border,
     padding: spacing.sm,
     gap: 2,
   },

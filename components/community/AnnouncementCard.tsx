@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
-import { colors, radii, spacing } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { radii, spacing } from '../../lib/theme';
 import type { Announcement } from '../../types/community';
 import { formatShortDate } from '../../utils';
 import { Card } from '../ui/Card';
@@ -18,6 +19,8 @@ export function AnnouncementCard({
   onPress,
   compact = false,
 }: AnnouncementCardProps) {
+  const { colors } = useAppTheme();
+
   return (
     <Card onPress={onPress}>
       <View style={styles.header}>
@@ -25,8 +28,8 @@ export function AnnouncementCard({
           {formatShortDate(announcement.createdAt)}
         </Text>
         {announcement.pinned ? (
-          <View style={styles.pin}>
-            <Text variant="caption" style={styles.pinText}>
+          <View style={[styles.pin, { backgroundColor: colors.goldMuted }]}>
+            <Text variant="caption" style={{ color: colors.goldAccent }}>
               Pinned
             </Text>
           </View>
@@ -60,12 +63,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   pin: {
-    backgroundColor: colors.goldMuted,
     borderRadius: radii.pill,
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
-  },
-  pinText: {
-    color: colors.goldAccent,
   },
 });

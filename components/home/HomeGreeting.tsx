@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import { colors, spacing } from '../../lib/theme';
+import { spacing } from '../../lib/theme';
 import { Text } from '../ui/Text';
 
 interface HomeGreetingProps {
@@ -54,7 +54,8 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   heroGreeting: {
-    color: colors.text,
+    // Keep light text for readability on the dark photo overlay.
+    color: '#FFFFFF',
     textShadowColor: 'rgba(0,0,0,0.55)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 8,

@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
-import { colors, radii, spacing } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { radii, spacing } from '../../lib/theme';
 import type { Seminar } from '../../types/community';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
@@ -13,6 +14,8 @@ interface SeminarCardProps {
 }
 
 export function SeminarCard({ seminar, onToggleRegister }: SeminarCardProps) {
+  const { colors } = useAppTheme();
+
   return (
     <Card>
       <Text variant="caption" gold>
@@ -24,13 +27,29 @@ export function SeminarCard({ seminar, onToggleRegister }: SeminarCardProps) {
       <Text variant="bodyMuted">{seminar.instructor}</Text>
       <Spacer size="md" />
       <View style={styles.meta}>
-        <View style={styles.chip}>
-          <Text variant="caption" style={styles.chipText}>
+        <View
+          style={[
+            styles.chip,
+            {
+              borderColor: colors.border,
+              backgroundColor: colors.primaryBackground,
+            },
+          ]}
+        >
+          <Text variant="caption" style={{ color: colors.secondaryText }}>
             {seminar.priceLabel}
           </Text>
         </View>
-        <View style={styles.chip}>
-          <Text variant="caption" style={styles.chipText}>
+        <View
+          style={[
+            styles.chip,
+            {
+              borderColor: colors.border,
+              backgroundColor: colors.primaryBackground,
+            },
+          ]}
+        >
+          <Text variant="caption" style={{ color: colors.secondaryText }}>
             {seminar.spotsLeft} spots left
           </Text>
         </View>
@@ -53,12 +72,7 @@ const styles = StyleSheet.create({
   chip: {
     borderRadius: radii.sm,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.primaryBackground,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xxs,
-  },
-  chipText: {
-    color: colors.secondaryText,
   },
 });

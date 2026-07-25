@@ -1,8 +1,12 @@
 import { theme } from '../lib/theme';
+import { useAppTheme } from '../lib/providers/ThemeProvider';
 
 /**
- * Access the Dark Mat design tokens from any component.
+ * Access Dark Mat design tokens from ThemeProvider.
  */
 export function useTheme() {
-  return theme;
+  return useAppTheme().theme;
 }
+
+export { useAppTheme } from '../lib/providers/ThemeProvider';
+export type { AppearancePreference } from '../lib/providers/ThemeProvider';

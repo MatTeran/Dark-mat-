@@ -2,7 +2,8 @@ import { StyleSheet, View } from 'react-native';
 
 import type { Announcement } from '../../types/community';
 import { formatShortDate } from '../../utils';
-import { colors, radii, spacing } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { radii, spacing } from '../../lib/theme';
 import { Card } from '../ui/Card';
 import { Spacer } from '../ui/Spacer';
 import { Text } from '../ui/Text';
@@ -16,8 +17,14 @@ export function LatestAnnouncementCard({
   announcement,
   onPress,
 }: LatestAnnouncementCardProps) {
+  const { colors } = useAppTheme();
+
   return (
-    <Card onPress={onPress} style={styles.card} padded={false}>
+    <Card
+      onPress={onPress}
+      style={{ backgroundColor: colors.elevatedSurface }}
+      padded={false}
+    >
       <View style={styles.inner}>
         <View style={styles.header}>
           <Text variant="label" gold>
@@ -38,7 +45,7 @@ export function LatestAnnouncementCard({
           <Text variant="caption" numberOfLines={1} style={styles.author}>
             {announcement.authorName}
           </Text>
-          <View style={styles.cta}>
+          <View style={[styles.cta, { backgroundColor: colors.goldMuted }]}>
             <Text variant="caption" gold>
               View
             </Text>
@@ -50,9 +57,6 @@ export function LatestAnnouncementCard({
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.elevatedSurface,
-  },
   inner: {
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
@@ -76,7 +80,6 @@ const styles = StyleSheet.create({
   },
   cta: {
     borderRadius: radii.pill,
-    backgroundColor: colors.goldMuted,
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
     minHeight: 28,

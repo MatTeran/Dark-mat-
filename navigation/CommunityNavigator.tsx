@@ -6,12 +6,14 @@ import {
   CommunityHomeScreen,
   TeamChatScreen,
 } from '../screens';
-import { colors } from '../lib/theme';
+import { useAppTheme } from '../hooks';
 import type { CommunityStackParamList } from '../types/navigation';
 
 const Stack = createNativeStackNavigator<CommunityStackParamList>();
 
 export function CommunityNavigator() {
+  const { colors } = useAppTheme();
+
   return (
     <Stack.Navigator
       screenOptions={{

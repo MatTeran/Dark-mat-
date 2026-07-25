@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, StyleSheet, View, ViewStyle } from 'react-native';
 
-import { colors, radii } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { radii } from '../../lib/theme';
 
 interface ProgressBarProps {
   progress: number;
@@ -18,6 +19,7 @@ export function ProgressBar({
   style,
   accessibilityLabel,
 }: ProgressBarProps) {
+  const { colors } = useAppTheme();
   const width = useRef(new Animated.Value(0)).current;
   const clamped = Math.min(100, Math.max(0, progress));
 
@@ -36,7 +38,11 @@ export function ProgressBar({
       accessibilityRole="progressbar"
       accessibilityLabel={accessibilityLabel}
       accessibilityValue={{ min: 0, max: 100, now: Math.round(clamped) }}
-      style={[styles.track, { height }, style]}
+      style={[
+        styles.track,
+        { height, backgroundColor: colors.border },
+        style,
+      ]}
     >
       <Animated.View
         style={[
@@ -60,7 +66,6 @@ const styles = StyleSheet.create({
   track: {
     width: '100%',
     borderRadius: radii.pill,
-    backgroundColor: colors.border,
     overflow: 'hidden',
   },
   fill: {

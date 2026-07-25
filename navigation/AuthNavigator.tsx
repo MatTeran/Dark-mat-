@@ -6,12 +6,14 @@ import {
   RegisterScreen,
   SplashScreen,
 } from '../screens';
-import { colors } from '../lib/theme';
+import { useAppTheme } from '../hooks';
 import type { AuthStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
 export function AuthNavigator() {
+  const { colors } = useAppTheme();
+
   return (
     <Stack.Navigator
       initialRouteName="Splash"

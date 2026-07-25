@@ -2,7 +2,9 @@ import { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { colors, radii, spacing } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { radii, spacing } from '../../lib/theme';
+import { useThemedStyles } from '../../lib/theme/useThemedStyles';
 import { Text } from '../ui/Text';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
@@ -25,6 +27,57 @@ export function ProfileMenuRow({
   onPress,
   showDivider = false,
 }: ProfileMenuRowProps) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles((themeColors) => ({
+    shell: {
+      width: '100%' as const,
+    },
+    row: {
+      width: '100%' as const,
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.md,
+      minHeight: 64,
+    },
+    pressed: {
+      backgroundColor: 'rgba(255,255,255,0.03)',
+    },
+    iconWrap: {
+      width: 36,
+      height: 36,
+      borderRadius: radii.md,
+      backgroundColor: themeColors.goldMuted,
+      alignItems: 'center' as const,
+      justifyContent: 'center' as const,
+      marginRight: spacing.md,
+    },
+    copy: {
+      flexGrow: 1,
+      flexShrink: 1,
+      minWidth: 0,
+      justifyContent: 'center' as const,
+      paddingRight: spacing.sm,
+    },
+    label: {
+      color: themeColors.text,
+    },
+    value: {
+      marginTop: 2,
+      color: themeColors.secondaryText,
+    },
+    trailing: {
+      marginLeft: spacing.xs,
+      alignItems: 'center' as const,
+      justifyContent: 'center' as const,
+    },
+    divider: {
+      height: StyleSheet.hairlineWidth,
+      backgroundColor: themeColors.border,
+      marginLeft: spacing.md + 36 + spacing.md,
+    },
+  }));
+
   return (
     <View style={styles.shell}>
       <Pressable
@@ -59,53 +112,3 @@ export function ProfileMenuRow({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  shell: {
-    width: '100%',
-  },
-  row: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    minHeight: 64,
-  },
-  pressed: {
-    backgroundColor: 'rgba(255,255,255,0.03)',
-  },
-  iconWrap: {
-    width: 36,
-    height: 36,
-    borderRadius: radii.md,
-    backgroundColor: colors.goldMuted,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.md,
-  },
-  copy: {
-    flexGrow: 1,
-    flexShrink: 1,
-    minWidth: 0,
-    justifyContent: 'center',
-    paddingRight: spacing.sm,
-  },
-  label: {
-    color: colors.text,
-  },
-  value: {
-    marginTop: 2,
-    color: colors.secondaryText,
-  },
-  trailing: {
-    marginLeft: spacing.xs,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: colors.border,
-    marginLeft: spacing.md + 36 + spacing.md,
-  },
-});

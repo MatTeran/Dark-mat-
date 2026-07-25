@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
-import { colors, radii, spacing } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { radii, spacing } from '../../lib/theme';
 import { Text } from './Text';
 
 type BannerTone = 'error' | 'success' | 'info';
@@ -14,17 +15,34 @@ export interface BannerProps {
  * Inline feedback strip for forms — errors, success, and info.
  */
 export function Banner({ message, tone = 'error' }: BannerProps) {
+  const { colors } = useAppTheme();
+
+  const toneStyle =
+    tone === 'error'
+      ? {
+          backgroundColor: 'rgba(255, 77, 77, 0.12)',
+          borderColor: 'rgba(255, 77, 77, 0.35)',
+        }
+      : tone === 'success'
+        ? {
+            backgroundColor: 'rgba(34, 197, 94, 0.12)',
+            borderColor: 'rgba(34, 197, 94, 0.35)',
+          }
+        : {
+            backgroundColor: colors.goldMuted,
+            borderColor: 'rgba(212, 175, 55, 0.35)',
+          };
+
+  const textColor =
+    tone === 'error'
+      ? colors.error
+      : tone === 'success'
+        ? colors.success
+        : colors.secondaryText;
+
   return (
-    <View style={[styles.base, toneStyles[tone]]}>
-      <Text
-        variant="caption"
-        style={[
-          styles.text,
-          tone === 'error' && styles.errorText,
-          tone === 'success' && styles.successText,
-          tone === 'info' && styles.infoText,
-        ]}
-      >
+    <View style={[styles.base, toneStyle]}>
+      <Text variant="caption" style={[styles.text, { color: textColor }]}>
         {message}
       </Text>
     </View>
@@ -40,29 +58,5 @@ const styles = StyleSheet.create({
   },
   text: {
     lineHeight: 18,
-  },
-  errorText: {
-    color: colors.error,
-  },
-  successText: {
-    color: colors.success,
-  },
-  infoText: {
-    color: colors.secondaryText,
-  },
-});
-
-const toneStyles = StyleSheet.create({
-  error: {
-    backgroundColor: 'rgba(255, 77, 77, 0.12)',
-    borderColor: 'rgba(255, 77, 77, 0.35)',
-  },
-  success: {
-    backgroundColor: 'rgba(34, 197, 94, 0.12)',
-    borderColor: 'rgba(34, 197, 94, 0.35)',
-  },
-  info: {
-    backgroundColor: colors.goldMuted,
-    borderColor: 'rgba(212, 175, 55, 0.35)',
   },
 });

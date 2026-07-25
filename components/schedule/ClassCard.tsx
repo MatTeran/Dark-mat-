@@ -1,7 +1,8 @@
 import { StyleSheet, View } from 'react-native';
 
 import { CLASS_LEVEL_LABELS } from '../../lib/data/schedule';
-import { colors, radii, spacing } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { radii, spacing } from '../../lib/theme';
 import type { ScheduleClass } from '../../types/schedule';
 import { formatGiType, formatTimeRange } from '../../utils/schedule';
 import { Button } from '../ui/Button';
@@ -22,6 +23,8 @@ export function ClassCard({
   reserving = false,
   onReserve,
 }: ClassCardProps) {
+  const { colors } = useAppTheme();
+
   return (
     <Card>
       <View style={styles.topRow}>
@@ -37,8 +40,8 @@ export function ClassCard({
           <Text variant="bodyMuted">{item.instructor}</Text>
         </View>
         {typeof item.spotsLeft === 'number' ? (
-          <View style={styles.spots}>
-            <Text variant="caption" style={styles.spotsText}>
+          <View style={[styles.spots, { backgroundColor: colors.goldMuted }]}>
+            <Text variant="caption" style={{ color: colors.goldAccent }}>
               {item.spotsLeft} left
             </Text>
           </View>
@@ -48,13 +51,29 @@ export function ClassCard({
       <Spacer size="md" />
 
       <View style={styles.metaRow}>
-        <View style={styles.metaChip}>
-          <Text variant="caption" style={styles.metaChipText}>
+        <View
+          style={[
+            styles.metaChip,
+            {
+              borderColor: colors.border,
+              backgroundColor: colors.primaryBackground,
+            },
+          ]}
+        >
+          <Text variant="caption" style={{ color: colors.secondaryText }}>
             {formatGiType(item.giType)}
           </Text>
         </View>
-        <View style={styles.metaChip}>
-          <Text variant="caption" style={styles.metaChipText}>
+        <View
+          style={[
+            styles.metaChip,
+            {
+              borderColor: colors.border,
+              backgroundColor: colors.primaryBackground,
+            },
+          ]}
+        >
+          <Text variant="caption" style={{ color: colors.secondaryText }}>
             {CLASS_LEVEL_LABELS[item.level]}
           </Text>
         </View>
@@ -88,12 +107,8 @@ const styles = StyleSheet.create({
   },
   spots: {
     borderRadius: radii.pill,
-    backgroundColor: colors.goldMuted,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xxs,
-  },
-  spotsText: {
-    color: colors.goldAccent,
   },
   metaRow: {
     flexDirection: 'row',
@@ -103,12 +118,7 @@ const styles = StyleSheet.create({
   metaChip: {
     borderRadius: radii.sm,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.primaryBackground,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xxs,
-  },
-  metaChipText: {
-    color: colors.secondaryText,
   },
 });

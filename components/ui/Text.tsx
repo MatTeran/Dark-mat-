@@ -1,10 +1,10 @@
 import {
   Text as RNText,
   TextProps as RNTextProps,
-  StyleSheet,
 } from 'react-native';
 
-import { typography, TypographyVariant } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import type { TypographyVariant } from '../../lib/theme';
 
 export interface AppTextProps extends RNTextProps {
   variant?: TypographyVariant;
@@ -22,24 +22,17 @@ export function Text({
   style,
   ...rest
 }: AppTextProps) {
+  const { typography, colors } = useAppTheme();
+
   return (
     <RNText
       style={[
         typography[variant],
-        muted && styles.muted,
-        gold && styles.gold,
+        muted && { color: colors.secondaryText },
+        gold && { color: colors.goldAccent },
         style,
       ]}
       {...rest}
     />
   );
 }
-
-const styles = StyleSheet.create({
-  muted: {
-    color: '#A0A0A0',
-  },
-  gold: {
-    color: '#D4AF37',
-  },
-});

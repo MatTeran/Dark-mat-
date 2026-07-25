@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { colors, radii, spacing } from '../../lib/theme';
+import { radii, spacing } from '../../lib/theme';
+import { useThemedStyles } from '../../lib/theme/useThemedStyles';
 import { Text } from '../ui/Text';
 
 interface DropdownOption<T extends string> {
@@ -24,6 +25,35 @@ export function DropdownField<T extends string>({
   options,
   onChange,
 }: DropdownFieldProps<T>) {
+  const styles = useThemedStyles((colors) => ({
+    list: {
+      marginTop: spacing.sm,
+      borderRadius: radii.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      overflow: 'hidden' as const,
+      backgroundColor: colors.secondaryBackground,
+    },
+    option: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.md,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border,
+    },
+    optionActive: {
+      backgroundColor: colors.goldMuted,
+    },
+    optionText: {
+      color: colors.text,
+    },
+    optionTextActive: {
+      color: colors.goldAccent,
+    },
+    helper: {
+      marginTop: spacing.xs,
+    },
+  }));
+
   const selected = options.find((item) => item.value === value);
 
   return (
@@ -56,32 +86,3 @@ export function DropdownField<T extends string>({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  list: {
-    marginTop: spacing.sm,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    overflow: 'hidden',
-    backgroundColor: colors.secondaryBackground,
-  },
-  option: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-  },
-  optionActive: {
-    backgroundColor: colors.goldMuted,
-  },
-  optionText: {
-    color: colors.text,
-  },
-  optionTextActive: {
-    color: colors.goldAccent,
-  },
-  helper: {
-    marginTop: spacing.xs,
-  },
-});

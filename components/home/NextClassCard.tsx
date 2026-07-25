@@ -15,7 +15,8 @@ import type {
   NextClassSummary,
 } from '../../types/home';
 import { formatClassTime, formatShortDate } from '../../utils';
-import { colors, radii, spacing } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { radii, spacing } from '../../lib/theme';
 import { Card } from '../ui/Card';
 import { Spacer } from '../ui/Spacer';
 import { Text } from '../ui/Text';
@@ -62,6 +63,7 @@ export function NextClassCard({
   onPrimaryAction,
   onOpenDetails,
 }: NextClassCardProps) {
+  const { colors } = useAppTheme();
   const accent = useRef(new Animated.Value(0.35)).current;
   const xpOpacity = useRef(new Animated.Value(0)).current;
   const xpTranslate = useRef(new Animated.Value(8)).current;
@@ -136,7 +138,9 @@ export function NextClassCard({
   };
 
   return (
-    <Card style={styles.card}>
+    <Card
+      style={{ overflow: 'hidden', backgroundColor: colors.elevatedSurface }}
+    >
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`Next class ${nextClass.title}`}
@@ -158,7 +162,12 @@ export function NextClassCard({
             <Spacer size="xs" />
             <Text variant="caption">{metadata}</Text>
           </View>
-          <Animated.View style={[styles.badge, { opacity: accent }]}>
+          <Animated.View
+            style={[
+              styles.badge,
+              { backgroundColor: colors.goldMuted, opacity: accent },
+            ]}
+          >
             <Text variant="caption" gold style={styles.badgeText}>
               {nextClass.status === 'live' ? 'Live' : 'Soon'}
             </Text>
@@ -236,10 +245,6 @@ export function NextClassCard({
 }
 
 const styles = StyleSheet.create({
-  card: {
-    overflow: 'hidden',
-    backgroundColor: colors.elevatedSurface,
-  },
   row: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -250,7 +255,6 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   badge: {
-    backgroundColor: colors.goldMuted,
     borderRadius: radii.pill,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xxs,

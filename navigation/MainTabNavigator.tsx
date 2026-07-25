@@ -2,8 +2,9 @@ import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import { TabBarIcon } from '../components';
+import { useAppTheme } from '../hooks';
+import { fontFamilies } from '../lib/theme';
 import { ScheduleScreen } from '../screens';
-import { colors, fontFamilies } from '../lib/theme';
 import {
   CommunityNavigator,
   shouldHideCommunityTabBar,
@@ -18,15 +19,17 @@ import { WorkoutLogNavigator } from './WorkoutLogNavigator';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
-const tabBarStyle = {
-  backgroundColor: colors.primaryBackground,
-  borderTopColor: colors.border,
-  height: 64,
-  paddingTop: 6,
-  paddingBottom: 8,
-};
-
 export function MainTabNavigator() {
+  const { colors } = useAppTheme();
+
+  const tabBarStyle = {
+    backgroundColor: colors.primaryBackground,
+    borderTopColor: colors.border,
+    height: 64,
+    paddingTop: 6,
+    paddingBottom: 8,
+  };
+
   return (
     <Tab.Navigator
       screenOptions={{

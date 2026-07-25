@@ -1,14 +1,16 @@
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import { useAppTheme } from '../hooks';
 import { JourneyScreen } from '../screens';
 import { HomeScreen } from '../screens/main/HomeScreen';
-import { colors } from '../lib/theme';
 import type { HomeStackParamList } from '../types/navigation';
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
 
 export function HomeNavigator() {
+  const { colors } = useAppTheme();
+
   return (
     <Stack.Navigator
       screenOptions={{

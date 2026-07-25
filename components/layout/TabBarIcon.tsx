@@ -2,7 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { colors, radii } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { radii } from '../../lib/theme';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -19,12 +20,20 @@ export function TabBarIcon({
   size = 22,
   primaryAction = false,
 }: TabBarIconProps) {
+  const { colors } = useAppTheme();
+
   if (primaryAction) {
     return (
       <View
         style={[
           styles.primaryWrap,
-          focused ? styles.primaryFocused : styles.primaryIdle,
+          focused
+            ? { backgroundColor: colors.goldAccent }
+            : {
+                backgroundColor: colors.goldMuted,
+                borderWidth: 1,
+                borderColor: 'rgba(212, 175, 55, 0.35)',
+              },
         ]}
       >
         <Ionicons
@@ -53,13 +62,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: -2,
-  },
-  primaryFocused: {
-    backgroundColor: colors.goldAccent,
-  },
-  primaryIdle: {
-    backgroundColor: colors.goldMuted,
-    borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.35)',
   },
 });

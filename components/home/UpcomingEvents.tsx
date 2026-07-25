@@ -1,16 +1,19 @@
 import { StyleSheet, View } from 'react-native';
 
 import type { UpcomingEvent } from '../../types/home';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { radii, spacing } from '../../lib/theme';
 import { Card } from '../ui/Card';
 import { Spacer } from '../ui/Spacer';
 import { Text } from '../ui/Text';
-import { colors, radii, spacing } from '../../lib/theme';
 
 interface UpcomingEventsProps {
   events: UpcomingEvent[];
 }
 
 export function UpcomingEvents({ events }: UpcomingEventsProps) {
+  const { colors } = useAppTheme();
+
   return (
     <View>
       <Text variant="subtitle">Upcoming Events</Text>
@@ -19,7 +22,9 @@ export function UpcomingEvents({ events }: UpcomingEventsProps) {
         {events.map((event) => (
           <Card key={event.id}>
             <View style={styles.row}>
-              <View style={styles.dateChip}>
+              <View
+                style={[styles.dateChip, { backgroundColor: colors.goldMuted }]}
+              >
                 <Text variant="caption" gold style={styles.dateText}>
                   {event.dateLabel}
                 </Text>
@@ -48,7 +53,6 @@ const styles = StyleSheet.create({
   dateChip: {
     minWidth: 88,
     borderRadius: radii.md,
-    backgroundColor: colors.goldMuted,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.sm,
     alignItems: 'center',

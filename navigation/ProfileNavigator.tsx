@@ -11,7 +11,7 @@ import {
   ProfileHomeScreen,
   SettingsScreen,
 } from '../screens';
-import { colors } from '../lib/theme';
+import { useAppTheme } from '../hooks';
 import type { ProfileStackParamList } from '../types/navigation';
 
 const Stack = createNativeStackNavigator<ProfileStackParamList>();
@@ -27,6 +27,8 @@ const DETAIL_ROUTES: Array<keyof ProfileStackParamList> = [
 ];
 
 export function ProfileNavigator() {
+  const { colors } = useAppTheme();
+
   return (
     <Stack.Navigator
       screenOptions={{

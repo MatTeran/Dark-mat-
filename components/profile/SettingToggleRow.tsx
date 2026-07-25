@@ -1,6 +1,7 @@
 import { Switch, StyleSheet, View } from 'react-native';
 
-import { colors, spacing } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { spacing } from '../../lib/theme';
 import { Text } from '../ui/Text';
 
 interface SettingToggleRowProps {
@@ -16,6 +17,8 @@ export function SettingToggleRow({
   value,
   onValueChange,
 }: SettingToggleRowProps) {
+  const { colors } = useAppTheme();
+
   return (
     <View style={styles.row}>
       <View style={styles.copy}>

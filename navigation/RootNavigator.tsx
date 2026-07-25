@@ -1,41 +1,48 @@
-import { DarkTheme, NavigationContainer } from '@react-navigation/native';
+import {
+  DarkTheme,
+  DefaultTheme,
+  NavigationContainer,
+} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { Text } from '../components';
-import { useAuth } from '../hooks';
+import { useAuth, useAppTheme } from '../hooks';
 import { APP_NAME } from '../lib/constants';
-import { colors, spacing } from '../lib/theme';
+import { spacing } from '../lib/theme';
 import { AuthNavigator } from './AuthNavigator';
 import { MainTabNavigator } from './MainTabNavigator';
 import type { RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-const navigationTheme = {
-  ...DarkTheme,
-  colors: {
-    ...DarkTheme.colors,
-    background: colors.primaryBackground,
-    card: colors.primaryBackground,
-    primary: colors.goldAccent,
-    text: colors.text,
-    border: colors.border,
-    notification: colors.goldAccent,
-  },
-};
-
 /**
  * Top-level navigator: Auth stack vs Main tabs from persisted Supabase session.
  */
 export function RootNavigator() {
   const { isAuthenticated, isLoading } = useAuth();
+  const { colors, isDark } = useAppTheme();
+
+  const navigationTheme = {
+    ...(isDark ? DarkTheme : DefaultTheme),
+    colors: {
+      ...(isDark ? DarkTheme.colors : DefaultTheme.colors),
+      background: colors.primaryBackground,
+      card: colors.primaryBackground,
+      primary: colors.goldAccent,
+      text: colors.text,
+      border: colors.border,
+      notification: colors.goldAccent,
+    },
+  };
 
   if (isLoading) {
     return (
-      <View style={styles.boot}>
-        <StatusBar style="light" />
+      <View
+        style={[styles.boot, { backgroundColor: colors.primaryBackground }]}
+      >
+        <StatusBar style={isDark ? 'light' : 'dark'} />
         <Text variant="brand" gold>
           {APP_NAME.toUpperCase()}
         </Text>
@@ -49,7 +56,7 @@ export function RootNavigator() {
 
   return (
     <NavigationContainer theme={navigationTheme}>
-      <StatusBar style="light" />
+      <StatusBar style={isDark ? 'light' : 'dark'} />
       <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade' }}>
         {isAuthenticated ? (
           <Stack.Screen name="Main" component={MainTabNavigator} />
@@ -64,7 +71,6 @@ export function RootNavigator() {
 const styles = StyleSheet.create({
   boot: {
     flex: 1,
-    backgroundColor: colors.primaryBackground,
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.lg,

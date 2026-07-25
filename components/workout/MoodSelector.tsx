@@ -1,7 +1,8 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { MOOD_OPTIONS } from '../../lib/data/workoutOptions';
-import { colors, radii, spacing } from '../../lib/theme';
+import { radii, spacing } from '../../lib/theme';
+import { useThemedStyles } from '../../lib/theme/useThemedStyles';
 import type { WorkoutMood } from '../../types/workout';
 import { Text } from '../ui/Text';
 
@@ -11,6 +12,39 @@ interface MoodSelectorProps {
 }
 
 export function MoodSelector({ value, onChange }: MoodSelectorProps) {
+  const styles = useThemedStyles((colors) => ({
+    row: {
+      flexDirection: 'row' as const,
+      gap: spacing.xs,
+      marginTop: spacing.sm,
+    },
+    item: {
+      flex: 1,
+      minWidth: 0,
+      alignItems: 'center' as const,
+      gap: 4,
+      paddingVertical: spacing.sm,
+      borderRadius: radii.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.secondaryBackground,
+    },
+    itemActive: {
+      borderColor: colors.goldAccent,
+      backgroundColor: colors.goldMuted,
+    },
+    emoji: {
+      fontSize: 22,
+    },
+    label: {
+      color: colors.secondaryText,
+      textAlign: 'center' as const,
+    },
+    labelActive: {
+      color: colors.goldAccent,
+    },
+  }));
+
   return (
     <View>
       <Text variant="label">Mood after training</Text>
@@ -37,36 +71,3 @@ export function MoodSelector({ value, onChange }: MoodSelectorProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    gap: spacing.xs,
-    marginTop: spacing.sm,
-  },
-  item: {
-    flex: 1,
-    minWidth: 0,
-    alignItems: 'center',
-    gap: 4,
-    paddingVertical: spacing.sm,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.secondaryBackground,
-  },
-  itemActive: {
-    borderColor: colors.goldAccent,
-    backgroundColor: colors.goldMuted,
-  },
-  emoji: {
-    fontSize: 22,
-  },
-  label: {
-    color: colors.secondaryText,
-    textAlign: 'center',
-  },
-  labelActive: {
-    color: colors.goldAccent,
-  },
-});

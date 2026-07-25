@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
-import { colors, radii, spacing } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { spacing } from '../../lib/theme';
 import type { MemberBirthday } from '../../types/community';
 import { Card } from '../ui/Card';
 import { Text } from '../ui/Text';
@@ -10,6 +11,8 @@ interface BirthdayCardProps {
 }
 
 export function BirthdayCard({ birthdays }: BirthdayCardProps) {
+  const { colors } = useAppTheme();
+
   return (
     <Card padded={false}>
       {birthdays.map((person, index) => (
@@ -17,10 +20,15 @@ export function BirthdayCard({ birthdays }: BirthdayCardProps) {
           key={person.id}
           style={[
             styles.row,
-            index < birthdays.length - 1 && styles.rowBorder,
+            index < birthdays.length - 1 && {
+              borderBottomWidth: StyleSheet.hairlineWidth,
+              borderBottomColor: colors.border,
+            },
           ]}
         >
-          <View style={styles.avatar}>
+          <View
+            style={[styles.avatar, { backgroundColor: colors.goldMuted }]}
+          >
             <Text variant="subtitle" gold>
               {person.name.charAt(0)}
             </Text>
@@ -46,17 +54,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
-  rowBorder: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-  },
   avatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.goldMuted,
   },
   copy: {
     flex: 1,

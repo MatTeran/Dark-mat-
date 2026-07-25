@@ -9,7 +9,8 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, radii, spacing } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { radii, spacing } from '../../lib/theme';
 import { HomeGreeting } from './HomeGreeting';
 
 const HERO_IMAGE = require('../../assets/home-hero.png');
@@ -26,6 +27,7 @@ export function HomeHeroBanner({
   firstName,
   motivationalMessage,
 }: HomeHeroBannerProps) {
+  const { colors } = useAppTheme();
   const insets = useSafeAreaInsets();
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(10)).current;
@@ -53,6 +55,7 @@ export function HomeHeroBanner({
         styles.shell,
         {
           height: BANNER_BODY_HEIGHT + insets.top,
+          backgroundColor: colors.secondaryBackground,
           opacity,
           transform: [{ translateY }],
         },
@@ -70,7 +73,7 @@ export function HomeHeroBanner({
             'rgba(13,13,13,0.15)',
             'rgba(13,13,13,0.45)',
             'rgba(13,13,13,0.88)',
-            colors.primaryBackground,
+            'rgba(13,13,13,1)',
           ]}
           locations={[0, 0.35, 0.72, 1]}
           style={styles.gradient}
@@ -105,7 +108,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderBottomLeftRadius: radii.xl,
     borderBottomRightRadius: radii.xl,
-    backgroundColor: colors.secondaryBackground,
   },
   image: {
     flex: 1,

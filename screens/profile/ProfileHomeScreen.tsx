@@ -14,9 +14,9 @@ import {
   Spacer,
   Text,
 } from '../../components';
-import { useAuth } from '../../hooks';
+import { useAuth, useAppTheme } from '../../hooks';
 import { useProfile } from '../../lib/providers/ProfileProvider';
-import { colors, radii, spacing } from '../../lib/theme';
+import { radii, spacing } from '../../lib/theme';
 import type { ProfileStackParamList } from '../../types/navigation';
 import {
   getAuthErrorMessage,
@@ -41,6 +41,7 @@ function getInitials(fullName: string | null | undefined): string {
 }
 
 export function ProfileHomeScreen({ navigation }: Props) {
+  const { colors } = useAppTheme();
   const { user, signOut } = useAuth();
   const {
     hub,
@@ -113,7 +114,15 @@ export function ProfileHomeScreen({ navigation }: Props) {
       <Spacer size="xl" />
 
       <FadeIn delay={60}>
-        <View style={styles.identity}>
+        <View
+          style={[
+            styles.identity,
+            {
+              backgroundColor: colors.secondaryBackground,
+              borderColor: colors.border,
+            },
+          ]}
+        >
           <ProfileAvatar
             uri={hub.avatarUri}
             initials={getInitials(user?.fullName)}
@@ -246,10 +255,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: spacing.md,
-    backgroundColor: colors.secondaryBackground,
     borderRadius: radii.lg,
     borderWidth: 1,
-    borderColor: colors.border,
     padding: spacing.lg,
   },
   identityCopy: {

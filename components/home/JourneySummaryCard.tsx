@@ -6,7 +6,8 @@ import {
   formatXp,
   getXpProgressPercentage,
 } from '../../utils/journey';
-import { colors, radii, spacing } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { radii, spacing } from '../../lib/theme';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { ProgressBar } from '../journey/ProgressBar';
@@ -22,6 +23,7 @@ export function JourneySummaryCard({
   summary,
   onOpenJourney,
 }: JourneySummaryCardProps) {
+  const { colors } = useAppTheme();
   const remaining = Math.max(0, summary.nextLevelXP - summary.currentXP);
   const percent = getXpProgressPercentage(
     summary.currentXP,
@@ -29,7 +31,7 @@ export function JourneySummaryCard({
   );
 
   return (
-    <Card style={styles.card}>
+    <Card style={{ backgroundColor: colors.elevatedSurface }}>
       <Text variant="label" gold>
         Your Journey
       </Text>
@@ -67,17 +69,41 @@ export function JourneySummaryCard({
 
       <Spacer size="md" />
       <View style={styles.statsRow}>
-        <View style={styles.stat}>
+        <View
+          style={[
+            styles.stat,
+            {
+              backgroundColor: colors.secondaryBackground,
+              borderColor: colors.border,
+            },
+          ]}
+        >
           <Text variant="caption">Training Days</Text>
           <Text variant="body">{summary.weeklyTrainingDays}</Text>
         </View>
-        <View style={styles.stat}>
+        <View
+          style={[
+            styles.stat,
+            {
+              backgroundColor: colors.secondaryBackground,
+              borderColor: colors.border,
+            },
+          ]}
+        >
           <Text variant="caption">Weekly Goal</Text>
           <Text variant="body">
             {summary.weeklyClassesCompleted} / {summary.weeklyClassGoal}
           </Text>
         </View>
-        <View style={styles.stat}>
+        <View
+          style={[
+            styles.stat,
+            {
+              backgroundColor: colors.secondaryBackground,
+              borderColor: colors.border,
+            },
+          ]}
+        >
           <View style={styles.streakLabel}>
             <Ionicons name="flame" size={12} color={colors.goldAccent} />
             <Text variant="caption">Streak</Text>
@@ -98,9 +124,6 @@ export function JourneySummaryCard({
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.elevatedSurface,
-  },
   levelRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -120,9 +143,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.xs,
     borderRadius: radii.md,
-    backgroundColor: colors.secondaryBackground,
     borderWidth: 1,
-    borderColor: colors.border,
   },
   streakLabel: {
     flexDirection: 'row',

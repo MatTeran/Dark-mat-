@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 
-import { colors, radii, spacing } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { radii, spacing } from '../../lib/theme';
 import { Text } from '../ui/Text';
 
 interface ProfileAvatarProps {
@@ -17,6 +18,8 @@ export function ProfileAvatar({
   onPress,
   size = 76,
 }: ProfileAvatarProps) {
+  const { colors } = useAppTheme();
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -24,7 +27,12 @@ export function ProfileAvatar({
       onPress={onPress}
       style={({ pressed }) => [
         styles.wrap,
-        { width: size, height: size },
+        {
+          width: size,
+          height: size,
+          backgroundColor: colors.goldMuted,
+          borderColor: colors.border,
+        },
         pressed && styles.pressed,
       ]}
     >
@@ -37,7 +45,15 @@ export function ProfileAvatar({
           </Text>
         </View>
       )}
-      <View style={styles.badge}>
+      <View
+        style={[
+          styles.badge,
+          {
+            backgroundColor: colors.goldAccent,
+            borderColor: colors.secondaryBackground,
+          },
+        ]}
+      >
         <Ionicons name="camera" size={12} color={colors.primaryBackground} />
       </View>
     </Pressable>
@@ -48,9 +64,7 @@ const styles = StyleSheet.create({
   wrap: {
     borderRadius: radii.lg,
     overflow: 'hidden',
-    backgroundColor: colors.goldMuted,
     borderWidth: 1,
-    borderColor: colors.border,
   },
   pressed: {
     opacity: 0.9,
@@ -75,10 +89,8 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: radii.pill,
-    backgroundColor: colors.goldAccent,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: colors.secondaryBackground,
   },
 });

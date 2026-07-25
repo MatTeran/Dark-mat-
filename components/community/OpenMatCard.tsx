@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
-import { colors, radii, spacing } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { radii, spacing } from '../../lib/theme';
 import type { OpenMatSession } from '../../types/community';
 import { Card } from '../ui/Card';
 import { Spacer } from '../ui/Spacer';
@@ -11,12 +12,14 @@ interface OpenMatCardProps {
 }
 
 export function OpenMatCard({ session }: OpenMatCardProps) {
+  const { colors } = useAppTheme();
+
   return (
     <Card>
       <View style={styles.header}>
         <Text variant="subtitle">{session.title}</Text>
-        <View style={styles.badge}>
-          <Text variant="caption" style={styles.badgeText}>
+        <View style={[styles.badge, { backgroundColor: colors.goldMuted }]}>
+          <Text variant="caption" style={{ color: colors.goldAccent }}>
             {session.giType}
           </Text>
         </View>
@@ -44,11 +47,7 @@ const styles = StyleSheet.create({
   },
   badge: {
     borderRadius: radii.pill,
-    backgroundColor: colors.goldMuted,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xxs,
-  },
-  badgeText: {
-    color: colors.goldAccent,
   },
 });

@@ -2,7 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, View } from 'react-native';
 
 import type { QuickAction, QuickActionId } from '../../types/home';
-import { colors, radii, spacing } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { radii, spacing } from '../../lib/theme';
 import { Card } from '../ui/Card';
 import { Spacer } from '../ui/Spacer';
 import { Text } from '../ui/Text';
@@ -21,6 +22,7 @@ function chunkActions(actions: QuickAction[], size: number) {
 }
 
 export function QuickActions({ actions, onAction }: QuickActionsProps) {
+  const { colors } = useAppTheme();
   const rows = chunkActions(actions.slice(0, 4), 2);
 
   return (
@@ -35,7 +37,10 @@ export function QuickActions({ actions, onAction }: QuickActionsProps) {
                 <Card
                   onPress={() => onAction(action.id)}
                   padded={false}
-                  style={styles.card}
+                  style={{
+                    width: '100%',
+                    backgroundColor: colors.elevatedSurface,
+                  }}
                 >
                   <View
                     accessible
@@ -43,7 +48,12 @@ export function QuickActions({ actions, onAction }: QuickActionsProps) {
                     accessibilityLabel={`${action.label}. ${action.subtitle}`}
                     style={styles.tileInner}
                   >
-                    <View style={styles.iconWrap}>
+                    <View
+                      style={[
+                        styles.iconWrap,
+                        { backgroundColor: colors.goldMuted },
+                      ]}
+                    >
                       <Ionicons
                         name={action.icon}
                         size={18}
@@ -81,10 +91,6 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
   },
-  card: {
-    width: '100%',
-    backgroundColor: colors.elevatedSurface,
-  },
   tileInner: {
     padding: spacing.md,
     minHeight: 124,
@@ -95,7 +101,6 @@ const styles = StyleSheet.create({
     borderRadius: radii.md,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.goldMuted,
   },
   label: {
     fontSize: 15,

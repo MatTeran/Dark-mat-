@@ -6,7 +6,8 @@ import {
   View,
 } from 'react-native';
 
-import { colors, fontFamilies, radii, spacing } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { fontFamilies, radii, spacing } from '../../lib/theme';
 import { Text } from './Text';
 
 export interface InputProps extends TextInputProps {
@@ -15,9 +16,10 @@ export interface InputProps extends TextInputProps {
 }
 
 /**
- * Minimal dark-surface text field with gold focus ring.
+ * Minimal text field with gold focus ring.
  */
 export function Input({ label, error, style, onFocus, onBlur, ...rest }: InputProps) {
+  const { colors } = useAppTheme();
   const [focused, setFocused] = useState(false);
 
   return (
@@ -32,8 +34,15 @@ export function Input({ label, error, style, onFocus, onBlur, ...rest }: InputPr
         selectionColor={colors.goldAccent}
         style={[
           styles.input,
-          focused && styles.inputFocused,
-          error ? styles.inputError : null,
+          {
+            backgroundColor: colors.secondaryBackground,
+            borderColor: error
+              ? colors.error
+              : focused
+                ? colors.goldAccent
+                : colors.border,
+            color: colors.text,
+          },
           style,
         ]}
         onFocus={(event) => {
@@ -47,7 +56,7 @@ export function Input({ label, error, style, onFocus, onBlur, ...rest }: InputPr
         {...rest}
       />
       {error ? (
-        <Text variant="caption" style={styles.error}>
+        <Text variant="caption" style={{ color: colors.error }}>
           {error}
         </Text>
       ) : null}
@@ -66,20 +75,8 @@ const styles = StyleSheet.create({
     minHeight: 52,
     borderRadius: radii.md,
     paddingHorizontal: spacing.md,
-    backgroundColor: colors.secondaryBackground,
     borderWidth: 1,
-    borderColor: colors.border,
-    color: colors.text,
     fontFamily: fontFamilies.regular,
     fontSize: 16,
-  },
-  inputFocused: {
-    borderColor: colors.goldAccent,
-  },
-  inputError: {
-    borderColor: colors.error,
-  },
-  error: {
-    color: colors.error,
   },
 });

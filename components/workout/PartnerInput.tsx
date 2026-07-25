@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { colors, radii, spacing } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { radii, spacing } from '../../lib/theme';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Spacer } from '../ui/Spacer';
@@ -13,6 +14,7 @@ interface PartnerInputProps {
 }
 
 export function PartnerInput({ partners, onChange }: PartnerInputProps) {
+  const { colors } = useAppTheme();
   const [name, setName] = useState('');
 
   const addPartner = () => {
@@ -53,9 +55,15 @@ export function PartnerInput({ partners, onChange }: PartnerInputProps) {
               <Pressable
                 key={partner}
                 onPress={() => removePartner(partner)}
-                style={styles.chip}
+                style={[
+                  styles.chip,
+                  {
+                    backgroundColor: colors.goldMuted,
+                    borderColor: colors.goldAccent,
+                  },
+                ]}
               >
-                <Text variant="caption" style={styles.chipText}>
+                <Text variant="caption" style={{ color: colors.goldAccent }}>
                   {partner}  ×
                 </Text>
               </Pressable>
@@ -75,13 +83,8 @@ const styles = StyleSheet.create({
   },
   chip: {
     borderRadius: radii.pill,
-    backgroundColor: colors.goldMuted,
     borderWidth: 1,
-    borderColor: colors.goldAccent,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
-  },
-  chipText: {
-    color: colors.goldAccent,
   },
 });

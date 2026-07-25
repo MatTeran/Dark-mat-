@@ -1,7 +1,8 @@
-import { Pressable, ScrollView, StyleSheet } from 'react-native';
+import { Pressable, ScrollView } from 'react-native';
 
 import { SCHEDULE_FILTERS } from '../../lib/data/schedule';
-import { colors, radii, spacing } from '../../lib/theme';
+import { radii, spacing } from '../../lib/theme';
+import { useThemedStyles } from '../../lib/theme/useThemedStyles';
 import type { ScheduleFilter } from '../../types/schedule';
 import { Text } from '../ui/Text';
 
@@ -11,6 +12,34 @@ interface ScheduleFiltersProps {
 }
 
 export function ScheduleFilters({ selected, onSelect }: ScheduleFiltersProps) {
+  const styles = useThemedStyles((colors) => ({
+    row: {
+      gap: spacing.xs,
+      paddingRight: spacing.md,
+    },
+    chip: {
+      height: 36,
+      borderRadius: radii.pill,
+      alignItems: 'center' as const,
+      justifyContent: 'center' as const,
+      paddingHorizontal: spacing.md,
+      backgroundColor: colors.secondaryBackground,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    chipActive: {
+      backgroundColor: colors.goldMuted,
+      borderColor: colors.goldAccent,
+    },
+    label: {
+      color: colors.secondaryText,
+      letterSpacing: 0.3,
+    },
+    labelActive: {
+      color: colors.goldAccent,
+    },
+  }));
+
   return (
     <ScrollView
       horizontal
@@ -37,31 +66,3 @@ export function ScheduleFilters({ selected, onSelect }: ScheduleFiltersProps) {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  row: {
-    gap: spacing.xs,
-    paddingRight: spacing.md,
-  },
-  chip: {
-    height: 36,
-    borderRadius: radii.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: spacing.md,
-    backgroundColor: colors.secondaryBackground,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  chipActive: {
-    backgroundColor: colors.goldMuted,
-    borderColor: colors.goldAccent,
-  },
-  label: {
-    color: colors.secondaryText,
-    letterSpacing: 0.3,
-  },
-  labelActive: {
-    color: colors.goldAccent,
-  },
-});

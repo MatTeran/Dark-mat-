@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, spacing } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { spacing } from '../../lib/theme';
 
 export interface ScreenProps extends PropsWithChildren {
   scroll?: boolean;
@@ -38,15 +39,18 @@ export function Screen({
   refreshControl,
 }: ScreenProps) {
   const insets = useSafeAreaInsets();
+  const { colors } = useAppTheme();
   const safePadding = {
     paddingTop: flushTop ? 0 : insets.top + (padded ? spacing.md : 0),
     paddingBottom: insets.bottom + (padded ? spacing.lg : 0),
     paddingHorizontal: padded ? spacing.lg : 0,
   };
 
+  const baseStyle = [styles.base, { backgroundColor: colors.primaryBackground }];
+
   const body = scroll ? (
     <ScrollView
-      style={styles.base}
+      style={baseStyle}
       contentContainerStyle={[styles.scrollContent, contentStyle, safePadding]}
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode="on-drag"
@@ -56,7 +60,7 @@ export function Screen({
       {children}
     </ScrollView>
   ) : (
-    <View style={[styles.base, contentStyle, style, safePadding]}>{children}</View>
+    <View style={[baseStyle, contentStyle, style, safePadding]}>{children}</View>
   );
 
   if (!keyboard) {
@@ -65,7 +69,7 @@ export function Screen({
 
   return (
     <KeyboardAvoidingView
-      style={styles.base}
+      style={baseStyle}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 8 : 0}
     >
@@ -77,7 +81,6 @@ export function Screen({
 const styles = StyleSheet.create({
   base: {
     flex: 1,
-    backgroundColor: colors.primaryBackground,
   },
   scrollContent: {
     flexGrow: 1,

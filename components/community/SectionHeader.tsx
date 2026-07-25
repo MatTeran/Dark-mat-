@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { colors, spacing } from '../../lib/theme';
+import { spacing } from '../../lib/theme';
 import { Spacer } from '../ui/Spacer';
 import { Text } from '../ui/Text';
 

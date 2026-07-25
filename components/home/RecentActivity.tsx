@@ -2,16 +2,19 @@ import { StyleSheet, View } from 'react-native';
 
 import type { ActivityItem } from '../../types/home';
 import { formatShortDate } from '../../utils';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { spacing } from '../../lib/theme';
 import { Card } from '../ui/Card';
 import { Spacer } from '../ui/Spacer';
 import { Text } from '../ui/Text';
-import { colors, spacing } from '../../lib/theme';
 
 interface RecentActivityProps {
   items: ActivityItem[];
 }
 
 export function RecentActivity({ items }: RecentActivityProps) {
+  const { colors } = useAppTheme();
+
   return (
     <View>
       <Text variant="subtitle">Recent Activity</Text>
@@ -22,10 +25,15 @@ export function RecentActivity({ items }: RecentActivityProps) {
             key={item.id}
             style={[
               styles.row,
-              index < items.length - 1 && styles.rowBorder,
+              index < items.length - 1 && {
+                borderBottomWidth: StyleSheet.hairlineWidth,
+                borderBottomColor: colors.border,
+              },
             ]}
           >
-            <View style={styles.dot} />
+            <View
+              style={[styles.dot, { backgroundColor: colors.goldAccent }]}
+            />
             <View style={styles.copy}>
               <Text variant="body">{item.title}</Text>
               <Text variant="caption">
@@ -47,15 +55,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
-  rowBorder: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-  },
   dot: {
     width: 7,
     height: 7,
     borderRadius: 4,
-    backgroundColor: colors.goldAccent,
   },
   copy: {
     flex: 1,
