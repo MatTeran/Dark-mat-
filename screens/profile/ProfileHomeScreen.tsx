@@ -7,6 +7,7 @@ import { Share, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
+  appearanceLabel,
   Banner,
   Button,
   FadeIn,
@@ -69,7 +70,7 @@ function formatMemberSince(iso: string): string {
 export function ProfileHomeScreen({ navigation }: Props) {
   const tabNavigation = navigation as ProfileNavigation;
   const insets = useSafeAreaInsets();
-  const { isDark } = useAppTheme();
+  const { isDark, preference } = useAppTheme();
   const { user, signOut, isGuest } = useAuth();
   const {
     hub,
@@ -333,7 +334,7 @@ export function ProfileHomeScreen({ navigation }: Props) {
           <ProfileMenuRow
             icon="settings-outline"
             label="Settings"
-            value="Appearance & preferences"
+            value={`${appearanceLabel(preference)} mode · preferences`}
             onPress={() => navigation.navigate('Settings')}
             showDivider
           />

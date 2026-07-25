@@ -25,6 +25,10 @@ export { ProgressBar } from './journey/ProgressBar';
 export { RecentAchievementsCarousel } from './journey/RecentAchievementsCarousel';
 export { WeeklyStreakCard } from './journey/WeeklyStreakCard';
 export { XPProgressCard } from './journey/XPProgressCard';
+export {
+  AppearanceSelector,
+  appearanceLabel,
+} from './profile/AppearanceSelector';
 export { BeltBadge } from './profile/BeltBadge';
 export { FamilyMemberCard } from './profile/FamilyMemberCard';
 export { ProfileActionButton } from './profile/ProfileActionButton';
