@@ -2,7 +2,9 @@
 
 Premium Brazilian Jiu-Jitsu academy management app.
 
-Built with React Native, Expo, TypeScript, Supabase, NativeWind, React Navigation, Stripe, and React Query.
+Built with React Native, Expo SDK 54, TypeScript, Supabase, NativeWind, React Navigation, Stripe, and React Query.
+
+> **Note:** The project targets **Expo SDK 54** so it opens in the App Store / Play Store Expo Go app. Newer SDKs (55+) are not yet available in store Expo Go.
 
 ## Architecture
 
