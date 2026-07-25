@@ -10,7 +10,7 @@ import { StyleSheet, View } from 'react-native';
 
 import {
   FadeIn,
-  HomeGreeting,
+  HomeHeroBanner,
   JourneySummaryCard,
   LatestAnnouncementCard,
   NextClassCard,
@@ -164,73 +164,71 @@ export function HomeScreen() {
   };
 
   return (
-    <Screen scroll contentStyle={styles.content}>
-      <FadeIn>
-        <HomeGreeting
-          greeting={greeting}
-          firstName={firstName}
-          motivationalMessage={motivationalMessage}
-        />
-      </FadeIn>
+    <Screen scroll padded={false} flushTop contentStyle={styles.content}>
+      <HomeHeroBanner
+        greeting={greeting}
+        firstName={firstName}
+        motivationalMessage={motivationalMessage}
+      />
 
-      <Spacer size="lg" />
+      <View style={styles.body}>
+        <FadeIn delay={60}>
+          <NextClassCard
+            nextClass={NEXT_CLASS_SUMMARY}
+            reservationStatus={reservationStatus}
+            actionLoading={actionLoading}
+            xpEarnedLabel={xpEarnedLabel}
+            onPrimaryAction={() => {
+              void handlePrimaryClassAction();
+            }}
+            onOpenDetails={() => navigation.navigate('Schedule')}
+          />
+        </FadeIn>
 
-      <FadeIn delay={60}>
-        <NextClassCard
-          nextClass={NEXT_CLASS_SUMMARY}
-          reservationStatus={reservationStatus}
-          actionLoading={actionLoading}
-          xpEarnedLabel={xpEarnedLabel}
-          onPrimaryAction={() => {
-            void handlePrimaryClassAction();
-          }}
-          onOpenDetails={() => navigation.navigate('Schedule')}
-        />
-      </FadeIn>
+        <Spacer size="md" />
 
-      <Spacer size="md" />
+        <FadeIn delay={100}>
+          <JourneySummaryCard
+            summary={journeySummary}
+            onOpenJourney={() => navigation.navigate('Journey')}
+          />
+        </FadeIn>
 
-      <FadeIn delay={100}>
-        <JourneySummaryCard
-          summary={journeySummary}
-          onOpenJourney={() => navigation.navigate('Journey')}
-        />
-      </FadeIn>
+        {latestAnnouncement ? (
+          <>
+            <Spacer size="md" />
+            <FadeIn delay={140}>
+              <Text variant="subtitle" style={styles.sectionTitle}>
+                Academy Announcement
+              </Text>
+              <Spacer size="sm" />
+              <LatestAnnouncementCard
+                announcement={latestAnnouncement}
+                onPress={() =>
+                  navigation.navigate('Community', {
+                    screen: 'AnnouncementDetail',
+                    params: { announcementId: latestAnnouncement.id },
+                  })
+                }
+              />
+            </FadeIn>
+          </>
+        ) : null}
 
-      {latestAnnouncement ? (
-        <>
-          <Spacer size="md" />
-          <FadeIn delay={140}>
-            <Text variant="subtitle" style={styles.sectionTitle}>
-              Academy Announcement
-            </Text>
-            <Spacer size="sm" />
-            <LatestAnnouncementCard
-              announcement={latestAnnouncement}
-              onPress={() =>
-                navigation.navigate('Community', {
-                  screen: 'AnnouncementDetail',
-                  params: { announcementId: latestAnnouncement.id },
-                })
-              }
-            />
-          </FadeIn>
-        </>
-      ) : null}
+        <Spacer size="lg" />
 
-      <Spacer size="lg" />
+        <FadeIn delay={180}>
+          <QuickActions actions={QUICK_ACTIONS} onAction={handleQuickAction} />
+        </FadeIn>
 
-      <FadeIn delay={180}>
-        <QuickActions actions={QUICK_ACTIONS} onAction={handleQuickAction} />
-      </FadeIn>
+        <Spacer size="lg" />
 
-      <Spacer size="lg" />
+        <FadeIn delay={220}>
+          <UpcomingEvents events={UPCOMING_EVENTS} />
+        </FadeIn>
 
-      <FadeIn delay={220}>
-        <UpcomingEvents events={UPCOMING_EVENTS} />
-      </FadeIn>
-
-      <View style={styles.bottomSpace} />
+        <View style={styles.bottomSpace} />
+      </View>
     </Screen>
   );
 }
@@ -238,6 +236,11 @@ export function HomeScreen() {
 const styles = StyleSheet.create({
   content: {
     width: '100%',
+  },
+  body: {
+    width: '100%',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
   },
   sectionTitle: {
     fontSize: 17,

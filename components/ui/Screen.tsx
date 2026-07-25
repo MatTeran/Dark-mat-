@@ -15,6 +15,8 @@ import { colors, spacing } from '../../lib/theme';
 export interface ScreenProps extends PropsWithChildren {
   scroll?: boolean;
   padded?: boolean;
+  /** Skip top safe-area padding so content (e.g. hero banners) can go edge-to-edge. */
+  flushTop?: boolean;
   keyboard?: boolean;
   style?: ViewStyle;
   contentStyle?: ViewStyle;
@@ -29,6 +31,7 @@ export function Screen({
   children,
   scroll = false,
   padded = true,
+  flushTop = false,
   keyboard = false,
   style,
   contentStyle,
@@ -36,7 +39,7 @@ export function Screen({
 }: ScreenProps) {
   const insets = useSafeAreaInsets();
   const safePadding = {
-    paddingTop: insets.top + (padded ? spacing.md : 0),
+    paddingTop: flushTop ? 0 : insets.top + (padded ? spacing.md : 0),
     paddingBottom: insets.bottom + (padded ? spacing.lg : 0),
     paddingHorizontal: padded ? spacing.lg : 0,
   };

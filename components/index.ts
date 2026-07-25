@@ -6,6 +6,7 @@ export { SectionHeader } from './community/SectionHeader';
 export { SeminarCard } from './community/SeminarCard';
 export { FadeIn } from './home/FadeIn';
 export { HomeGreeting } from './home/HomeGreeting';
+export { HomeHeroBanner } from './home/HomeHeroBanner';
 export { JourneySummaryCard } from './home/JourneySummaryCard';
 export { LatestAnnouncementCard } from './home/LatestAnnouncementCard';
 export { NextClassActionButton } from './home/NextClassActionButton';
