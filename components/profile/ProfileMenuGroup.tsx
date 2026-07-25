@@ -25,8 +25,8 @@ export function ProfileMenuGroup({ children }: PropsWithChildren) {
 const styles = StyleSheet.create({
   group: {
     width: '100%',
-    borderRadius: radii.lg,
-    borderWidth: 1,
+    borderRadius: radii.xl,
+    borderWidth: StyleSheet.hairlineWidth,
     overflow: 'hidden',
   },
 });

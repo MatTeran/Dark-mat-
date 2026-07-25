@@ -1,6 +1,7 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, ViewStyle } from 'react-native';
 
-import { colors, radii, spacing } from '../../lib/theme';
+import { useAppTheme } from '../../lib/providers/ThemeProvider';
+import { radii, spacing } from '../../lib/theme';
 import type { BeltRank } from '../../types/user';
 import { Text } from '../ui/Text';
 
@@ -16,21 +17,38 @@ interface BeltBadgeProps {
   belt: BeltRank;
   stripes: 0 | 1 | 2 | 3 | 4;
   size?: 'md' | 'lg';
+  /** Center the belt + caption (profile hero). */
+  centered?: boolean;
+  compact?: boolean;
 }
 
-export function BeltBadge({ belt, stripes, size = 'md' }: BeltBadgeProps) {
-  const height = size === 'lg' ? 28 : 18;
-  const stripeWidth = size === 'lg' ? 5 : 3;
+export function BeltBadge({
+  belt,
+  stripes,
+  size = 'md',
+  centered = false,
+  compact = false,
+}: BeltBadgeProps) {
+  const { colors } = useAppTheme();
+  const height = size === 'lg' ? 28 : compact ? 14 : 18;
+  const stripeWidth = size === 'lg' ? 5 : compact ? 3 : 3;
+  const wrapStyle: ViewStyle = centered
+    ? styles.wrapCentered
+    : styles.wrap;
 
   return (
-    <View style={styles.wrap}>
+    <View style={wrapStyle}>
       <View
         style={[
           styles.belt,
+          compact && styles.beltCompact,
           {
             height,
             backgroundColor: BELT_COLORS[belt],
-            borderColor: belt === 'white' || belt === 'black' ? colors.border : 'transparent',
+            borderColor:
+              belt === 'white' || belt === 'black'
+                ? colors.border
+                : 'transparent',
           },
         ]}
       >
@@ -42,7 +60,7 @@ export function BeltBadge({ belt, stripes, size = 'md' }: BeltBadgeProps) {
                 styles.stripe,
                 {
                   width: stripeWidth,
-                  height: height - 6,
+                  height: height - (compact ? 4 : 6),
                   opacity: index < stripes ? 1 : 0.2,
                   backgroundColor:
                     belt === 'white' || belt === 'black'
@@ -54,7 +72,10 @@ export function BeltBadge({ belt, stripes, size = 'md' }: BeltBadgeProps) {
           ))}
         </View>
       </View>
-      <Text variant="caption" style={styles.caption}>
+      <Text
+        variant="caption"
+        style={[styles.caption, { color: colors.secondaryText }]}
+      >
         {belt.charAt(0).toUpperCase() + belt.slice(1)} · {stripes} stripe
         {stripes === 1 ? '' : 's'}
       </Text>
@@ -67,6 +88,10 @@ const styles = StyleSheet.create({
     width: '100%',
     gap: spacing.xs,
   },
+  wrapCentered: {
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
   belt: {
     width: '100%',
     maxWidth: 220,
@@ -74,6 +99,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     justifyContent: 'center',
     paddingHorizontal: spacing.sm,
+  },
+  beltCompact: {
+    width: 160,
+    maxWidth: 160,
   },
   stripeTrack: {
     width: '100%',
@@ -85,7 +114,5 @@ const styles = StyleSheet.create({
   stripe: {
     borderRadius: 1,
   },
-  caption: {
-    color: colors.secondaryText,
-  },
+  caption: {},
 });

@@ -1,31 +1,44 @@
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import type { CompositeNavigationProp } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Share, StyleSheet, View } from 'react-native';
 
 import {
   Banner,
   BeltBadge,
   Button,
   FadeIn,
-  ProfileAvatar,
+  ProfileActionButton,
   ProfileMenuGroup,
   ProfileMenuRow,
+  ProfileShieldAvatar,
+  ProfileStatsRow,
   Screen,
   Spacer,
   Text,
+  WorkoutProgressCard,
 } from '../../components';
-import { useAuth, useAppTheme } from '../../hooks';
+import { useAuth } from '../../hooks';
 import { useProfile } from '../../lib/providers/ProfileProvider';
-import { radii, spacing } from '../../lib/theme';
+import { useWorkouts } from '../../lib/providers/WorkoutProvider';
+import { spacing } from '../../lib/theme';
+import type { MainTabParamList } from '../../types';
 import type { ProfileStackParamList } from '../../types/navigation';
+import type { WorkoutMetricFilter } from '../../types/workoutMetrics';
 import {
   getAuthErrorMessage,
   getFirstName,
   pickProfilePhoto,
   promptProfilePhotoActions,
 } from '../../utils';
+import { buildWorkoutProgressMetrics } from '../../utils/workoutMetrics';
 
 type Props = NativeStackScreenProps<ProfileStackParamList, 'ProfileHome'>;
+type ProfileNavigation = CompositeNavigationProp<
+  Props['navigation'],
+  BottomTabNavigationProp<MainTabParamList>
+>;
 
 function getInitials(fullName: string | null | undefined): string {
   if (!fullName?.trim()) {
@@ -40,8 +53,24 @@ function getInitials(fullName: string | null | undefined): string {
     .toUpperCase();
 }
 
+function formatMemberSince(iso: string): string {
+  const year = new Date(iso).getFullYear();
+  if (Number.isNaN(year)) {
+    return 'MEMBER';
+  }
+  return `MEMBER SINCE ${year}`;
+}
+
+function formatRenewsOn(iso: string): string {
+  return new Date(iso).toLocaleDateString(undefined, {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
 export function ProfileHomeScreen({ navigation }: Props) {
-  const { colors } = useAppTheme();
+  const tabNavigation = navigation as ProfileNavigation;
   const { user, signOut, isGuest } = useAuth();
   const {
     hub,
@@ -53,9 +82,19 @@ export function ProfileHomeScreen({ navigation }: Props) {
     familyCountLabel,
     setAvatarUri,
   } = useProfile();
+  const { workouts } = useWorkouts();
+  const [filter, setFilter] = useState<WorkoutMetricFilter>('all');
   const [loading, setLoading] = useState(false);
   const [photoLoading, setPhotoLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const metrics = useMemo(
+    () => buildWorkoutProgressMetrics(workouts, filter),
+    [workouts, filter],
+  );
+
+  const displayName = user?.fullName || 'Dark Mat Athlete';
+  const memberSinceLabel = formatMemberSince(hub.membership.memberSince);
 
   const handleSignOut = async () => {
     setError(null);
@@ -101,104 +140,131 @@ export function ProfileHomeScreen({ navigation }: Props) {
     });
   };
 
-  const displayName = user?.fullName || 'Dark Mat Athlete';
+  const handleShareProfile = async () => {
+    try {
+      await Share.share({
+        message: `${displayName} · ${beltLabel} belt · ${hub.membership.academyName}`,
+      });
+    } catch {
+      // User dismissed the share sheet.
+    }
+  };
 
   return (
     <Screen scroll contentStyle={styles.content}>
       <FadeIn>
-        <Text variant="hero">Profile</Text>
-        <Spacer size="sm" />
-        <Text variant="bodyMuted">Your personal hub at Dark Mat.</Text>
-      </FadeIn>
-
-      <Spacer size="xl" />
-
-      <FadeIn delay={60}>
-        <View
-          style={[
-            styles.identity,
-            {
-              backgroundColor: colors.secondaryBackground,
-              borderColor: colors.border,
-            },
-          ]}
-        >
-          <ProfileAvatar
+        <View style={styles.hero}>
+          <ProfileShieldAvatar
             uri={hub.avatarUri}
             initials={getInitials(user?.fullName)}
             onPress={handleAvatarPress}
           />
-          <View style={styles.identityCopy}>
-            <Text variant="subtitle" numberOfLines={1}>
-              {displayName}
-            </Text>
-            <Text variant="caption" numberOfLines={1}>
-              {user?.email}
-            </Text>
-            {isGuest ? (
-              <>
-                <Spacer size="xs" />
-                <Text variant="caption" gold>
-                  Guest demo mode
-                </Text>
-              </>
-            ) : null}
-            <Spacer size="sm" />
-            <BeltBadge
-              belt={hub.beltProgress.belt}
-              stripes={hub.beltProgress.stripes}
-            />
-            <Spacer size="xs" />
-            <Text variant="caption" gold>
-              {photoLoading
-                ? 'Updating photo…'
-                : hub.avatarUri
-                  ? 'Tap photo to change'
-                  : `Add a photo, ${getFirstName(user?.fullName)}`}
-            </Text>
-          </View>
+
+          <Spacer size="md" />
+          <Text variant="label" gold style={styles.memberSince}>
+            {isGuest ? 'GUEST DEMO' : memberSinceLabel}
+          </Text>
+          <Spacer size="xs" />
+          <Text variant="hero" style={styles.name} numberOfLines={2}>
+            {displayName}
+          </Text>
+
+          <Spacer size="sm" />
+          <BeltBadge
+            belt={hub.beltProgress.belt}
+            stripes={hub.beltProgress.stripes}
+            centered
+            compact
+          />
+
+          {photoLoading ? (
+            <>
+              <Spacer size="xs" />
+              <Text variant="caption" gold>
+                Updating photo…
+              </Text>
+            </>
+          ) : !hub.avatarUri ? (
+            <>
+              <Spacer size="xs" />
+              <Text variant="caption" muted>
+                Tap shield to add a photo, {getFirstName(user?.fullName)}
+              </Text>
+            </>
+          ) : null}
+        </View>
+      </FadeIn>
+
+      <Spacer size="lg" />
+
+      <FadeIn delay={40}>
+        <ProfileStatsRow
+          stats={[
+            {
+              value: `${hub.attendanceSummary.classesAttended}`,
+              label: 'Classes',
+            },
+            {
+              value: `${hub.attendanceSummary.streakDays}`,
+              label: 'Day streak',
+            },
+            {
+              value: `${hub.attendanceSummary.openMats}`,
+              label: 'Open mats',
+            },
+          ]}
+        />
+      </FadeIn>
+
+      <Spacer size="lg" />
+
+      <FadeIn delay={70}>
+        <View style={styles.actions}>
+          <ProfileActionButton
+            label="Share profile"
+            icon="qr-code-outline"
+            onPress={() => {
+              void handleShareProfile();
+            }}
+          />
+          <ProfileActionButton
+            label="Edit"
+            icon="create-outline"
+            onPress={() => navigation.navigate('Settings')}
+          />
         </View>
       </FadeIn>
 
       <Spacer size="xl" />
 
       <FadeIn delay={100}>
+        <WorkoutProgressCard
+          metrics={metrics}
+          filter={filter}
+          onFilterChange={setFilter}
+          onSeeMore={() =>
+            tabNavigation.navigate('WorkoutLog', { screen: 'WorkoutList' })
+          }
+        />
+      </FadeIn>
+
+      <Spacer size="xl" />
+
+      <FadeIn delay={130}>
         <ProfileMenuGroup>
-          <ProfileMenuRow
-            icon="map-outline"
-            label="Journey"
-            value="XP, streaks & badges"
-            onPress={() =>
-              navigation.getParent()?.navigate('Home', { screen: 'Journey' })
-            }
-            showDivider
-          />
           <ProfileMenuRow
             icon="card-outline"
             label="Membership"
-            value={membershipLabel}
+            value={`${membershipLabel} · Renews ${formatRenewsOn(hub.membership.renewsOn)}`}
             onPress={() => navigation.navigate('Membership')}
             showDivider
+            accent
           />
           <ProfileMenuRow
             icon="ribbon-outline"
             label="Belt Rank"
-            value={beltLabel}
+            value={`${beltLabel} · ${stripesLabel}`}
             onPress={() => navigation.navigate('BeltRank')}
-            showDivider
-          />
-          <ProfileMenuRow
-            icon="remove-outline"
-            label="Stripes"
-            value={stripesLabel}
-            onPress={() => navigation.navigate('BeltRank')}
-            showDivider
-          />
-          <ProfileMenuRow
-            icon="wallet-outline"
-            label="Payment Method"
-            value={paymentLabel}
-            onPress={() => navigation.navigate('PaymentMethod')}
             showDivider
           />
           <ProfileMenuRow
@@ -209,9 +275,25 @@ export function ProfileHomeScreen({ navigation }: Props) {
             showDivider
           />
           <ProfileMenuRow
+            icon="map-outline"
+            label="Journey"
+            value="XP, streaks & badges"
+            onPress={() =>
+              tabNavigation.navigate('Home', { screen: 'Journey' })
+            }
+            showDivider
+          />
+          <ProfileMenuRow
+            icon="wallet-outline"
+            label="Payment Method"
+            value={paymentLabel}
+            onPress={() => navigation.navigate('PaymentMethod')}
+            showDivider
+          />
+          <ProfileMenuRow
             icon="settings-outline"
             label="Settings"
-            value="Preferences"
+            value="Appearance & preferences"
             onPress={() => navigation.navigate('Settings')}
             showDivider
           />
@@ -224,7 +306,7 @@ export function ProfileHomeScreen({ navigation }: Props) {
           />
           <ProfileMenuRow
             icon="people-outline"
-            label="Linked Family Members"
+            label="Linked Family"
             value={familyCountLabel}
             onPress={() => navigation.navigate('LinkedFamily')}
           />
@@ -240,13 +322,16 @@ export function ProfileHomeScreen({ navigation }: Props) {
 
       <Spacer size="xl" />
 
-      <FadeIn delay={140}>
+      <FadeIn delay={160}>
         <Button
-          label="Logout"
-          variant="secondary"
+          label="Log out"
+          variant="ghost"
           loading={loading}
           onPress={handleSignOut}
         />
+        <Text variant="caption" muted style={styles.academy}>
+          {hub.membership.academyName}
+        </Text>
       </FadeIn>
 
       <View style={styles.bottomSpace} />
@@ -258,18 +343,26 @@ const styles = StyleSheet.create({
   content: {
     width: '100%',
   },
-  identity: {
+  hero: {
     width: '100%',
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.md,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    padding: spacing.lg,
+    alignItems: 'center',
+    paddingTop: spacing.sm,
   },
-  identityCopy: {
-    flex: 1,
-    minWidth: 0,
+  memberSince: {
+    letterSpacing: 1.2,
+    textAlign: 'center',
+  },
+  name: {
+    textAlign: 'center',
+    fontSize: 34,
+  },
+  actions: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  academy: {
+    textAlign: 'center',
+    marginTop: spacing.sm,
   },
   bottomSpace: {
     height: spacing.xl,
