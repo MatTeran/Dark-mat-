@@ -15,7 +15,8 @@ export type NextClassReservationStatus =
   | 'available'
   | 'reserved'
   | 'check_in'
-  | 'checked_in';
+  | 'checked_in'
+  | 'class_full';
 
 export interface ActivityItem {
   id: string;

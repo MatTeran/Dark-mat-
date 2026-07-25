@@ -6,7 +6,7 @@ import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as Haptics from 'expo-haptics';
 import { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, StyleSheet, View } from 'react-native';
 
 import {
   FadeIn,
@@ -120,24 +120,56 @@ export function HomeScreen() {
     if (actionLoading) {
       return;
     }
+    if (
+      reservationStatus === 'reserved' ||
+      reservationStatus === 'checked_in'
+    ) {
+      return;
+    }
+
     setActionLoading(true);
     try {
-      await wait(450);
       if (reservationStatus === 'available') {
-        setReservationStatus('check_in');
+        await wait(500);
+        setReservationStatus('reserved');
+        AccessibilityInfo.announceForAccessibility?.(
+          `Reserved ${NEXT_CLASS_SUMMARY.title}. Mock reservation only.`,
+        );
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        // Soon classes open check-in shortly after reserve in this mock flow.
+        if (NEXT_CLASS_SUMMARY.status === 'soon') {
+          await wait(900);
+          setReservationStatus('check_in');
+          AccessibilityInfo.announceForAccessibility?.(
+            `Check in is now available for ${NEXT_CLASS_SUMMARY.title}.`,
+          );
+        }
         return;
       }
+
       if (reservationStatus === 'check_in') {
+        await wait(450);
         setReservationStatus('checked_in');
         setWeeklyClassesCompleted((current) =>
           Math.min(current + 1, HOME_USER_SUMMARY.weeklyClassGoal),
         );
         awardXp(CHECK_IN_XP, `Checked in · ${NEXT_CLASS_SUMMARY.title}`);
         setXpEarnedLabel(`+${CHECK_IN_XP} XP`);
+        AccessibilityInfo.announceForAccessibility?.(
+          `Checked in to ${NEXT_CLASS_SUMMARY.title}. Plus ${CHECK_IN_XP} XP.`,
+        );
         await Haptics.notificationAsync(
           Haptics.NotificationFeedbackType.Success,
         );
+        return;
+      }
+
+      if (reservationStatus === 'class_full') {
+        await wait(450);
+        AccessibilityInfo.announceForAccessibility?.(
+          `Joined waitlist for ${NEXT_CLASS_SUMMARY.title}. Mock action only.`,
+        );
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       }
     } finally {
       setActionLoading(false);

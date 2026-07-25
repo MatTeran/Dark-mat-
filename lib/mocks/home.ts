@@ -21,16 +21,20 @@ export const HOME_USER_SUMMARY: HomeUserSummary = {
 
 const scheduleNext = toNextClassCardModel();
 
-/** Prefer live schedule next class; enrich with Home interaction fields. */
+/**
+ * Prefer live schedule next class; enrich with Home interaction fields.
+ * Location is Tracy — schedule `room` historically encoded "Gi · Tracy",
+ * so we do not reuse the first segment as location (that duplicated Gi).
+ */
 export const NEXT_CLASS_SUMMARY: NextClassSummary = {
   id: scheduleNext?.id ?? 'next-competition-positional',
   title: scheduleNext?.title ?? 'Competition Positional',
   coach: scheduleNext?.coach ?? 'Coach Mendes',
   startsAt: scheduleNext?.startsAt ?? new Date().toISOString(),
-  room: scheduleNext?.room ?? 'Tracy',
+  room: 'Tracy',
   durationMinutes: scheduleNext?.durationMinutes ?? 60,
   format: 'Gi',
-  location: scheduleNext?.room?.split('·')[0]?.trim() || 'Tracy',
+  location: 'Tracy',
   status: 'soon',
   reservationStatus: 'available',
 };

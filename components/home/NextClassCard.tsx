@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import {
   AccessibilityInfo,
   Animated,
@@ -30,17 +30,28 @@ interface NextClassCardProps {
   onOpenDetails?: () => void;
 }
 
-function primaryLabel(status: NextClassReservationStatus): string {
-  switch (status) {
-    case 'reserved':
-      return 'Reserved';
-    case 'check_in':
-      return 'Check In';
-    case 'checked_in':
-      return 'Checked In';
-    default:
-      return 'Reserve Spot';
-  }
+function buildClassMetadata(nextClass: NextClassSummary): string {
+  const location =
+    nextClass.location && nextClass.location !== nextClass.format
+      ? nextClass.location
+      : nextClass.room &&
+          !nextClass.room.toLowerCase().includes((nextClass.format || '').toLowerCase())
+        ? nextClass.room
+        : 'Tracy';
+
+  const parts = [
+    nextClass.coach,
+    nextClass.format,
+    location,
+    `${nextClass.durationMinutes} min`,
+  ].filter((value, index, list) => {
+    if (!value) {
+      return false;
+    }
+    return list.findIndex((item) => item === value) === index;
+  });
+
+  return parts.join(' · ');
 }
 
 export function NextClassCard({
@@ -54,6 +65,7 @@ export function NextClassCard({
   const accent = useRef(new Animated.Value(0.35)).current;
   const xpOpacity = useRef(new Animated.Value(0)).current;
   const xpTranslate = useRef(new Animated.Value(8)).current;
+  const metadata = useMemo(() => buildClassMetadata(nextClass), [nextClass]);
 
   useEffect(() => {
     Animated.loop(
@@ -100,13 +112,11 @@ export function NextClassCard({
     ]).start();
   }, [xpEarnedLabel, xpOpacity, xpTranslate]);
 
-  const isCompleteAction =
-    reservationStatus === 'reserved' || reservationStatus === 'checked_in';
-
   const handleCalendar = async () => {
     const start = encodeURIComponent(nextClass.startsAt);
     const title = encodeURIComponent(nextClass.title);
-    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start.replace(/[-:]/g, '').split('.')[0]}Z/${start.replace(/[-:]/g, '').split('.')[0]}Z`;
+    const stamp = start.replace(/[-:]/g, '').split('.')[0];
+    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${stamp}Z/${stamp}Z`;
     try {
       await Linking.openURL(url);
     } catch {
@@ -116,7 +126,7 @@ export function NextClassCard({
 
   const handleDirections = async () => {
     const query = encodeURIComponent(
-      `${nextClass.location || nextClass.room}, Tracy CA`,
+      `${nextClass.location || 'Tracy'}, Tracy CA`,
     );
     try {
       await Linking.openURL(`https://maps.apple.com/?q=${query}`);
@@ -146,16 +156,7 @@ export function NextClassCard({
               {formatClassTime(nextClass.startsAt)}
             </Text>
             <Spacer size="xs" />
-            <Text variant="caption">
-              {[
-                nextClass.coach,
-                nextClass.format,
-                nextClass.location || nextClass.room,
-                `${nextClass.durationMinutes} min`,
-              ]
-                .filter(Boolean)
-                .join(' · ')}
-            </Text>
+            <Text variant="caption">{metadata}</Text>
           </View>
           <Animated.View style={[styles.badge, { opacity: accent }]}>
             <Text variant="caption" gold style={styles.badgeText}>
@@ -165,42 +166,31 @@ export function NextClassCard({
         </View>
       </Pressable>
 
-      <Spacer size="md" />
-
-      <NextClassActionButton
-        label={primaryLabel(reservationStatus)}
-        loading={actionLoading}
-        disabled={isCompleteAction}
-        onPress={onPrimaryAction}
-        accessibilityHint={
-          reservationStatus === 'available'
-            ? 'Reserves your spot for this class'
-            : reservationStatus === 'check_in'
-              ? 'Checks you into this class'
-              : undefined
-        }
-      />
+      <View style={styles.actionBlock}>
+        <NextClassActionButton
+          status={reservationStatus}
+          classTitle={nextClass.title}
+          loading={actionLoading}
+          onPress={onPrimaryAction}
+        />
+      </View>
 
       {xpEarnedLabel ? (
-        <>
-          <Spacer size="sm" />
-          <Animated.View
-            style={[
-              styles.xpRow,
-              {
-                opacity: xpOpacity,
-                transform: [{ translateY: xpTranslate }],
-              },
-            ]}
-          >
-            <Text variant="caption" gold>
-              {xpEarnedLabel}
-            </Text>
-          </Animated.View>
-        </>
+        <Animated.View
+          style={[
+            styles.xpRow,
+            {
+              opacity: xpOpacity,
+              transform: [{ translateY: xpTranslate }],
+            },
+          ]}
+        >
+          <Text variant="caption" gold>
+            {xpEarnedLabel}
+          </Text>
+        </Animated.View>
       ) : null}
 
-      <Spacer size="sm" />
       <View style={styles.secondaryRow}>
         <Pressable
           accessibilityRole="button"
@@ -209,9 +199,16 @@ export function NextClassCard({
           onPress={() => {
             void handleCalendar();
           }}
-          style={({ pressed }) => [styles.secondaryAction, pressed && styles.pressed]}
+          style={({ pressed }) => [
+            styles.secondaryAction,
+            pressed && styles.pressed,
+          ]}
         >
-          <Ionicons name="calendar-outline" size={16} color={colors.secondaryText} />
+          <Ionicons
+            name="calendar-outline"
+            size={16}
+            color={colors.secondaryText}
+          />
           <Text variant="caption">Add to Calendar</Text>
         </Pressable>
         <Pressable
@@ -221,9 +218,16 @@ export function NextClassCard({
           onPress={() => {
             void handleDirections();
           }}
-          style={({ pressed }) => [styles.secondaryAction, pressed && styles.pressed]}
+          style={({ pressed }) => [
+            styles.secondaryAction,
+            pressed && styles.pressed,
+          ]}
         >
-          <Ionicons name="navigate-outline" size={16} color={colors.secondaryText} />
+          <Ionicons
+            name="navigate-outline"
+            size={16}
+            color={colors.secondaryText}
+          />
           <Text variant="caption">Directions</Text>
         </Pressable>
       </View>
@@ -255,13 +259,19 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
     textTransform: 'uppercase',
   },
+  actionBlock: {
+    marginTop: spacing.lg,
+    width: '100%',
+  },
   xpRow: {
     alignItems: 'center',
+    marginTop: spacing.sm,
   },
   secondaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: spacing.md,
+    marginTop: spacing.md,
   },
   secondaryAction: {
     flexDirection: 'row',
