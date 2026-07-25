@@ -4,6 +4,10 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { TabBarIcon } from '../components';
 import { HomeScreen, ProfileScreen, ScheduleScreen } from '../screens';
 import { colors, fontFamilies } from '../lib/theme';
+import {
+  CommunityNavigator,
+  shouldHideCommunityTabBar,
+} from './CommunityNavigator';
 import type { MainTabParamList } from './types';
 import { WorkoutLogNavigator } from './WorkoutLogNavigator';
 
@@ -52,6 +56,21 @@ export function MainTabNavigator() {
             />
           ),
         }}
+      />
+      <Tab.Screen
+        name="Community"
+        component={CommunityNavigator}
+        options={({ route }) => ({
+          tabBarStyle: shouldHideCommunityTabBar(route)
+            ? { display: 'none' }
+            : tabBarStyle,
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              name={focused ? 'people' : 'people-outline'}
+              focused={focused}
+            />
+          ),
+        })}
       />
       <Tab.Screen
         name="WorkoutLog"

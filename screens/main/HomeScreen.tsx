@@ -6,6 +6,7 @@ import { StyleSheet, View } from 'react-native';
 import {
   Banner,
   FadeIn,
+  LatestAnnouncementCard,
   NextClassCard,
   QuickActions,
   RecentActivity,
@@ -20,6 +21,7 @@ import {
   RECENT_ACTIVITY,
   UPCOMING_EVENTS,
 } from '../../lib/mocks/home';
+import { useCommunity } from '../../lib/providers/CommunityProvider';
 import { spacing } from '../../lib/theme';
 import type { MainTabParamList } from '../../types';
 import type { QuickActionId } from '../../types/home';
@@ -29,9 +31,15 @@ type HomeNavigation = BottomTabNavigationProp<MainTabParamList, 'Home'>;
 
 export function HomeScreen() {
   const { user } = useAuth();
+  const { announcements } = useCommunity();
   const navigation = useNavigation<HomeNavigation>();
   const [checkInMessage, setCheckInMessage] = useState<string | null>(null);
   const nextClass = useMemo(() => toNextClassCardModel(), []);
+  const latestAnnouncement = useMemo(() => {
+    return [...announcements].sort(
+      (a, b) => +new Date(b.createdAt) - +new Date(a.createdAt),
+    )[0];
+  }, [announcements]);
 
   const greeting = getGreeting();
   const firstName = getFirstName(user?.fullName);
@@ -70,11 +78,26 @@ export function HomeScreen() {
       <Spacer size="xl" />
 
       {nextClass ? (
+        <FadeIn delay={80}>
+          <NextClassCard
+            nextClass={nextClass}
+            onPress={() => navigation.navigate('Schedule')}
+          />
+        </FadeIn>
+      ) : null}
+
+      {latestAnnouncement ? (
         <>
-          <FadeIn delay={80}>
-            <NextClassCard
-              nextClass={nextClass}
-              onPress={() => navigation.navigate('Schedule')}
+          <Spacer size="xl" />
+          <FadeIn delay={120}>
+            <LatestAnnouncementCard
+              announcement={latestAnnouncement}
+              onPress={() =>
+                navigation.navigate('Community', {
+                  screen: 'AnnouncementDetail',
+                  params: { announcementId: latestAnnouncement.id },
+                })
+              }
             />
           </FadeIn>
         </>
@@ -113,9 +136,7 @@ export function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: {
-    // Safe-area padding comes from Screen — do not override paddingTop here.
-  },
+  content: {},
   bottomSpace: {
     height: spacing.lg,
   },

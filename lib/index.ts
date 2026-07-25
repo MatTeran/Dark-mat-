@@ -4,5 +4,9 @@ export * from './queryClient';
 export * from './theme';
 export { AppProviders } from './providers/AppProviders';
 export { AuthProvider, useAuth } from './providers/AuthProvider';
+export {
+  CommunityProvider,
+  useCommunity,
+} from './providers/CommunityProvider';
 export { WorkoutProvider, useWorkouts } from './providers/WorkoutProvider';
 

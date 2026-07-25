@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { queryClient } from '../queryClient';
 import { colors } from '../theme';
 import { AuthProvider } from './AuthProvider';
+import { CommunityProvider } from './CommunityProvider';
 import { WorkoutProvider } from './WorkoutProvider';
 
 /**
@@ -18,7 +19,9 @@ export function AppProviders({ children }: PropsWithChildren) {
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            <WorkoutProvider>{children}</WorkoutProvider>
+            <CommunityProvider>
+              <WorkoutProvider>{children}</WorkoutProvider>
+            </CommunityProvider>
           </AuthProvider>
         </QueryClientProvider>
       </SafeAreaProvider>

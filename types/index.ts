@@ -13,7 +13,16 @@ export type {
   UpcomingEvent,
 } from './home';
 export type {
+  Announcement,
+  AnnouncementComment,
+  ChatMessage,
+  MemberBirthday,
+  OpenMatSession,
+  Seminar,
+} from './community';
+export type {
   AuthStackParamList,
+  CommunityStackParamList,
   MainTabParamList,
   RootStackParamList,
   WorkoutStackParamList,

@@ -1,3 +1,5 @@
+import type { NavigatorScreenParams } from '@react-navigation/native';
+
 export type AuthStackParamList = {
   Splash: undefined;
   Login: undefined;
@@ -10,10 +12,17 @@ export type WorkoutStackParamList = {
   WorkoutDetails: { workoutId?: string } | undefined;
 };
 
+export type CommunityStackParamList = {
+  CommunityHome: undefined;
+  AnnouncementDetail: { announcementId: string };
+  TeamChat: undefined;
+};
+
 export type MainTabParamList = {
   Home: undefined;
   Schedule: undefined;
-  WorkoutLog: undefined;
+  Community: NavigatorScreenParams<CommunityStackParamList> | undefined;
+  WorkoutLog: NavigatorScreenParams<WorkoutStackParamList> | undefined;
   Profile: undefined;
 };
 
