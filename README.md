@@ -51,7 +51,7 @@ npm start
 
 ```bash
 EXPO_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
-EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...
+EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxx
 ```
 
 3. In Supabase → **Authentication → URL Configuration**, add redirect URLs:

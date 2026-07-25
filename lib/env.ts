@@ -6,9 +6,15 @@ function readEnv(key: string): string | undefined {
   return process.env[key];
 }
 
+const supabasePublishableKey =
+  readEnv('EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY') ??
+  readEnv('EXPO_PUBLIC_SUPABASE_ANON_KEY') ??
+  '';
+
 export const env = {
   supabaseUrl: readEnv('EXPO_PUBLIC_SUPABASE_URL') ?? '',
-  supabaseAnonKey: readEnv('EXPO_PUBLIC_SUPABASE_ANON_KEY') ?? '',
+  /** Publishable key (sb_publishable_...) or legacy anon JWT */
+  supabaseAnonKey: supabasePublishableKey,
   stripePublishableKey: readEnv('EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY') ?? '',
   isDev: __DEV__,
 } as const;

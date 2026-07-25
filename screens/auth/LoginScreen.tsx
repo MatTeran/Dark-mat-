@@ -34,7 +34,7 @@ export function LoginScreen({ navigation }: Props) {
 
     if (!isConfigured) {
       setFormError(
-        'Supabase is not configured. Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to .env.',
+        'Supabase is not configured. Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY to .env.',
       );
       return;
     }

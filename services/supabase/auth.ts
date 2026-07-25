@@ -20,7 +20,7 @@ function requireClient() {
   const supabase = getSupabaseClient();
   if (!supabase) {
     throw new AuthServiceError(
-      'Supabase is not configured. Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY.',
+      'Supabase is not configured. Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY.',
     );
   }
   return supabase;
