@@ -6,7 +6,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, Input, Text } from '../../components';
 import { useAuth } from '../../hooks';
 import { useCommunity } from '../../lib/providers/CommunityProvider';
-import { colors, radii, spacing } from '../../lib/theme';
+import { radii, spacing } from '../../lib/theme';
+import { useThemedStyles } from '../../lib/theme/useThemedStyles';
 import type { CommunityStackParamList } from '../../types/navigation';
 
 type Props = NativeStackScreenProps<CommunityStackParamList, 'TeamChat'>;
@@ -16,6 +17,60 @@ export function TeamChatScreen({ navigation }: Props) {
   const { user } = useAuth();
   const { chatMessages, sendChatMessage } = useCommunity();
   const [draft, setDraft] = useState('');
+
+  const styles = useThemedStyles((colors) => ({
+    root: {
+      flex: 1,
+      backgroundColor: colors.primaryBackground,
+    },
+    header: {
+      paddingHorizontal: spacing.lg,
+      gap: spacing.xxs,
+      marginBottom: spacing.md,
+    },
+    list: {
+      paddingHorizontal: spacing.lg,
+      paddingBottom: spacing.lg,
+      gap: spacing.sm,
+    },
+    bubble: {
+      maxWidth: '86%' as const,
+      borderRadius: radii.lg,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderWidth: 1,
+    },
+    bubbleOther: {
+      alignSelf: 'flex-start' as const,
+      backgroundColor: colors.secondaryBackground,
+      borderColor: colors.border,
+    },
+    bubbleMine: {
+      alignSelf: 'flex-end' as const,
+      backgroundColor: colors.goldMuted,
+      borderColor: colors.goldAccent,
+    },
+    author: {
+      marginBottom: 4,
+    },
+    composer: {
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
+      gap: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.sm,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: colors.border,
+      backgroundColor: colors.primaryBackground,
+    },
+    inputWrap: {
+      flex: 1,
+    },
+    send: {
+      minWidth: 88,
+      paddingHorizontal: spacing.md,
+    },
+  }));
 
   const handleSend = () => {
     sendChatMessage(
@@ -79,57 +134,3 @@ export function TeamChatScreen({ navigation }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: colors.primaryBackground,
-  },
-  header: {
-    paddingHorizontal: spacing.lg,
-    gap: spacing.xxs,
-    marginBottom: spacing.md,
-  },
-  list: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.lg,
-    gap: spacing.sm,
-  },
-  bubble: {
-    maxWidth: '86%',
-    borderRadius: radii.lg,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderWidth: 1,
-  },
-  bubbleOther: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.secondaryBackground,
-    borderColor: colors.border,
-  },
-  bubbleMine: {
-    alignSelf: 'flex-end',
-    backgroundColor: colors.goldMuted,
-    borderColor: colors.goldAccent,
-  },
-  author: {
-    marginBottom: 4,
-  },
-  composer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-    backgroundColor: colors.primaryBackground,
-  },
-  inputWrap: {
-    flex: 1,
-  },
-  send: {
-    minWidth: 88,
-    paddingHorizontal: spacing.md,
-  },
-});

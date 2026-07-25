@@ -1,6 +1,6 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useMemo, useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { TextInput, View } from 'react-native';
 
 import {
   Banner,
@@ -15,6 +15,7 @@ import {
   StarRating,
   Text,
 } from '../../components';
+import { useAppTheme } from '../../hooks';
 import {
   CLASS_TYPE_OPTIONS,
   getClassTypeLabel,
@@ -24,7 +25,8 @@ import {
 } from '../../lib/data/workoutOptions';
 import { createEmptyWorkoutDraft } from '../../lib/mocks/workouts';
 import { useWorkouts } from '../../lib/providers/WorkoutProvider';
-import { colors, fontFamilies, radii, spacing } from '../../lib/theme';
+import { fontFamilies, radii, spacing } from '../../lib/theme';
+import { useThemedStyles } from '../../lib/theme/useThemedStyles';
 import type { WorkoutStackParamList } from '../../types/navigation';
 import type {
   GiType,
@@ -39,6 +41,7 @@ import { formatShortDate } from '../../utils';
 type Props = NativeStackScreenProps<WorkoutStackParamList, 'WorkoutDetails'>;
 
 export function WorkoutDetailsScreen({ navigation, route }: Props) {
+  const { colors } = useAppTheme();
   const { getWorkout, saveWorkout } = useWorkouts();
   const existing = route.params?.workoutId
     ? getWorkout(route.params.workoutId)
@@ -52,6 +55,58 @@ export function WorkoutDetailsScreen({ navigation, route }: Props) {
   const [draft, setDraft] = useState<WorkoutDraft>(initial);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const styles = useThemedStyles((themeColors) => ({
+    content: {},
+    row: {
+      flexDirection: 'row' as const,
+      gap: spacing.md,
+    },
+    half: {
+      flex: 1,
+    },
+    numberInput: {
+      minHeight: 52,
+      borderRadius: radii.md,
+      paddingHorizontal: spacing.md,
+      backgroundColor: themeColors.secondaryBackground,
+      borderWidth: 1,
+      borderColor: themeColors.border,
+      color: themeColors.text,
+      fontFamily: fontFamilies.regular,
+      fontSize: 16,
+    },
+    notes: {
+      minHeight: 140,
+      borderRadius: radii.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.md,
+      backgroundColor: themeColors.secondaryBackground,
+      borderWidth: 1,
+      borderColor: themeColors.border,
+      color: themeColors.text,
+      fontFamily: fontFamilies.regular,
+      fontSize: 16,
+      lineHeight: 24,
+    },
+    photoPlaceholder: {
+      minHeight: 120,
+      borderRadius: radii.lg,
+      borderWidth: 1,
+      borderColor: themeColors.border,
+      borderStyle: 'dashed' as const,
+      backgroundColor: themeColors.secondaryBackground,
+      alignItems: 'center' as const,
+      justifyContent: 'center' as const,
+      padding: spacing.lg,
+    },
+    center: {
+      textAlign: 'center' as const,
+    },
+    bottomSpace: {
+      height: spacing.xl,
+    },
+  }));
 
   const isEditing = Boolean(existing);
   const className =
@@ -279,55 +334,3 @@ export function WorkoutDetailsScreen({ navigation, route }: Props) {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  content: {},
-  row: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  half: {
-    flex: 1,
-  },
-  numberInput: {
-    minHeight: 52,
-    borderRadius: radii.md,
-    paddingHorizontal: spacing.md,
-    backgroundColor: colors.secondaryBackground,
-    borderWidth: 1,
-    borderColor: colors.border,
-    color: colors.text,
-    fontFamily: fontFamilies.regular,
-    fontSize: 16,
-  },
-  notes: {
-    minHeight: 140,
-    borderRadius: radii.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    backgroundColor: colors.secondaryBackground,
-    borderWidth: 1,
-    borderColor: colors.border,
-    color: colors.text,
-    fontFamily: fontFamilies.regular,
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  photoPlaceholder: {
-    minHeight: 120,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderStyle: 'dashed',
-    backgroundColor: colors.secondaryBackground,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.lg,
-  },
-  center: {
-    textAlign: 'center',
-  },
-  bottomSpace: {
-    height: spacing.xl,
-  },
-});

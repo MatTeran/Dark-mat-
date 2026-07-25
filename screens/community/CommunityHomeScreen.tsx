@@ -1,5 +1,5 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
 import {
   AnnouncementCard,
@@ -14,7 +14,8 @@ import {
 } from '../../components';
 import { Card } from '../../components/ui/Card';
 import { useCommunity } from '../../lib/providers/CommunityProvider';
-import { colors, radii, spacing } from '../../lib/theme';
+import { radii, spacing } from '../../lib/theme';
+import { useThemedStyles } from '../../lib/theme/useThemedStyles';
 import type { CommunityStackParamList } from '../../types/navigation';
 
 type Props = NativeStackScreenProps<CommunityStackParamList, 'CommunityHome'>;
@@ -28,6 +29,30 @@ export function CommunityHomeScreen({ navigation }: Props) {
     chatMessages,
     toggleSeminarRegistration,
   } = useCommunity();
+
+  const styles = useThemedStyles((colors) => ({
+    content: {},
+    stack: {
+      gap: spacing.md,
+    },
+    chatMeta: {
+      flexDirection: 'row' as const,
+      justifyContent: 'space-between' as const,
+      alignItems: 'center' as const,
+    },
+    chatPill: {
+      borderRadius: radii.pill,
+      backgroundColor: colors.goldMuted,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 2,
+    },
+    chatPillText: {
+      color: colors.goldAccent,
+    },
+    bottomSpace: {
+      height: spacing.lg,
+    },
+  }));
 
   const latestChat = chatMessages[chatMessages.length - 1];
 
@@ -130,27 +155,3 @@ export function CommunityHomeScreen({ navigation }: Props) {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  content: {},
-  stack: {
-    gap: spacing.md,
-  },
-  chatMeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  chatPill: {
-    borderRadius: radii.pill,
-    backgroundColor: colors.goldMuted,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-  },
-  chatPillText: {
-    color: colors.goldAccent,
-  },
-  bottomSpace: {
-    height: spacing.lg,
-  },
-});

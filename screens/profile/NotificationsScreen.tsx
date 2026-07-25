@@ -9,8 +9,9 @@ import {
   Spacer,
   Text,
 } from '../../components';
+import { useAppTheme } from '../../hooks';
 import { useProfile } from '../../lib/providers/ProfileProvider';
-import { colors, spacing } from '../../lib/theme';
+import { spacing } from '../../lib/theme';
 import type { ProfileStackParamList } from '../../types/navigation';
 
 type Props = NativeStackScreenProps<ProfileStackParamList, 'Notifications'>;
@@ -18,6 +19,7 @@ type Props = NativeStackScreenProps<ProfileStackParamList, 'Notifications'>;
 export function NotificationsScreen({ navigation }: Props) {
   const { hub, updateNotifications } = useProfile();
   const { notifications } = hub;
+  const { colors } = useAppTheme();
 
   return (
     <Screen scroll contentStyle={styles.content}>
@@ -38,7 +40,9 @@ export function NotificationsScreen({ navigation }: Props) {
             updateNotifications({ classReminders })
           }
         />
-        <View style={styles.divider} />
+        <View
+          style={[styles.divider, { backgroundColor: colors.border }]}
+        />
         <SettingToggleRow
           label="Academy announcements"
           description="New posts from coaches and staff."
@@ -47,7 +51,9 @@ export function NotificationsScreen({ navigation }: Props) {
             updateNotifications({ academyAnnouncements })
           }
         />
-        <View style={styles.divider} />
+        <View
+          style={[styles.divider, { backgroundColor: colors.border }]}
+        />
         <SettingToggleRow
           label="Birthday alerts"
           description="Teammate birthdays in Community."
@@ -56,7 +62,9 @@ export function NotificationsScreen({ navigation }: Props) {
             updateNotifications({ birthdayAlerts })
           }
         />
-        <View style={styles.divider} />
+        <View
+          style={[styles.divider, { backgroundColor: colors.border }]}
+        />
         <SettingToggleRow
           label="Payment reminders"
           description="Upcoming membership renewals."
@@ -65,7 +73,9 @@ export function NotificationsScreen({ navigation }: Props) {
             updateNotifications({ paymentReminders })
           }
         />
-        <View style={styles.divider} />
+        <View
+          style={[styles.divider, { backgroundColor: colors.border }]}
+        />
         <SettingToggleRow
           label="Team chat"
           description="New messages in the team channel."
@@ -81,7 +91,6 @@ const styles = StyleSheet.create({
   content: {},
   divider: {
     height: 1,
-    backgroundColor: colors.border,
     marginVertical: spacing.xs,
   },
 });

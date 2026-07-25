@@ -1,5 +1,5 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import {
   BeltBadge,
@@ -11,7 +11,8 @@ import {
 } from '../../components';
 import { formatBeltRank, formatStripeCount } from '../../lib/mocks/profile';
 import { useProfile } from '../../lib/providers/ProfileProvider';
-import { colors, radii, spacing } from '../../lib/theme';
+import { radii, spacing } from '../../lib/theme';
+import { useThemedStyles } from '../../lib/theme/useThemedStyles';
 import type { ProfileStackParamList } from '../../types/navigation';
 import type { BeltRank } from '../../types/user';
 import { formatShortDate } from '../../utils';
@@ -24,6 +25,30 @@ const STRIPES: Array<0 | 1 | 2 | 3 | 4> = [0, 1, 2, 3, 4];
 export function BeltRankScreen({ navigation }: Props) {
   const { hub, setBeltProgress } = useProfile();
   const { belt, stripes, promotedAt, nextStripeHint } = hub.beltProgress;
+
+  const styles = useThemedStyles((colors) => ({
+    content: {},
+    chipRow: {
+      flexDirection: 'row' as const,
+      flexWrap: 'wrap' as const,
+      gap: spacing.sm,
+    },
+    chip: {
+      borderRadius: radii.pill,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.secondaryBackground,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+    },
+    chipSelected: {
+      borderColor: colors.goldAccent,
+      backgroundColor: colors.goldMuted,
+    },
+    chipTextSelected: {
+      color: colors.goldAccent,
+    },
+  }));
 
   return (
     <Screen scroll contentStyle={styles.content}>
@@ -105,27 +130,3 @@ export function BeltRankScreen({ navigation }: Props) {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  content: {},
-  chipRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  chip: {
-    borderRadius: radii.pill,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.secondaryBackground,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-  },
-  chipSelected: {
-    borderColor: colors.goldAccent,
-    backgroundColor: colors.goldMuted,
-  },
-  chipTextSelected: {
-    color: colors.goldAccent,
-  },
-});

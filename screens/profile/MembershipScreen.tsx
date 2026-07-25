@@ -1,5 +1,5 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
 import { Button, Card, Screen, Spacer, Text } from '../../components';
 import {
@@ -7,7 +7,8 @@ import {
   formatMembershipStatus,
 } from '../../lib/mocks/profile';
 import { useProfile } from '../../lib/providers/ProfileProvider';
-import { colors, radii, spacing } from '../../lib/theme';
+import { radii, spacing } from '../../lib/theme';
+import { useThemedStyles } from '../../lib/theme/useThemedStyles';
 import type { ProfileStackParamList } from '../../types/navigation';
 import { formatShortDate } from '../../utils';
 
@@ -16,6 +17,26 @@ type Props = NativeStackScreenProps<ProfileStackParamList, 'Membership'>;
 export function MembershipScreen({ navigation }: Props) {
   const { hub } = useProfile();
   const { membership } = hub;
+
+  const styles = useThemedStyles((colors) => ({
+    content: {},
+    statusPill: {
+      alignSelf: 'flex-start' as const,
+      backgroundColor: colors.goldMuted,
+      borderRadius: radii.pill,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 4,
+    },
+    statusText: {
+      color: colors.goldAccent,
+    },
+    detailRow: {
+      paddingVertical: spacing.sm,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      gap: 4,
+    },
+  }));
 
   return (
     <Screen scroll contentStyle={styles.content}>
@@ -40,15 +61,18 @@ export function MembershipScreen({ navigation }: Props) {
           </Text>
         </View>
         <Spacer size="lg" />
-        <DetailRow label="Price" value={membership.priceLabel} />
-        <DetailRow
-          label="Member since"
-          value={formatShortDate(membership.memberSince)}
-        />
-        <DetailRow
-          label="Renews on"
-          value={formatShortDate(membership.renewsOn)}
-        />
+        <View style={styles.detailRow}>
+          <Text variant="caption">Price</Text>
+          <Text variant="body">{membership.priceLabel}</Text>
+        </View>
+        <View style={styles.detailRow}>
+          <Text variant="caption">Member since</Text>
+          <Text variant="body">{formatShortDate(membership.memberSince)}</Text>
+        </View>
+        <View style={styles.detailRow}>
+          <Text variant="caption">Renews on</Text>
+          <Text variant="body">{formatShortDate(membership.renewsOn)}</Text>
+        </View>
       </Card>
 
       <Spacer size="lg" />
@@ -59,32 +83,3 @@ export function MembershipScreen({ navigation }: Props) {
     </Screen>
   );
 }
-
-function DetailRow({ label, value }: { label: string; value: string }) {
-  return (
-    <View style={styles.detailRow}>
-      <Text variant="caption">{label}</Text>
-      <Text variant="body">{value}</Text>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  content: {},
-  statusPill: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.goldMuted,
-    borderRadius: radii.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-  },
-  statusText: {
-    color: colors.goldAccent,
-  },
-  detailRow: {
-    paddingVertical: spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    gap: 4,
-  },
-});

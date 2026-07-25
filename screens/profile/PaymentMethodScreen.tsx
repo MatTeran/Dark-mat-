@@ -1,9 +1,10 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
 import { Banner, Button, Card, Screen, Spacer, Text } from '../../components';
 import { useProfile } from '../../lib/providers/ProfileProvider';
-import { colors, radii, spacing } from '../../lib/theme';
+import { radii, spacing } from '../../lib/theme';
+import { useThemedStyles } from '../../lib/theme/useThemedStyles';
 import type { ProfileStackParamList } from '../../types/navigation';
 
 type Props = NativeStackScreenProps<ProfileStackParamList, 'PaymentMethod'>;
@@ -11,6 +12,20 @@ type Props = NativeStackScreenProps<ProfileStackParamList, 'PaymentMethod'>;
 export function PaymentMethodScreen({ navigation }: Props) {
   const { hub, setPaymentMethod } = useProfile();
   const method = hub.paymentMethod;
+
+  const styles = useThemedStyles((colors) => ({
+    content: {},
+    actions: {
+      gap: spacing.sm,
+    },
+    note: {
+      borderRadius: radii.md,
+      backgroundColor: colors.secondaryBackground,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: spacing.md,
+    },
+  }));
 
   return (
     <Screen scroll contentStyle={styles.content}>
@@ -86,17 +101,3 @@ export function PaymentMethodScreen({ navigation }: Props) {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  content: {},
-  actions: {
-    gap: spacing.sm,
-  },
-  note: {
-    borderRadius: radii.md,
-    backgroundColor: colors.secondaryBackground,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-  },
-});

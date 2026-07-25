@@ -3,8 +3,9 @@ import { useEffect, useRef } from 'react';
 import { Animated, Easing, Image, StyleSheet, View } from 'react-native';
 
 import { Text } from '../../components';
+import { useAppTheme } from '../../hooks';
 import { APP_TAGLINE, AUTH_SPLASH_DURATION_MS } from '../../lib/constants';
-import { colors, spacing } from '../../lib/theme';
+import { spacing } from '../../lib/theme';
 import type { AuthStackParamList } from '../../types';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Splash'>;
@@ -13,6 +14,7 @@ type Props = NativeStackScreenProps<AuthStackParamList, 'Splash'>;
  * Branded launch moment — then soft transition into Login.
  */
 export function SplashScreen({ navigation }: Props) {
+  const { colors } = useAppTheme();
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(12)).current;
 
@@ -40,7 +42,9 @@ export function SplashScreen({ navigation }: Props) {
   }, [navigation, opacity, translateY]);
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[styles.container, { backgroundColor: colors.primaryBackground }]}
+    >
       <Animated.View
         style={[
           styles.content,
@@ -67,7 +71,6 @@ export function SplashScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.primaryBackground,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,

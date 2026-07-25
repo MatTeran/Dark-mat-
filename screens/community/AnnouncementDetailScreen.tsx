@@ -13,7 +13,7 @@ import {
 } from '../../components';
 import { useAuth } from '../../hooks';
 import { useCommunity } from '../../lib/providers/CommunityProvider';
-import { colors, radii, spacing } from '../../lib/theme';
+import { spacing } from '../../lib/theme';
 import type { CommunityStackParamList } from '../../types/navigation';
 import { formatShortDate } from '../../utils';
 

@@ -20,14 +20,16 @@ import {
   WeeklyStreakCard,
   XPProgressCard,
 } from '../../components';
+import { useAppTheme } from '../../hooks';
 import { useJourney } from '../../lib/providers/JourneyProvider';
-import { colors, spacing } from '../../lib/theme';
+import { spacing } from '../../lib/theme';
 import type { AchievementBadge } from '../../types/journey';
 import type { HomeStackParamList } from '../../types/navigation';
 
 type Props = NativeStackScreenProps<HomeStackParamList, 'Journey'>;
 
 export function JourneyScreen({ navigation }: Props) {
+  const { colors } = useAppTheme();
   const {
     isLoading,
     profile,

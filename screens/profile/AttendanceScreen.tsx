@@ -2,8 +2,9 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { StyleSheet, View } from 'react-native';
 
 import { Button, Card, Screen, Spacer, Text } from '../../components';
+import { useAppTheme } from '../../hooks';
 import { useProfile } from '../../lib/providers/ProfileProvider';
-import { colors, radii, spacing } from '../../lib/theme';
+import { radii, spacing } from '../../lib/theme';
 import type { ProfileStackParamList } from '../../types/navigation';
 import { formatShortDate } from '../../utils';
 
@@ -12,6 +13,7 @@ type Props = NativeStackScreenProps<ProfileStackParamList, 'Attendance'>;
 export function AttendanceScreen({ navigation }: Props) {
   const { hub } = useProfile();
   const { attendanceSummary, recentAttendance } = hub;
+  const { colors } = useAppTheme();
   const progress = Math.min(
     attendanceSummary.classesAttended / attendanceSummary.goal,
     1,
@@ -43,8 +45,18 @@ export function AttendanceScreen({ navigation }: Props) {
           Monthly goal · {attendanceSummary.goal} classes
         </Text>
         <Spacer size="xs" />
-        <View style={styles.track}>
-          <View style={[styles.fill, { width: `${progress * 100}%` }]} />
+        <View
+          style={[styles.track, { backgroundColor: colors.border }]}
+        >
+          <View
+            style={[
+              styles.fill,
+              {
+                width: `${progress * 100}%`,
+                backgroundColor: colors.goldAccent,
+              },
+            ]}
+          />
         </View>
       </Card>
 
@@ -89,12 +101,10 @@ const styles = StyleSheet.create({
   track: {
     height: 8,
     borderRadius: radii.pill,
-    backgroundColor: colors.border,
     overflow: 'hidden',
   },
   fill: {
     height: '100%',
-    backgroundColor: colors.goldAccent,
   },
   list: {
     gap: spacing.sm,
