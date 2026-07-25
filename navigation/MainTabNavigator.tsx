@@ -98,7 +98,6 @@ export function MainTabNavigator() {
               <TabBarIcon
                 name={focused ? 'barbell' : 'barbell-outline'}
                 focused={focused}
-                primaryAction
               />
             ),
           };
