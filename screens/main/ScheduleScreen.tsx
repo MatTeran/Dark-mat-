@@ -23,8 +23,8 @@ import type {
 import {
   getClassesForDay,
   getClassesForWeek,
+  getNextWeekAnchor,
   getWeekDates,
-  getWeekdayFromDate,
   getWeekdayLabel,
   groupClassesByDay,
 } from '../../utils/schedule';
@@ -32,16 +32,27 @@ import {
 export function ScheduleScreen() {
   const { colors } = useAppTheme();
   const [viewMode, setViewMode] = useState<ScheduleViewMode>('day');
-  const [selectedDay, setSelectedDay] = useState<Weekday>(() =>
-    getWeekdayFromDate(new Date()),
-  );
+  const [selectedDay, setSelectedDay] = useState<Weekday>('mon');
   const [filter, setFilter] = useState<ScheduleFilter>('all');
   const [reservedIds, setReservedIds] = useState<string[]>([]);
   const [reservingId, setReservingId] = useState<string | null>(null);
   const [banner, setBanner] = useState<string | null>(null);
 
-  const weekAnchor = useMemo(() => new Date(), []);
+  const weekAnchor = useMemo(() => getNextWeekAnchor(), []);
   const weekDates = useMemo(() => getWeekDates(weekAnchor), [weekAnchor]);
+  const weekRangeLabel = useMemo(() => {
+    const start = weekDates.mon;
+    const end = weekDates.sun;
+    const startText = start.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+    });
+    const endText = end.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+    });
+    return `${startText} – ${endText}`;
+  }, [weekDates]);
 
   const dayClasses = useMemo(
     () => getClassesForDay(selectedDay, filter),
@@ -86,7 +97,13 @@ export function ScheduleScreen() {
     <Screen scroll contentStyle={styles.content}>
       <Text variant="hero">Schedule</Text>
       <Spacer size="sm" />
-      <Text variant="bodyMuted">{APP_NAME} · Tracy, California</Text>
+      <Text variant="bodyMuted">
+        {APP_NAME} · Tracy, California · Next week
+      </Text>
+      <Spacer size="xxs" />
+      <Text variant="caption" style={{ color: colors.secondaryText }}>
+        {weekRangeLabel}
+      </Text>
 
       <Spacer size="lg" />
       <ScheduleViewToggle value={viewMode} onChange={setViewMode} />
@@ -94,7 +111,12 @@ export function ScheduleScreen() {
       <Spacer size="lg" />
 
       {viewMode === 'day' ? (
-        <WeeklyCalendar selected={selectedDay} onSelect={setSelectedDay} />
+        <WeeklyCalendar
+          selected={selectedDay}
+          onSelect={setSelectedDay}
+          weekAnchor={weekAnchor}
+          headerLabel="Next Week"
+        />
       ) : (
         <View
           style={[
@@ -106,7 +128,7 @@ export function ScheduleScreen() {
           ]}
         >
           <Text variant="label" gold>
-            This week
+            Next week
           </Text>
           <Spacer size="xs" />
           <Text variant="subtitle">
@@ -114,7 +136,7 @@ export function ScheduleScreen() {
           </Text>
           <Spacer size="xxs" />
           <Text variant="caption" style={{ color: colors.secondaryText }}>
-            Mon–Sun agenda · tap a day header to open Day view
+            {weekRangeLabel} · tap a day header to open Day view
           </Text>
         </View>
       )}

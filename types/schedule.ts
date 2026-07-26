@@ -7,14 +7,22 @@ export type Weekday =
   | 'sat'
   | 'sun';
 
-export type GiType = 'gi' | 'no_gi';
+export type GiType = 'gi' | 'no_gi' | 'gi_no_gi' | 'none';
 
-/** Filterable class tracks on the Schedule screen */
+/**
+ * Color-coded programs from the Open Mat Academy weekly flyer.
+ * Kept as ClassLevel for existing ScheduleFilter naming.
+ */
 export type ClassLevel =
-  | 'kids'
-  | 'fundamentals'
-  | 'advanced'
-  | 'competition'
+  | 'adult_bjj'
+  | 'youth_bjj'
+  | 'pee_wee_bjj'
+  | 'womens_bjj'
+  | 'boxing'
+  | 'muay_thai'
+  | 'wrestling'
+  | 'peak_performance'
+  | 'taekwondo'
   | 'open_mat';
 
 export type ScheduleFilter = ClassLevel | 'all';
@@ -26,6 +34,10 @@ export interface ScheduleClass {
   id: string;
   day: Weekday;
   title: string;
+  /** Age group / format detail shown under the title. */
+  subtitle?: string;
+  /** Extra flyer note (e.g. Roll Call). */
+  note?: string;
   startTime: string; // HH:mm 24h
   endTime: string; // HH:mm 24h
   instructor: string;

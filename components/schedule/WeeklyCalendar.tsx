@@ -11,12 +11,14 @@ interface WeeklyCalendarProps {
   selected: Weekday;
   onSelect: (day: Weekday) => void;
   weekAnchor?: Date;
+  headerLabel?: string;
 }
 
 export function WeeklyCalendar({
   selected,
   onSelect,
   weekAnchor = new Date(),
+  headerLabel = 'This Week',
 }: WeeklyCalendarProps) {
   const styles = useThemedStyles((colors) => ({
     card: {
@@ -85,7 +87,7 @@ export function WeeklyCalendar({
     <View style={styles.card}>
       <View style={styles.header}>
         <Text variant="label" gold>
-          This Week
+          {headerLabel}
         </Text>
       </View>
       <View style={styles.row}>

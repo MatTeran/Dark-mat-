@@ -1,4 +1,8 @@
-import { WEEKDAYS, WEEKLY_SCHEDULE } from '../lib/data/schedule';
+import {
+  CLASS_LEVEL_LABELS,
+  WEEKDAYS,
+  WEEKLY_SCHEDULE,
+} from '../lib/data/schedule';
 import type { NextClass } from '../types/home';
 import type {
   ClassLevel,
@@ -47,7 +51,28 @@ export function formatClock(time: string): string {
 }
 
 export function formatGiType(giType: GiType): string {
-  return giType === 'gi' ? 'Gi' : 'No-Gi';
+  switch (giType) {
+    case 'gi':
+      return 'Gi';
+    case 'no_gi':
+      return 'No-Gi';
+    case 'gi_no_gi':
+      return 'Gi / No-Gi';
+    case 'none':
+      return 'No gi required';
+    default:
+      return giType;
+  }
+}
+
+/** Monday of the upcoming week (if today is Monday, returns next Monday). */
+export function getNextWeekAnchor(from = new Date()): Date {
+  const date = new Date(from);
+  date.setHours(12, 0, 0, 0);
+  const jsDay = date.getDay();
+  const daysUntilNextMonday = jsDay === 0 ? 1 : 8 - jsDay;
+  date.setDate(date.getDate() + daysUntilNextMonday);
+  return date;
 }
 
 export function getClassesForDay(
@@ -164,12 +189,17 @@ export function toNextClassCardModel(now = new Date()): NextClass | null {
     return null;
   }
 
+  const giLabel =
+    next.classItem.giType === 'none'
+      ? CLASS_LEVEL_LABELS[next.classItem.level]
+      : formatGiType(next.classItem.giType);
+
   return {
     id: next.classItem.id,
     title: next.classItem.title,
     coach: next.classItem.instructor,
     startsAt: next.startsAt.toISOString(),
-    room: `${formatGiType(next.classItem.giType)} · Tracy`,
+    room: `${giLabel} · Tracy`,
     durationMinutes: durationMinutes(
       next.classItem.startTime,
       next.classItem.endTime,
@@ -179,10 +209,15 @@ export function toNextClassCardModel(now = new Date()): NextClass | null {
 
 export function isClassLevel(value: string): value is ClassLevel {
   return (
-    value === 'kids' ||
-    value === 'fundamentals' ||
-    value === 'advanced' ||
-    value === 'competition' ||
+    value === 'adult_bjj' ||
+    value === 'youth_bjj' ||
+    value === 'pee_wee_bjj' ||
+    value === 'womens_bjj' ||
+    value === 'boxing' ||
+    value === 'muay_thai' ||
+    value === 'wrestling' ||
+    value === 'peak_performance' ||
+    value === 'taekwondo' ||
     value === 'open_mat'
   );
 }
