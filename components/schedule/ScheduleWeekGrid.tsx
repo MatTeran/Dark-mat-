@@ -7,10 +7,14 @@ import {
   View,
 } from 'react-native';
 
-import { CLASS_LEVEL_COLORS, WEEKDAYS } from '../../lib/data/schedule';
+import {
+  CLASS_LEVEL_COLORS,
+  CLASS_LEVEL_LABELS,
+  WEEKDAYS,
+} from '../../lib/data/schedule';
 import { useAppTheme } from '../../lib/providers/ThemeProvider';
 import { radii, spacing } from '../../lib/theme';
-import type { ScheduleClass, Weekday } from '../../types/schedule';
+import type { ClassLevel, GiType, ScheduleClass, Weekday } from '../../types/schedule';
 import { formatClock } from '../../utils/schedule';
 import {
   durationToHeight,
@@ -21,10 +25,26 @@ import { Text } from '../ui/Text';
 
 const START_HOUR = 5;
 const END_HOUR = 21;
-const HOUR_HEIGHT = 56;
-const TIME_GUTTER = 44;
+const HOUR_HEIGHT = 64;
+const TIME_GUTTER = 40;
 const GRID_HEIGHT = (END_HOUR - START_HOUR) * HOUR_HEIGHT;
-const MIN_DAY_WIDTH = 52;
+/** Wide enough for a short program name; week scrolls horizontally. */
+const MIN_DAY_WIDTH = 118;
+/** Cascade inset for overlapping classes (keeps each block nearly full-width). */
+const CASCADE_INSET = 14;
+
+const SHORT_LEVEL: Record<ClassLevel, string> = {
+  adult_bjj: 'Adult',
+  youth_bjj: 'Youth',
+  pee_wee_bjj: 'Pee Wee',
+  womens_bjj: 'Women',
+  boxing: 'Boxing',
+  muay_thai: 'Muay Thai',
+  wrestling: 'Wrestling',
+  peak_performance: 'Peak',
+  taekwondo: 'TKD',
+  open_mat: 'Open Mat',
+};
 
 interface ScheduleWeekGridProps {
   classes: ScheduleClass[];
@@ -52,6 +72,31 @@ function formatHourLabel(hour: number): string {
   return `${hour12}${period}`;
 }
 
+function giSuffix(giType: GiType): string | null {
+  if (giType === 'gi') {
+    return 'Gi';
+  }
+  if (giType === 'no_gi') {
+    return 'No-Gi';
+  }
+  return null;
+}
+
+/** Compact label that fits a phone week column. */
+function weekBlockLabel(item: ScheduleClass, width: number): string {
+  const base = SHORT_LEVEL[item.level] ?? CLASS_LEVEL_LABELS[item.level];
+  const gi = giSuffix(item.giType);
+
+  if (width >= 96 && gi) {
+    return `${base} · ${gi}`;
+  }
+  if (width >= 72) {
+    return base;
+  }
+  // Very tight (deep cascade): first meaningful token.
+  return base.split(' ')[0] ?? base;
+}
+
 /**
  * Timed week calendar grid.
  * Absolute layout lives on Views — never on Pressable (NativeWind-safe).
@@ -76,10 +121,13 @@ export function ScheduleWeekGrid({
     if (gridWidth <= 0) {
       return MIN_DAY_WIDTH;
     }
-    return Math.max((gridWidth - TIME_GUTTER) / 7, MIN_DAY_WIDTH);
+    // Prefer readable columns; scroll sideways rather than crushing text.
+    const fitted = (gridWidth - TIME_GUTTER) / 7;
+    return Math.max(fitted, MIN_DAY_WIDTH);
   }, [gridWidth]);
 
   const contentWidth = TIME_GUTTER + dayWidth * 7;
+  const scrollsHorizontally = contentWidth > gridWidth + 1;
 
   const byDay = useMemo(() => {
     const map = {} as Record<Weekday, ReturnType<typeof layoutDayClasses>>;
@@ -106,206 +154,219 @@ export function ScheduleWeekGrid({
       ]}
       onLayout={onGridLayout}
     >
-      {/* Day headers */}
-      <View style={[styles.dayHeaderRow, { borderBottomColor: colors.border }]}>
-        <View style={{ width: TIME_GUTTER }} />
-        <View style={styles.dayHeaders}>
-          {WEEKDAYS.map((day) => {
-            const active = day.key === selectedDay;
-            const dateNumber = weekDates[day.key].getDate();
-            return (
-              <View key={day.key} style={{ width: dayWidth }}>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={`${day.label} ${dateNumber}`}
-                  onPress={() => onSelectDay(day.key)}
-                  style={({ pressed }) => [pressed && styles.pressed]}
-                >
-                  <View
-                    style={[
-                      styles.dayHeader,
-                      active && { backgroundColor: colors.goldMuted },
-                    ]}
-                  >
-                    <Text
-                      variant="caption"
-                      style={{
-                        color: active
-                          ? colors.goldAccent
-                          : colors.secondaryText,
-                      }}
-                    >
-                      {day.short}
-                    </Text>
-                    <Text
-                      variant="subtitle"
-                      style={{
-                        fontSize: 15,
-                        color: active ? colors.goldAccent : colors.text,
-                      }}
-                    >
-                      {dateNumber}
-                    </Text>
-                    <View
-                      style={[
-                        styles.activeDot,
-                        {
-                          backgroundColor: active
-                            ? colors.goldAccent
-                            : 'transparent',
-                        },
-                      ]}
-                    />
-                  </View>
-                </Pressable>
-              </View>
-            );
-          })}
-        </View>
-      </View>
-
       <ScrollView
-        style={styles.verticalScroll}
-        contentContainerStyle={{ width: contentWidth }}
-        showsVerticalScrollIndicator={false}
+        horizontal
+        bounces={false}
+        showsHorizontalScrollIndicator={scrollsHorizontally}
         nestedScrollEnabled
       >
-        <ScrollView
-          horizontal
-          bounces={false}
-          showsHorizontalScrollIndicator={false}
-        >
-          <View style={[styles.grid, { width: contentWidth, height: GRID_HEIGHT }]}>
-            {/* Background hour lines */}
-            {hours.map((hour) => {
-              const top = (hour - START_HOUR) * HOUR_HEIGHT;
+        <View style={{ width: contentWidth }}>
+          {/* Day headers scroll with columns */}
+          <View
+            style={[styles.dayHeaderRow, { borderBottomColor: colors.border }]}
+          >
+            <View style={{ width: TIME_GUTTER }} />
+            {WEEKDAYS.map((day) => {
+              const active = day.key === selectedDay;
+              const dateNumber = weekDates[day.key].getDate();
               return (
-                <View
-                  key={`line-${hour}`}
-                  pointerEvents="none"
-                  style={[styles.hourLineWrap, { top }]}
-                >
-                  <Text
-                    variant="caption"
-                    style={[styles.hourLabel, { color: colors.secondaryText }]}
+                <View key={day.key} style={{ width: dayWidth }}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`${day.label} ${dateNumber}`}
+                    onPress={() => onSelectDay(day.key)}
+                    style={({ pressed }) => [pressed && styles.pressed]}
                   >
-                    {formatHourLabel(hour)}
-                  </Text>
-                  <View
-                    style={[
-                      styles.hourLine,
-                      { backgroundColor: colors.border },
-                    ]}
-                  />
+                    <View
+                      style={[
+                        styles.dayHeader,
+                        active && { backgroundColor: colors.goldMuted },
+                      ]}
+                    >
+                      <Text
+                        variant="caption"
+                        style={{
+                          color: active
+                            ? colors.goldAccent
+                            : colors.secondaryText,
+                        }}
+                      >
+                        {day.short}
+                      </Text>
+                      <Text
+                        variant="subtitle"
+                        style={{
+                          fontSize: 16,
+                          color: active ? colors.goldAccent : colors.text,
+                        }}
+                      >
+                        {dateNumber}
+                      </Text>
+                      <View
+                        style={[
+                          styles.activeDot,
+                          {
+                            backgroundColor: active
+                              ? colors.goldAccent
+                              : 'transparent',
+                          },
+                        ]}
+                      />
+                    </View>
+                  </Pressable>
                 </View>
               );
             })}
+          </View>
 
-            {/* Day columns with events */}
-            <View
-              style={[
-                styles.columnsRow,
-                {
-                  marginLeft: TIME_GUTTER,
-                  width: dayWidth * 7,
-                },
-              ]}
-            >
-              {WEEKDAYS.map((day) => {
-                const laidOut = byDay[day.key];
+          <ScrollView
+            style={styles.verticalScroll}
+            showsVerticalScrollIndicator={false}
+            nestedScrollEnabled
+          >
+            <View style={[styles.grid, { height: GRID_HEIGHT }]}>
+              {hours.map((hour) => {
+                const top = (hour - START_HOUR) * HOUR_HEIGHT;
                 return (
                   <View
-                    key={day.key}
-                    style={[
-                      styles.dayColumn,
-                      {
-                        width: dayWidth,
-                        borderLeftColor: colors.border,
-                      },
-                    ]}
+                    key={`line-${hour}`}
+                    pointerEvents="none"
+                    style={[styles.hourLineWrap, { top }]}
                   >
-                    {laidOut.map((entry) => {
-                      const color = CLASS_LEVEL_COLORS[entry.item.level];
-                      const textColor = needsDarkText(color)
-                        ? '#0D0D0D'
-                        : '#FFFFFF';
-                      const top = minutesToY(
-                        entry.startMinutes,
-                        START_HOUR,
-                        HOUR_HEIGHT,
-                      );
-                      const height = durationToHeight(
-                        entry.startMinutes,
-                        entry.endMinutes,
-                        HOUR_HEIGHT,
-                      );
-                      const colWidth = (dayWidth - 4) / entry.columns;
-                      const left = 2 + entry.column * colWidth;
-                      const slotWidth = Math.max(colWidth - 2, 16);
-                      const slotHeight = Math.max(height - 2, 18);
-
-                      return (
-                        <View
-                          key={entry.item.id}
-                          style={[
-                            styles.eventSlot,
-                            {
-                              top,
-                              left,
-                              width: slotWidth,
-                              height: slotHeight,
-                            },
-                          ]}
-                        >
-                          <Pressable
-                            accessibilityRole="button"
-                            accessibilityLabel={`${entry.item.title} ${formatClock(entry.item.startTime)}`}
-                            onPress={() => onPressClass(entry.item)}
-                            style={({ pressed }) => [
-                              pressed && styles.pressed,
-                            ]}
-                          >
-                            <View
-                              style={[
-                                styles.eventBlock,
-                                {
-                                  backgroundColor: color,
-                                  width: slotWidth,
-                                  height: slotHeight,
-                                },
-                              ]}
-                            >
-                              <Text
-                                numberOfLines={2}
-                                style={[
-                                  styles.eventTitle,
-                                  { color: textColor },
-                                ]}
-                              >
-                                {entry.item.title}
-                              </Text>
-                              {slotHeight > 34 ? (
-                                <Text
-                                  numberOfLines={1}
-                                  style={[
-                                    styles.eventTime,
-                                    { color: textColor },
-                                  ]}
-                                >
-                                  {formatClock(entry.item.startTime)}
-                                </Text>
-                              ) : null}
-                            </View>
-                          </Pressable>
-                        </View>
-                      );
-                    })}
+                    <Text
+                      variant="caption"
+                      style={[
+                        styles.hourLabel,
+                        { color: colors.secondaryText },
+                      ]}
+                    >
+                      {formatHourLabel(hour)}
+                    </Text>
+                    <View
+                      style={[
+                        styles.hourLine,
+                        { backgroundColor: colors.border },
+                      ]}
+                    />
                   </View>
                 );
               })}
+
+              <View
+                style={[
+                  styles.columnsRow,
+                  {
+                    marginLeft: TIME_GUTTER,
+                    width: dayWidth * 7,
+                  },
+                ]}
+              >
+                {WEEKDAYS.map((day) => {
+                  const laidOut = byDay[day.key];
+                  return (
+                    <View
+                      key={day.key}
+                      style={[
+                        styles.dayColumn,
+                        {
+                          width: dayWidth,
+                          borderLeftColor: colors.border,
+                        },
+                      ]}
+                    >
+                      {laidOut.map((entry) => {
+                        const color = CLASS_LEVEL_COLORS[entry.item.level];
+                        const textColor = needsDarkText(color)
+                          ? '#0D0D0D'
+                          : '#FFFFFF';
+                        const top = minutesToY(
+                          entry.startMinutes,
+                          START_HOUR,
+                          HOUR_HEIGHT,
+                        );
+                        const height = durationToHeight(
+                          entry.startMinutes,
+                          entry.endMinutes,
+                          HOUR_HEIGHT,
+                        );
+                        const cascadeCount = Math.max(entry.columns, 1);
+                        const left = 3 + entry.column * CASCADE_INSET;
+                        const idealWidth =
+                          dayWidth - 6 - (cascadeCount - 1) * CASCADE_INSET;
+                        const slotWidth = Math.max(
+                          Math.min(idealWidth, dayWidth - left - 2),
+                          64,
+                        );
+                        const slotHeight = Math.max(height - 2, 28);
+                        const label = weekBlockLabel(entry.item, slotWidth);
+                        const showTime = slotHeight >= 44 && slotWidth >= 88;
+
+                        return (
+                          <View
+                            key={entry.item.id}
+                            style={[
+                              styles.eventSlot,
+                              {
+                                top,
+                                left,
+                                width: slotWidth,
+                                height: slotHeight,
+                                zIndex: entry.column + 1,
+                              },
+                            ]}
+                          >
+                            <Pressable
+                              accessibilityRole="button"
+                              accessibilityLabel={`${entry.item.title} ${formatClock(entry.item.startTime)}`}
+                              onPress={() => onPressClass(entry.item)}
+                              style={({ pressed }) => [
+                                pressed && styles.pressed,
+                              ]}
+                            >
+                              <View
+                                style={[
+                                  styles.eventBlock,
+                                  {
+                                    backgroundColor: color,
+                                    width: slotWidth,
+                                    height: slotHeight,
+                                    borderColor: colors.secondaryBackground,
+                                  },
+                                ]}
+                              >
+                                <Text
+                                  numberOfLines={1}
+                                  ellipsizeMode="tail"
+                                  style={[
+                                    styles.eventTitle,
+                                    { color: textColor },
+                                  ]}
+                                >
+                                  {label}
+                                </Text>
+                                {showTime ? (
+                                  <Text
+                                    numberOfLines={1}
+                                    style={[
+                                      styles.eventTime,
+                                      { color: textColor },
+                                    ]}
+                                  >
+                                    {formatClock(entry.item.startTime)}
+                                  </Text>
+                                ) : null}
+                              </View>
+                            </Pressable>
+                          </View>
+                        );
+                      })}
+                    </View>
+                  );
+                })}
+              </View>
             </View>
-          </View>
-        </ScrollView>
+          </ScrollView>
+        </View>
       </ScrollView>
     </View>
   );
@@ -325,15 +386,12 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xs,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  dayHeaders: {
-    flexDirection: 'row',
-  },
   dayHeader: {
     alignItems: 'center',
     paddingVertical: spacing.xs,
     borderRadius: radii.pill,
     gap: 2,
-    marginHorizontal: 2,
+    marginHorizontal: 4,
   },
   activeDot: {
     width: 4,
@@ -342,7 +400,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   verticalScroll: {
-    maxHeight: 440,
+    maxHeight: 460,
   },
   grid: {
     position: 'relative',
@@ -383,19 +441,23 @@ const styles = StyleSheet.create({
   },
   eventBlock: {
     borderRadius: radii.sm,
-    paddingHorizontal: 3,
-    paddingVertical: 2,
+    paddingHorizontal: 6,
+    paddingVertical: 4,
     overflow: 'hidden',
+    justifyContent: 'flex-start',
+    borderWidth: StyleSheet.hairlineWidth,
   },
   eventTitle: {
-    fontSize: 9,
+    fontSize: 12,
     fontWeight: '700',
-    lineHeight: 11,
+    lineHeight: 15,
+    letterSpacing: -0.2,
   },
   eventTime: {
-    fontSize: 8,
-    marginTop: 1,
-    opacity: 0.9,
+    fontSize: 10,
+    marginTop: 2,
+    opacity: 0.92,
+    fontWeight: '500',
   },
   pressed: {
     opacity: 0.88,

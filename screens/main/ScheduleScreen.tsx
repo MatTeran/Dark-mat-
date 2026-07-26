@@ -177,7 +177,7 @@ export function ScheduleScreen() {
         <>
           <Text variant="caption" style={{ color: colors.secondaryText }}>
             {weekClasses.length} class{weekClasses.length === 1 ? '' : 'es'} ·
-            tap a block or day to open Day view
+            swipe for more days · tap a block for details
           </Text>
           <Spacer size="sm" />
           <ScheduleWeekGrid
