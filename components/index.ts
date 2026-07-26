@@ -18,6 +18,7 @@ export { NextClassCard } from './home/NextClassCard';
 export { QuickActions } from './home/QuickActions';
 export { RecentActivity } from './home/RecentActivity';
 export { UpcomingEvents } from './home/UpcomingEvents';
+export { CenterLogTabIcon } from './layout/CenterLogTabIcon';
 export { TabBarIcon } from './layout/TabBarIcon';
 export { AchievementBadgeCard } from './journey/AchievementBadgeCard';
 export { BadgeDetailModal } from './journey/BadgeDetailModal';
