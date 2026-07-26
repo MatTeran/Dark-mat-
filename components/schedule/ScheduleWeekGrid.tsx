@@ -20,14 +20,12 @@ import {
   durationToHeight,
   layoutDayClasses,
   minutesToY,
+  visibleHourRange,
 } from '../../utils/scheduleLayout';
 import { Text } from '../ui/Text';
 
-const START_HOUR = 5;
-const END_HOUR = 21;
-const HOUR_HEIGHT = 64;
+const HOUR_HEIGHT = 48;
 const TIME_GUTTER = 40;
-const GRID_HEIGHT = (END_HOUR - START_HOUR) * HOUR_HEIGHT;
 /** Wide enough for a short program name; week scrolls horizontally. */
 const MIN_DAY_WIDTH = 118;
 /** Cascade inset for overlapping classes (keeps each block nearly full-width). */
@@ -93,7 +91,6 @@ function weekBlockLabel(item: ScheduleClass, width: number): string {
   if (width >= 72) {
     return base;
   }
-  // Very tight (deep cascade): first meaningful token.
   return base.split(' ')[0] ?? base;
 }
 
@@ -111,17 +108,23 @@ export function ScheduleWeekGrid({
   const { colors } = useAppTheme();
   const [gridWidth, setGridWidth] = useState(0);
 
+  const { startHour, endHour } = useMemo(
+    () => visibleHourRange(classes),
+    [classes],
+  );
+
   const hours = useMemo(
     () =>
-      Array.from({ length: END_HOUR - START_HOUR }, (_, index) => START_HOUR + index),
-    [],
+      Array.from({ length: endHour - startHour }, (_, index) => startHour + index),
+    [startHour, endHour],
   );
+
+  const gridHeight = (endHour - startHour) * HOUR_HEIGHT;
 
   const dayWidth = useMemo(() => {
     if (gridWidth <= 0) {
       return MIN_DAY_WIDTH;
     }
-    // Prefer readable columns; scroll sideways rather than crushing text.
     const fitted = (gridWidth - TIME_GUTTER) / 7;
     return Math.max(fitted, MIN_DAY_WIDTH);
   }, [gridWidth]);
@@ -161,7 +164,6 @@ export function ScheduleWeekGrid({
         nestedScrollEnabled
       >
         <View style={{ width: contentWidth }}>
-          {/* Day headers scroll with columns */}
           <View
             style={[styles.dayHeaderRow, { borderBottomColor: colors.border }]}
           >
@@ -224,9 +226,9 @@ export function ScheduleWeekGrid({
             showsVerticalScrollIndicator={false}
             nestedScrollEnabled
           >
-            <View style={[styles.grid, { height: GRID_HEIGHT }]}>
+            <View style={[styles.grid, { height: gridHeight }]}>
               {hours.map((hour) => {
-                const top = (hour - START_HOUR) * HOUR_HEIGHT;
+                const top = (hour - startHour) * HOUR_HEIGHT;
                 return (
                   <View
                     key={`line-${hour}`}
@@ -270,6 +272,7 @@ export function ScheduleWeekGrid({
                         styles.dayColumn,
                         {
                           width: dayWidth,
+                          height: gridHeight,
                           borderLeftColor: colors.border,
                         },
                       ]}
@@ -281,7 +284,7 @@ export function ScheduleWeekGrid({
                           : '#FFFFFF';
                         const top = minutesToY(
                           entry.startMinutes,
-                          START_HOUR,
+                          startHour,
                           HOUR_HEIGHT,
                         );
                         const height = durationToHeight(
@@ -297,9 +300,9 @@ export function ScheduleWeekGrid({
                           Math.min(idealWidth, dayWidth - left - 2),
                           64,
                         );
-                        const slotHeight = Math.max(height - 2, 28);
+                        const slotHeight = Math.max(height - 2, 24);
                         const label = weekBlockLabel(entry.item, slotWidth);
-                        const showTime = slotHeight >= 44 && slotWidth >= 88;
+                        const showTime = slotHeight >= 40 && slotWidth >= 88;
 
                         return (
                           <View
@@ -431,7 +434,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   dayColumn: {
-    height: GRID_HEIGHT,
     borderLeftWidth: StyleSheet.hairlineWidth,
     position: 'relative',
   },
@@ -442,7 +444,7 @@ const styles = StyleSheet.create({
   eventBlock: {
     borderRadius: radii.sm,
     paddingHorizontal: 6,
-    paddingVertical: 4,
+    paddingVertical: 3,
     overflow: 'hidden',
     justifyContent: 'flex-start',
     borderWidth: StyleSheet.hairlineWidth,
@@ -455,7 +457,7 @@ const styles = StyleSheet.create({
   },
   eventTime: {
     fontSize: 10,
-    marginTop: 2,
+    marginTop: 1,
     opacity: 0.92,
     fontWeight: '500',
   },

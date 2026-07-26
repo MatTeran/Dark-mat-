@@ -5,6 +5,36 @@ function toMinutes(time: string): number {
   return hours * 60 + minutes;
 }
 
+export interface VisibleHourRange {
+  /** Inclusive start hour (0–23), floored from earliest class start. */
+  startHour: number;
+  /** Exclusive end hour (1–24), ceiled from latest class end. */
+  endHour: number;
+}
+
+/**
+ * Hour window for the week grid from the current (filtered) classes.
+ * Empty list falls back to a short afternoon window.
+ */
+export function visibleHourRange(classes: ScheduleClass[]): VisibleHourRange {
+  if (classes.length === 0) {
+    return { startHour: 16, endHour: 20 };
+  }
+
+  let minStart = Number.POSITIVE_INFINITY;
+  let maxEnd = Number.NEGATIVE_INFINITY;
+
+  for (const item of classes) {
+    minStart = Math.min(minStart, toMinutes(item.startTime));
+    maxEnd = Math.max(maxEnd, toMinutes(item.endTime));
+  }
+
+  const startHour = Math.max(0, Math.floor(minStart / 60));
+  const endHour = Math.min(24, Math.max(Math.ceil(maxEnd / 60), startHour + 1));
+
+  return { startHour, endHour };
+}
+
 export interface LaidOutClass {
   item: ScheduleClass;
   /** 0-based column within overlapping group. */
