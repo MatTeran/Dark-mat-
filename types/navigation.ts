@@ -15,6 +15,7 @@ export type WorkoutStackParamList = {
 export type HomeStackParamList = {
   HomeMain: undefined;
   Journey: undefined;
+  LocalEvents: undefined;
 };
 
 export type CommunityStackParamList = {

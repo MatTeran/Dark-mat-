@@ -91,4 +91,11 @@ export type {
   WorkoutProgressMetrics,
   WorkoutWeekSummary,
 } from './workoutMetrics';
+export type {
+  LocalEvent,
+  LocalEventFilter,
+  LocalEventKind,
+  LocalEventsSearchResult,
+  UserGeoLocation,
+} from './localEvents';
 

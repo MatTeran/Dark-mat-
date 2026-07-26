@@ -13,6 +13,7 @@ import {
   HomeHeroBanner,
   JourneySummaryCard,
   LatestAnnouncementCard,
+  LocalEventsTile,
   NextClassCard,
   QuickActions,
   Screen,
@@ -246,6 +247,14 @@ export function HomeScreen() {
             </FadeIn>
           </>
         ) : null}
+
+        <Spacer size="md" />
+
+        <FadeIn delay={160}>
+          <LocalEventsTile
+            onPress={() => navigation.navigate('LocalEvents')}
+          />
+        </FadeIn>
 
         <Spacer size="lg" />
 
