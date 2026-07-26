@@ -51,6 +51,7 @@ export { ClassCard } from './schedule/ClassCard';
 export { ScheduleFilters } from './schedule/ScheduleFilters';
 export { ScheduleGiFilters } from './schedule/ScheduleGiFilters';
 export { ScheduleViewToggle } from './schedule/ScheduleViewToggle';
+export { ScheduleWeekGrid } from './schedule/ScheduleWeekGrid';
 export { WeeklyCalendar } from './schedule/WeeklyCalendar';
 export { Banner } from './ui/Banner';
 export type { BannerProps } from './ui/Banner';

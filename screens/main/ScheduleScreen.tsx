@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import {
   Banner,
@@ -7,16 +7,17 @@ import {
   ScheduleFilters,
   ScheduleGiFilters,
   ScheduleViewToggle,
+  ScheduleWeekGrid,
   Screen,
   Spacer,
   Text,
   WeeklyCalendar,
 } from '../../components';
 import { APP_NAME } from '../../lib/constants';
-import { WEEKDAYS } from '../../lib/data/schedule';
 import { useAppTheme } from '../../hooks';
-import { radii, spacing } from '../../lib/theme';
+import { spacing } from '../../lib/theme';
 import type {
+  ScheduleClass,
   ScheduleFilter,
   ScheduleGiFilter,
   ScheduleViewMode,
@@ -28,7 +29,6 @@ import {
   getNextWeekAnchor,
   getWeekDates,
   getWeekdayLabel,
-  groupClassesByDay,
 } from '../../utils/schedule';
 
 export function ScheduleScreen() {
@@ -62,14 +62,9 @@ export function ScheduleScreen() {
     [filter, giFilter, selectedDay],
   );
 
-  const weekGroups = useMemo(
-    () => groupClassesByDay(getClassesForWeek(filter, giFilter)),
+  const weekClasses = useMemo(
+    () => getClassesForWeek(filter, giFilter),
     [filter, giFilter],
-  );
-
-  const weekClassCount = useMemo(
-    () => weekGroups.reduce((sum, group) => sum + group.classes.length, 0),
-    [weekGroups],
   );
 
   const handleReserve = (classId: string, title: string) => {
@@ -85,6 +80,11 @@ export function ScheduleScreen() {
       setReservingId(null);
       setBanner(`Reserved · ${title}`);
     }, 450);
+  };
+
+  const openClassInDayView = (item: ScheduleClass) => {
+    setSelectedDay(item.day);
+    setViewMode('day');
   };
 
   const selectedDateLabel = weekDates[selectedDay].toLocaleDateString(
@@ -120,31 +120,9 @@ export function ScheduleScreen() {
           weekAnchor={weekAnchor}
           headerLabel="Next Week"
         />
-      ) : (
-        <View
-          style={[
-            styles.weekSummary,
-            {
-              backgroundColor: colors.secondaryBackground,
-              borderColor: colors.border,
-            },
-          ]}
-        >
-          <Text variant="label" gold>
-            Next week
-          </Text>
-          <Spacer size="xs" />
-          <Text variant="subtitle">
-            {weekClassCount} class{weekClassCount === 1 ? '' : 'es'} scheduled
-          </Text>
-          <Spacer size="xxs" />
-          <Text variant="caption" style={{ color: colors.secondaryText }}>
-            {weekRangeLabel} · tap a day header to open Day view
-          </Text>
-        </View>
-      )}
+      ) : null}
 
-      <Spacer size="lg" />
+      <Spacer size={viewMode === 'day' ? 'lg' : 'none'} />
 
       <Text variant="label">Program</Text>
       <Spacer size="sm" />
@@ -196,98 +174,23 @@ export function ScheduleScreen() {
           )}
         </>
       ) : (
-        <View style={styles.weekAgenda}>
-          {weekGroups.map((group) => {
-            const date = weekDates[group.day];
-            const isToday =
-              date.toDateString() === new Date().toDateString();
-            const dayMeta = WEEKDAYS.find((item) => item.key === group.day);
-            const dateLabel = date.toLocaleDateString(undefined, {
-              month: 'short',
-              day: 'numeric',
-            });
-
-            return (
-              <View key={group.day} style={styles.daySection}>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={`Open ${getWeekdayLabel(group.day)} in Day view`}
-                  onPress={() => {
-                    setSelectedDay(group.day);
-                    setViewMode('day');
-                  }}
-                  style={({ pressed }) => [pressed && styles.pressed]}
-                >
-                  <View
-                    style={[
-                      styles.dayHeader,
-                      {
-                        backgroundColor: isToday
-                          ? colors.goldMuted
-                          : colors.elevatedSurface,
-                        borderColor: isToday
-                          ? colors.goldAccent
-                          : colors.border,
-                      },
-                    ]}
-                  >
-                    <View>
-                      <Text
-                        variant="subtitle"
-                        style={{
-                          color: isToday ? colors.goldAccent : colors.text,
-                        }}
-                      >
-                        {dayMeta?.label ?? getWeekdayLabel(group.day)}
-                      </Text>
-                      <Text
-                        variant="caption"
-                        style={{ color: colors.secondaryText }}
-                      >
-                        {dateLabel}
-                        {isToday ? ' · Today' : ''}
-                      </Text>
-                    </View>
-                    <Text
-                      variant="caption"
-                      style={{
-                        color: isToday
-                          ? colors.goldAccent
-                          : colors.secondaryText,
-                      }}
-                    >
-                      {group.classes.length} class
-                      {group.classes.length === 1 ? '' : 'es'}
-                    </Text>
-                  </View>
-                </Pressable>
-
-                <Spacer size="sm" />
-
-                {group.classes.length === 0 ? (
-                  <Text
-                    variant="caption"
-                    style={[styles.restDay, { color: colors.secondaryText }]}
-                  >
-                    Rest day · no classes match this filter
-                  </Text>
-                ) : (
-                  <View style={styles.list}>
-                    {group.classes.map((item) => (
-                      <ClassCard
-                        key={item.id}
-                        item={item}
-                        reserved={reservedIds.includes(item.id)}
-                        reserving={reservingId === item.id}
-                        onReserve={() => handleReserve(item.id, item.title)}
-                      />
-                    ))}
-                  </View>
-                )}
-              </View>
-            );
-          })}
-        </View>
+        <>
+          <Text variant="caption" style={{ color: colors.secondaryText }}>
+            {weekClasses.length} class{weekClasses.length === 1 ? '' : 'es'} ·
+            tap a block or day to open Day view
+          </Text>
+          <Spacer size="sm" />
+          <ScheduleWeekGrid
+            classes={weekClasses}
+            weekDates={weekDates}
+            selectedDay={selectedDay}
+            onSelectDay={(day) => {
+              setSelectedDay(day);
+              setViewMode('day');
+            }}
+            onPressClass={openClassInDayView}
+          />
+        </>
       )}
 
       <View style={styles.bottomSpace} />
@@ -297,37 +200,11 @@ export function ScheduleScreen() {
 
 const styles = StyleSheet.create({
   content: {},
-  weekSummary: {
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    padding: spacing.lg,
-  },
   list: {
     gap: spacing.md,
   },
   empty: {
     paddingVertical: spacing.xl,
-  },
-  weekAgenda: {
-    gap: spacing.xl,
-  },
-  daySection: {
-    width: '100%',
-  },
-  dayHeader: {
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  restDay: {
-    paddingHorizontal: spacing.xs,
-  },
-  pressed: {
-    opacity: 0.9,
   },
   bottomSpace: {
     height: spacing.lg,
