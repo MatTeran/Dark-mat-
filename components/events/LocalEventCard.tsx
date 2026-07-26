@@ -11,32 +11,32 @@ import { Text } from '../ui/Text';
 interface LocalEventCardProps {
   event: LocalEvent;
   onPress: () => void;
+  /** Fixed width for horizontal carousels, or full width in lists. */
+  width?: number | `${number}%`;
 }
 
-function kindLabel(kind: LocalEvent['kind']): string {
-  switch (kind) {
-    case 'seminar':
-      return 'Seminar';
-    case 'camp':
-      return 'Camp';
-    case 'tournament':
-      return 'Tournament';
-    default:
-      return 'Event';
-  }
-}
-
-export function LocalEventCard({ event, onPress }: LocalEventCardProps) {
+/**
+ * Flyer-forward event card — large cover image on top, details below.
+ */
+export function LocalEventCard({
+  event,
+  onPress,
+  width = 268,
+}: LocalEventCardProps) {
   const { colors } = useAppTheme();
   const [imageFailed, setImageFailed] = useState(false);
   const showFlyer = Boolean(event.coverImage) && !imageFailed;
+  const metaLine = [event.periodLabel, event.city].filter(Boolean).join(' · ');
 
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`${event.title}, ${formatDistanceMiles(event.distanceMiles)} away`}
       onPress={onPress}
-      style={({ pressed }) => [pressed && styles.pressed]}
+      style={({ pressed }) => [
+        { width },
+        pressed && styles.pressed,
+      ]}
     >
       <View
         style={[
@@ -47,88 +47,61 @@ export function LocalEventCard({ event, onPress }: LocalEventCardProps) {
           },
         ]}
       >
-        <View style={styles.mediaRow}>
-          <View
-            style={[
-              styles.flyerWrap,
-              { backgroundColor: colors.goldMuted, borderColor: colors.border },
-            ]}
-          >
-            {showFlyer ? (
-              <Image
-                source={{ uri: event.coverImage as string }}
-                style={styles.flyer}
-                resizeMode="cover"
-                accessibilityLabel={`${event.title} flyer`}
-                onError={() => setImageFailed(true)}
-              />
-            ) : (
-              <View style={styles.flyerFallback}>
-                <Ionicons
-                  name="image-outline"
-                  size={28}
-                  color={colors.goldAccent}
-                />
-              </View>
-            )}
-          </View>
-
-          <View style={styles.copy}>
-            <View style={styles.top}>
-              <View
-                style={[styles.badge, { backgroundColor: colors.goldMuted }]}
-              >
-                <Text variant="caption" style={{ color: colors.goldAccent }}>
-                  {kindLabel(event.kind)}
-                </Text>
-              </View>
-              <Text variant="caption" style={{ color: colors.secondaryText }}>
-                {formatDistanceMiles(event.distanceMiles)}
-              </Text>
-            </View>
-
-            <Text
-              variant="subtitle"
-              numberOfLines={2}
-              style={[styles.title, { color: colors.text }]}
-            >
-              {event.title}
-            </Text>
-
-            <View style={styles.metaRow}>
+        <View
+          style={[
+            styles.flyerWrap,
+            { backgroundColor: colors.goldMuted },
+          ]}
+        >
+          {showFlyer ? (
+            <Image
+              source={{ uri: event.coverImage as string }}
+              style={styles.flyer}
+              resizeMode="cover"
+              accessibilityLabel={`${event.title} flyer`}
+              onError={() => setImageFailed(true)}
+            />
+          ) : (
+            <View style={styles.flyerFallback}>
               <Ionicons
-                name="calendar-outline"
-                size={14}
-                color={colors.secondaryText}
-              />
-              <Text
-                variant="caption"
-                style={{ color: colors.secondaryText, flex: 1 }}
-                numberOfLines={1}
-              >
-                {event.periodLabel}
-              </Text>
-            </View>
-
-            <View style={styles.metaRow}>
-              <Ionicons
-                name="location-outline"
-                size={14}
-                color={colors.secondaryText}
-              />
-              <Text
-                variant="caption"
-                style={{ color: colors.secondaryText, flex: 1 }}
-                numberOfLines={1}
-              >
-                {event.city}
-              </Text>
-              <Ionicons
-                name="open-outline"
-                size={16}
+                name="image-outline"
+                size={36}
                 color={colors.goldAccent}
               />
+              <Text
+                variant="caption"
+                style={{ color: colors.secondaryText, marginTop: spacing.xs }}
+              >
+                Flyer coming soon
+              </Text>
             </View>
+          )}
+        </View>
+
+        <View style={styles.body}>
+          <Text
+            variant="subtitle"
+            numberOfLines={2}
+            style={[styles.title, { color: colors.text }]}
+          >
+            {event.title}
+          </Text>
+
+          <Text
+            variant="caption"
+            numberOfLines={2}
+            style={{ color: colors.secondaryText, marginTop: spacing.xs }}
+          >
+            {metaLine}
+          </Text>
+
+          <View style={styles.footer}>
+            <Text variant="caption" style={{ color: colors.goldAccent }}>
+              {formatDistanceMiles(event.distanceMiles)}
+            </Text>
+            <Text variant="caption" style={{ color: colors.secondaryText }}>
+              external event
+            </Text>
           </View>
         </View>
       </View>
@@ -138,60 +111,43 @@ export function LocalEventCard({ event, onPress }: LocalEventCardProps) {
 
 const styles = StyleSheet.create({
   pressed: {
-    opacity: 0.92,
+    opacity: 0.94,
+    transform: [{ scale: 0.985 }],
   },
   card: {
     borderRadius: radii.xl,
     borderWidth: 1,
-    padding: spacing.sm,
-  },
-  mediaRow: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
-    gap: spacing.md,
+    overflow: 'hidden',
   },
   flyerWrap: {
-    width: 92,
-    minHeight: 120,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    overflow: 'hidden',
+    width: '100%',
+    height: 168,
   },
   flyer: {
     width: '100%',
     height: '100%',
-    minHeight: 120,
   },
   flyerFallback: {
     flex: 1,
-    minHeight: 120,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: spacing.md,
   },
-  copy: {
-    flex: 1,
-    minWidth: 0,
-    paddingVertical: spacing.xxs,
-    gap: spacing.xs,
+  body: {
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.md,
+    minHeight: 118,
   },
-  top: {
+  title: {
+    fontSize: 17,
+    lineHeight: 22,
+  },
+  footer: {
+    marginTop: spacing.sm,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.sm,
-  },
-  badge: {
-    borderRadius: radii.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 3,
-  },
-  title: {
-    fontSize: 16,
-    lineHeight: 21,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
   },
 });

@@ -15,35 +15,42 @@ import {
   Button,
   FadeIn,
   LocalEventCard,
-  LocalEventFilterRow,
+  LocalEventSection,
   Screen,
   Spacer,
   Text,
 } from '../../components';
 import { useAppTheme } from '../../hooks';
+import { spacing } from '../../lib/theme';
 import {
   filterLocalEvents,
   getExternalSearchLinks,
   searchLocalEvents,
 } from '../../services/events/localEventsSearch';
-import { spacing } from '../../lib/theme';
+import type { LocalEvent, LocalEventFilter } from '../../types/localEvents';
 import type { HomeStackParamList } from '../../types/navigation';
-import type { LocalEventFilter } from '../../types/localEvents';
 
 type Props = NativeStackScreenProps<HomeStackParamList, 'LocalEvents'>;
 
+type ViewMode = 'browse' | LocalEventFilter;
+
 export function LocalEventsScreen({ navigation }: Props) {
   const { colors } = useAppTheme();
-  const [filter, setFilter] = useState<LocalEventFilter>('all');
+  const [viewMode, setViewMode] = useState<ViewMode>('browse');
 
   const query = useQuery({
     queryKey: ['local-events'],
     queryFn: () => searchLocalEvents({ radiusMiles: 250 }),
   });
 
-  const events = useMemo(
-    () => filterLocalEvents(query.data?.events ?? [], filter),
-    [filter, query.data?.events],
+  const allEvents = query.data?.events ?? [];
+  const seminars = useMemo(
+    () => filterLocalEvents(allEvents, 'seminar'),
+    [allEvents],
+  );
+  const tournaments = useMemo(
+    () => filterLocalEvents(allEvents, 'tournament'),
+    [allEvents],
   );
 
   const locationLabel = query.data?.location.label ?? 'your area';
@@ -56,6 +63,24 @@ export function LocalEventsScreen({ navigation }: Props) {
       // Ignore if the device cannot open the URL.
     }
   };
+
+  const openEvent = (event: LocalEvent) => {
+    void openUrl(event.url);
+  };
+
+  const listEvents =
+    viewMode === 'seminar'
+      ? seminars
+      : viewMode === 'tournament'
+        ? tournaments
+        : allEvents;
+
+  const listTitle =
+    viewMode === 'seminar'
+      ? 'Seminars near you'
+      : viewMode === 'tournament'
+        ? 'Tournaments near you'
+        : 'All nearby events';
 
   return (
     <Screen
@@ -71,15 +96,24 @@ export function LocalEventsScreen({ navigation }: Props) {
         />
       }
     >
-      <Button label="Back" variant="ghost" onPress={() => navigation.goBack()} />
+      <Button
+        label="Back"
+        variant="ghost"
+        onPress={() => {
+          if (viewMode !== 'browse') {
+            setViewMode('browse');
+            return;
+          }
+          navigation.goBack();
+        }}
+      />
       <Spacer size="md" />
 
       <FadeIn>
         <Text variant="hero">Local Events</Text>
         <Spacer size="sm" />
         <Text variant="bodyMuted">
-          Seminars and tournaments near {locationLabel}, pulled live from
-          Smoothcomp.
+          Flyers for seminars and tournaments near {locationLabel}.
         </Text>
       </FadeIn>
 
@@ -102,10 +136,6 @@ export function LocalEventsScreen({ navigation }: Props) {
         </>
       ) : null}
 
-      <LocalEventFilterRow value={filter} onChange={setFilter} />
-
-      <Spacer size="lg" />
-
       {query.isLoading ? (
         <View style={styles.loading}>
           <ActivityIndicator color={colors.goldAccent} />
@@ -114,38 +144,51 @@ export function LocalEventsScreen({ navigation }: Props) {
             Searching online near {locationLabel}…
           </Text>
         </View>
-      ) : events.length === 0 ? (
-        <View style={styles.empty}>
-          <Text variant="subtitle" gold>
-            No matches nearby
-          </Text>
-          <Spacer size="xs" />
-          <Text variant="bodyMuted" style={styles.center}>
-            Try another filter, widen your search online, or pull to refresh.
-          </Text>
-        </View>
+      ) : viewMode === 'browse' ? (
+        <FadeIn delay={40}>
+          <LocalEventSection
+            title="Seminars near you"
+            icon="pricetag-outline"
+            events={seminars}
+            onPressEvent={openEvent}
+            onViewAll={() => setViewMode('seminar')}
+            emptyMessage="No seminars found nearby yet. Try Search online below."
+          />
+
+          <Spacer size="xl" />
+
+          <LocalEventSection
+            title="Tournaments near you"
+            icon="trophy-outline"
+            events={tournaments}
+            onPressEvent={openEvent}
+            onViewAll={() => setViewMode('tournament')}
+            emptyMessage="No tournaments found nearby yet. Try Search online below."
+          />
+        </FadeIn>
       ) : (
-        <View style={styles.list}>
+        <FadeIn delay={40}>
+          <Text variant="subtitle">{listTitle}</Text>
+          <Spacer size="xs" />
           <Text variant="caption" style={{ color: colors.secondaryText }}>
-            {events.length} event{events.length === 1 ? '' : 's'} within 250 mi
-            {query.data?.sourceLabel ? ` · ${query.data.sourceLabel}` : ''}
+            {listEvents.length} event{listEvents.length === 1 ? '' : 's'} within
+            250 mi
           </Text>
-          <Spacer size="sm" />
-          {events.map((event, index) => (
-            <FadeIn key={event.id} delay={40 + index * 30}>
+          <Spacer size="md" />
+          <View style={styles.fullList}>
+            {listEvents.map((event) => (
               <LocalEventCard
+                key={event.id}
                 event={event}
-                onPress={() => {
-                  void openUrl(event.url);
-                }}
+                width="100%"
+                onPress={() => openEvent(event)}
               />
-              <Spacer size="sm" />
-            </FadeIn>
-          ))}
-        </View>
+            ))}
+          </View>
+        </FadeIn>
       )}
 
-      <Spacer size="lg" />
+      <Spacer size="xl" />
       <Text variant="subtitle">Search online</Text>
       <Spacer size="xs" />
       <Text variant="caption" style={{ color: colors.secondaryText }}>
@@ -188,21 +231,13 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   loading: {
-    minHeight: 160,
+    minHeight: 180,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  empty: {
-    minHeight: 140,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-  },
-  center: {
-    textAlign: 'center',
-  },
-  list: {
+  fullList: {
     width: '100%',
+    gap: spacing.md,
   },
   links: {
     flexDirection: 'row',

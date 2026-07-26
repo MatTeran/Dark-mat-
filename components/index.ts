@@ -6,6 +6,7 @@ export { SectionHeader } from './community/SectionHeader';
 export { SeminarCard } from './community/SeminarCard';
 export { LocalEventCard } from './events/LocalEventCard';
 export { LocalEventFilterRow } from './events/LocalEventFilterRow';
+export { LocalEventSection } from './events/LocalEventSection';
 export { FadeIn } from './home/FadeIn';
 export { HomeGreeting } from './home/HomeGreeting';
 export { HomeHeroBanner } from './home/HomeHeroBanner';
