@@ -32,6 +32,7 @@ export type ProfileStackParamList = {
   Attendance: undefined;
   Settings: undefined;
   Notifications: undefined;
+  NotificationSettings: undefined;
   LinkedFamily: undefined;
 };
 

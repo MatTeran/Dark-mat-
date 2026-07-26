@@ -15,6 +15,9 @@ import {
 } from '../../components';
 import { APP_NAME } from '../../lib/constants';
 import { useAppTheme } from '../../hooks';
+import {
+  scheduleClassReminder,
+} from '../../lib/notifications';
 import { spacing } from '../../lib/theme';
 import type {
   ScheduleClass,
@@ -30,6 +33,16 @@ import {
   getWeekDates,
   getWeekdayLabel,
 } from '../../utils/schedule';
+
+function classStartsAt(
+  item: ScheduleClass,
+  weekDates: Record<Weekday, Date>,
+): Date {
+  const dayDate = new Date(weekDates[item.day]);
+  const [hours, minutes] = item.startTime.split(':').map(Number);
+  dayDate.setHours(hours, minutes, 0, 0);
+  return dayDate;
+}
 
 export function ScheduleScreen() {
   const { colors } = useAppTheme();
@@ -75,10 +88,22 @@ export function ScheduleScreen() {
     setReservingId(classId);
     setBanner(null);
 
+    const reservedClass =
+      dayClasses.find((item) => item.id === classId) ??
+      weekClasses.find((item) => item.id === classId);
+
     setTimeout(() => {
       setReservedIds((current) => [...current, classId]);
       setReservingId(null);
       setBanner(`Reserved · ${title}`);
+
+      if (reservedClass) {
+        void scheduleClassReminder({
+          classId: reservedClass.id,
+          classTitle: reservedClass.title,
+          startsAt: classStartsAt(reservedClass, weekDates),
+        });
+      }
     }, 450);
   };
 

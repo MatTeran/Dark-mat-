@@ -15,19 +15,21 @@ import {
   LatestAnnouncementCard,
   LocalEventsTile,
   NextClassCard,
+  NotificationPermissionCard,
   QuickActions,
   Screen,
   Spacer,
   Text,
   UpcomingEvents,
 } from '../../components';
-import { useAuth } from '../../hooks';
+import { useAuth, useNotifications } from '../../hooks';
 import {
   HOME_USER_SUMMARY,
   NEXT_CLASS_SUMMARY,
   QUICK_ACTIONS,
   UPCOMING_EVENTS,
 } from '../../lib/mocks/home';
+import { scheduleClassReminder } from '../../lib/notifications';
 import { useCommunity } from '../../lib/providers/CommunityProvider';
 import { useJourney } from '../../lib/providers/JourneyProvider';
 import { spacing } from '../../lib/theme';
@@ -54,6 +56,12 @@ export function HomeScreen() {
   const { user } = useAuth();
   const { announcements } = useCommunity();
   const { profile, streak, awardXp } = useJourney();
+  const {
+    permissionPromptStatus,
+    enableNotifications,
+    deferPermissionPrompt,
+    openSettings,
+  } = useNotifications();
   const navigation = useNavigation<HomeNavigation>();
 
   const [reservationStatus, setReservationStatus] =
@@ -65,6 +73,13 @@ export function HomeScreen() {
   const [weeklyClassesCompleted, setWeeklyClassesCompleted] = useState(
     HOME_USER_SUMMARY.weeklyClassesCompleted,
   );
+  const [permissionLoading, setPermissionLoading] = useState(false);
+  const [permissionMessage, setPermissionMessage] = useState<string | null>(
+    null,
+  );
+
+  const showPermissionCard = permissionPromptStatus === 'unknown';
+  const showBlockedCard = permissionPromptStatus === 'blocked';
 
   const latestAnnouncement = useMemo(() => {
     return [...announcements].sort(
@@ -137,6 +152,11 @@ export function HomeScreen() {
           `Reserved ${NEXT_CLASS_SUMMARY.title}. Mock reservation only.`,
         );
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        void scheduleClassReminder({
+          classId: NEXT_CLASS_SUMMARY.id,
+          classTitle: NEXT_CLASS_SUMMARY.title,
+          startsAt: new Date(NEXT_CLASS_SUMMARY.startsAt),
+        });
         // Soon classes open check-in shortly after reserve in this mock flow.
         if (NEXT_CLASS_SUMMARY.status === 'soon') {
           await wait(900);
@@ -217,6 +237,34 @@ export function HomeScreen() {
             onOpenDetails={() => navigation.navigate('Schedule')}
           />
         </FadeIn>
+
+        {showPermissionCard || showBlockedCard ? (
+          <>
+            <Spacer size="md" />
+            <FadeIn delay={80}>
+              <NotificationPermissionCard
+                loading={permissionLoading}
+                statusMessage={permissionMessage}
+                showOpenSettings={showBlockedCard}
+                onEnable={() => {
+                  setPermissionLoading(true);
+                  setPermissionMessage(null);
+                  void enableNotifications()
+                    .then((result) => {
+                      setPermissionMessage(result.message);
+                    })
+                    .finally(() => setPermissionLoading(false));
+                }}
+                onNotNow={() => {
+                  void deferPermissionPrompt();
+                }}
+                onOpenSettings={() => {
+                  void openSettings();
+                }}
+              />
+            </FadeIn>
+          </>
+        ) : null}
 
         <Spacer size="md" />
 

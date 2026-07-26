@@ -341,7 +341,7 @@ export function ProfileHomeScreen({ navigation }: Props) {
           <ProfileMenuRow
             icon="notifications-outline"
             label="Notifications"
-            value="Manage alerts"
+            value="Inbox & alerts"
             onPress={() => navigation.navigate('Notifications')}
           />
         </ProfileMenuGroup>

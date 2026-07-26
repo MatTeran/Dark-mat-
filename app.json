@@ -16,7 +16,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.darkmat.app",
       "infoPlist": {
-        "UIBackgroundModes": [],
+        "UIBackgroundModes": ["remote-notification"],
         "NSCameraUsageDescription": "Dark Mat uses the camera so you can set a profile photo.",
         "NSPhotoLibraryUsageDescription": "Dark Mat uses your photo library so you can set a profile photo.",
         "NSLocationWhenInUseUsageDescription": "Dark Mat uses your location to find nearby BJJ seminars and tournaments."
@@ -35,7 +35,8 @@
         "android.permission.CAMERA",
         "android.permission.READ_MEDIA_IMAGES",
         "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.ACCESS_FINE_LOCATION"
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.POST_NOTIFICATIONS"
       ]
     },
     "web": {
@@ -66,12 +67,26 @@
         }
       ],
       [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#D4AF37",
+          "defaultChannel": "dark-mat-default",
+          "sounds": []
+        }
+      ],
+      [
         "@stripe/stripe-react-native",
         {
           "merchantIdentifier": "merchant.com.darkmat.app",
           "enableGooglePay": true
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "00000000-0000-0000-0000-000000000000"
+      }
+    }
   }
 }
