@@ -27,6 +27,9 @@ export type ClassLevel =
 
 export type ScheduleFilter = ClassLevel | 'all';
 
+/** Gi / No-Gi format filter for BJJ classes. */
+export type ScheduleGiFilter = 'all' | 'gi' | 'no_gi';
+
 /** Schedule list presentation: single day or full week agenda. */
 export type ScheduleViewMode = 'day' | 'week';
 

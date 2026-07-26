@@ -2,6 +2,7 @@ import type {
   ClassLevel,
   ScheduleClass,
   ScheduleFilter,
+  ScheduleGiFilter,
   Weekday,
 } from '../../types/schedule';
 
@@ -27,6 +28,15 @@ export const SCHEDULE_FILTERS: { key: ScheduleFilter; label: string }[] = [
   { key: 'peak_performance', label: 'Peak Perf.' },
   { key: 'taekwondo', label: 'TKD' },
   { key: 'open_mat', label: 'Open Mat' },
+];
+
+export const SCHEDULE_GI_FILTERS: {
+  key: ScheduleGiFilter;
+  label: string;
+}[] = [
+  { key: 'all', label: 'All formats' },
+  { key: 'gi', label: 'BJJ · Gi' },
+  { key: 'no_gi', label: 'BJJ · No-Gi' },
 ];
 
 export const CLASS_LEVEL_LABELS: Record<ClassLevel, string> = {

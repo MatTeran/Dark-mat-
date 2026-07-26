@@ -5,6 +5,7 @@ import {
   Banner,
   ClassCard,
   ScheduleFilters,
+  ScheduleGiFilters,
   ScheduleViewToggle,
   Screen,
   Spacer,
@@ -17,6 +18,7 @@ import { useAppTheme } from '../../hooks';
 import { radii, spacing } from '../../lib/theme';
 import type {
   ScheduleFilter,
+  ScheduleGiFilter,
   ScheduleViewMode,
   Weekday,
 } from '../../types/schedule';
@@ -34,6 +36,7 @@ export function ScheduleScreen() {
   const [viewMode, setViewMode] = useState<ScheduleViewMode>('day');
   const [selectedDay, setSelectedDay] = useState<Weekday>('mon');
   const [filter, setFilter] = useState<ScheduleFilter>('all');
+  const [giFilter, setGiFilter] = useState<ScheduleGiFilter>('all');
   const [reservedIds, setReservedIds] = useState<string[]>([]);
   const [reservingId, setReservingId] = useState<string | null>(null);
   const [banner, setBanner] = useState<string | null>(null);
@@ -55,13 +58,13 @@ export function ScheduleScreen() {
   }, [weekDates]);
 
   const dayClasses = useMemo(
-    () => getClassesForDay(selectedDay, filter),
-    [filter, selectedDay],
+    () => getClassesForDay(selectedDay, filter, giFilter),
+    [filter, giFilter, selectedDay],
   );
 
   const weekGroups = useMemo(
-    () => groupClassesByDay(getClassesForWeek(filter)),
-    [filter],
+    () => groupClassesByDay(getClassesForWeek(filter, giFilter)),
+    [filter, giFilter],
   );
 
   const weekClassCount = useMemo(
@@ -143,9 +146,14 @@ export function ScheduleScreen() {
 
       <Spacer size="lg" />
 
-      <Text variant="label">Filter</Text>
+      <Text variant="label">Program</Text>
       <Spacer size="sm" />
       <ScheduleFilters selected={filter} onSelect={setFilter} />
+
+      <Spacer size="md" />
+      <Text variant="label">BJJ format</Text>
+      <Spacer size="sm" />
+      <ScheduleGiFilters selected={giFilter} onSelect={setGiFilter} />
 
       {banner ? (
         <>

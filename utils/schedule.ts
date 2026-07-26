@@ -9,6 +9,7 @@ import type {
   GiType,
   ScheduleClass,
   ScheduleFilter,
+  ScheduleGiFilter,
   Weekday,
 } from '../types/schedule';
 
@@ -75,18 +76,42 @@ export function getNextWeekAnchor(from = new Date()): Date {
   return date;
 }
 
+function matchesGiFilter(
+  giType: GiType,
+  giFilter: ScheduleGiFilter,
+): boolean {
+  if (giFilter === 'all') {
+    return true;
+  }
+  if (giFilter === 'gi') {
+    return giType === 'gi' || giType === 'gi_no_gi';
+  }
+  return giType === 'no_gi' || giType === 'gi_no_gi';
+}
+
+function matchesProgramFilter(
+  level: ClassLevel,
+  filter: ScheduleFilter,
+): boolean {
+  if (filter === 'all') {
+    return true;
+  }
+  return level === filter;
+}
+
 export function getClassesForDay(
   day: Weekday,
   filter: ScheduleFilter = 'all',
+  giFilter: ScheduleGiFilter = 'all',
 ): ScheduleClass[] {
   return WEEKLY_SCHEDULE.filter((item) => {
     if (item.day !== day) {
       return false;
     }
-    if (filter === 'all') {
-      return true;
+    if (!matchesProgramFilter(item.level, filter)) {
+      return false;
     }
-    return item.level === filter;
+    return matchesGiFilter(item.giType, giFilter);
   }).sort(
     (a, b) => parseTimeToMinutes(a.startTime) - parseTimeToMinutes(b.startTime),
   );
@@ -94,12 +119,13 @@ export function getClassesForDay(
 
 export function getClassesForWeek(
   filter: ScheduleFilter = 'all',
+  giFilter: ScheduleGiFilter = 'all',
 ): ScheduleClass[] {
   return WEEKLY_SCHEDULE.filter((item) => {
-    if (filter === 'all') {
-      return true;
+    if (!matchesProgramFilter(item.level, filter)) {
+      return false;
     }
-    return item.level === filter;
+    return matchesGiFilter(item.giType, giFilter);
   }).sort((a, b) => {
     const dayDiff =
       WEEKDAYS.findIndex((day) => day.key === a.day) -

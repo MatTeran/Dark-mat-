@@ -71,6 +71,7 @@ export type {
   GiType as ScheduleGiType,
   ScheduleClass,
   ScheduleFilter,
+  ScheduleGiFilter,
   ScheduleViewMode,
   Weekday,
 } from './schedule';
