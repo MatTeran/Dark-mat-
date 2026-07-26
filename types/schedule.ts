@@ -19,6 +19,9 @@ export type ClassLevel =
 
 export type ScheduleFilter = ClassLevel | 'all';
 
+/** Schedule list presentation: single day or full week agenda. */
+export type ScheduleViewMode = 'day' | 'week';
+
 export interface ScheduleClass {
   id: string;
   day: Weekday;

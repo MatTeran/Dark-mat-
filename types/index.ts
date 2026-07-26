@@ -71,6 +71,7 @@ export type {
   GiType as ScheduleGiType,
   ScheduleClass,
   ScheduleFilter,
+  ScheduleViewMode,
   Weekday,
 } from './schedule';
 export type { BeltRank, UserProfile } from './user';

@@ -67,6 +67,39 @@ export function getClassesForDay(
   );
 }
 
+export function getClassesForWeek(
+  filter: ScheduleFilter = 'all',
+): ScheduleClass[] {
+  return WEEKLY_SCHEDULE.filter((item) => {
+    if (filter === 'all') {
+      return true;
+    }
+    return item.level === filter;
+  }).sort((a, b) => {
+    const dayDiff =
+      WEEKDAYS.findIndex((day) => day.key === a.day) -
+      WEEKDAYS.findIndex((day) => day.key === b.day);
+    if (dayDiff !== 0) {
+      return dayDiff;
+    }
+    return parseTimeToMinutes(a.startTime) - parseTimeToMinutes(b.startTime);
+  });
+}
+
+export function groupClassesByDay(
+  classes: ScheduleClass[],
+): Array<{ day: Weekday; classes: ScheduleClass[] }> {
+  return WEEKDAYS.map((day) => ({
+    day: day.key,
+    classes: classes
+      .filter((item) => item.day === day.key)
+      .sort(
+        (a, b) =>
+          parseTimeToMinutes(a.startTime) - parseTimeToMinutes(b.startTime),
+      ),
+  }));
+}
+
 /** Dates for the week containing `anchor` (Mon–Sun). */
 export function getWeekDates(anchor = new Date()): Record<Weekday, Date> {
   const date = new Date(anchor);

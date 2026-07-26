@@ -48,6 +48,7 @@ export { ProfileStatsRow } from './profile/ProfileStatsRow';
 export { SettingToggleRow } from './profile/SettingToggleRow';
 export { ClassCard } from './schedule/ClassCard';
 export { ScheduleFilters } from './schedule/ScheduleFilters';
+export { ScheduleViewToggle } from './schedule/ScheduleViewToggle';
 export { WeeklyCalendar } from './schedule/WeeklyCalendar';
 export { Banner } from './ui/Banner';
 export type { BannerProps } from './ui/Banner';
