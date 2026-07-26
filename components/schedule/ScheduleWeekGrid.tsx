@@ -1,32 +1,30 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
-  Dimensions,
+  LayoutChangeEvent,
   Pressable,
   ScrollView,
   StyleSheet,
   View,
 } from 'react-native';
 
-import {
-  CLASS_LEVEL_COLORS,
-  WEEKDAYS,
-} from '../../lib/data/schedule';
+import { CLASS_LEVEL_COLORS, WEEKDAYS } from '../../lib/data/schedule';
 import { useAppTheme } from '../../lib/providers/ThemeProvider';
 import { radii, spacing } from '../../lib/theme';
 import type { ScheduleClass, Weekday } from '../../types/schedule';
+import { formatClock } from '../../utils/schedule';
 import {
   durationToHeight,
   layoutDayClasses,
   minutesToY,
 } from '../../utils/scheduleLayout';
-import { formatClock } from '../../utils/schedule';
 import { Text } from '../ui/Text';
 
 const START_HOUR = 5;
 const END_HOUR = 21;
-const HOUR_HEIGHT = 58;
-const TIME_GUTTER = 46;
+const HOUR_HEIGHT = 56;
+const TIME_GUTTER = 44;
 const GRID_HEIGHT = (END_HOUR - START_HOUR) * HOUR_HEIGHT;
+const MIN_DAY_WIDTH = 52;
 
 interface ScheduleWeekGridProps {
   classes: ScheduleClass[];
@@ -54,6 +52,10 @@ function formatHourLabel(hour: number): string {
   return `${hour12}${period}`;
 }
 
+/**
+ * Timed week calendar grid.
+ * Absolute layout lives on Views — never on Pressable (NativeWind-safe).
+ */
 export function ScheduleWeekGrid({
   classes,
   weekDates,
@@ -62,14 +64,22 @@ export function ScheduleWeekGrid({
   onPressClass,
 }: ScheduleWeekGridProps) {
   const { colors } = useAppTheme();
+  const [gridWidth, setGridWidth] = useState(0);
+
   const hours = useMemo(
-    () => Array.from({ length: END_HOUR - START_HOUR }, (_, i) => START_HOUR + i),
+    () =>
+      Array.from({ length: END_HOUR - START_HOUR }, (_, index) => START_HOUR + index),
     [],
   );
 
-  const screenWidth = Dimensions.get('window').width;
-  const available = screenWidth - spacing.lg * 2 - TIME_GUTTER;
-  const dayWidth = Math.max(available / 7, 48);
+  const dayWidth = useMemo(() => {
+    if (gridWidth <= 0) {
+      return MIN_DAY_WIDTH;
+    }
+    return Math.max((gridWidth - TIME_GUTTER) / 7, MIN_DAY_WIDTH);
+  }, [gridWidth]);
+
+  const contentWidth = TIME_GUTTER + dayWidth * 7;
 
   const byDay = useMemo(() => {
     const map = {} as Record<Weekday, ReturnType<typeof layoutDayClasses>>;
@@ -81,6 +91,10 @@ export function ScheduleWeekGrid({
     return map;
   }, [classes]);
 
+  const onGridLayout = (event: LayoutChangeEvent) => {
+    setGridWidth(event.nativeEvent.layout.width);
+  };
+
   return (
     <View
       style={[
@@ -90,80 +104,86 @@ export function ScheduleWeekGrid({
           borderColor: colors.border,
         },
       ]}
+      onLayout={onGridLayout}
     >
+      {/* Day headers */}
       <View style={[styles.dayHeaderRow, { borderBottomColor: colors.border }]}>
         <View style={{ width: TIME_GUTTER }} />
-        {WEEKDAYS.map((day) => {
-          const active = day.key === selectedDay;
-          const dateNumber = weekDates[day.key].getDate();
-          return (
-            <Pressable
-              key={day.key}
-              accessibilityRole="button"
-              accessibilityLabel={`${day.label} ${dateNumber}`}
-              onPress={() => onSelectDay(day.key)}
-              style={({ pressed }) => [
-                { width: dayWidth },
-                pressed && styles.pressed,
-              ]}
-            >
-              <View
-                style={[
-                  styles.dayHeader,
-                  active && {
-                    backgroundColor: colors.goldMuted,
-                  },
-                ]}
-              >
-                <Text
-                  variant="caption"
-                  style={{
-                    color: active ? colors.goldAccent : colors.secondaryText,
-                  }}
+        <View style={styles.dayHeaders}>
+          {WEEKDAYS.map((day) => {
+            const active = day.key === selectedDay;
+            const dateNumber = weekDates[day.key].getDate();
+            return (
+              <View key={day.key} style={{ width: dayWidth }}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`${day.label} ${dateNumber}`}
+                  onPress={() => onSelectDay(day.key)}
+                  style={({ pressed }) => [pressed && styles.pressed]}
                 >
-                  {day.short}
-                </Text>
-                <Text
-                  variant="subtitle"
-                  style={{
-                    fontSize: 15,
-                    color: active ? colors.goldAccent : colors.text,
-                  }}
-                >
-                  {dateNumber}
-                </Text>
-                {active ? (
                   <View
-                    style={[styles.activeDot, { backgroundColor: colors.goldAccent }]}
-                  />
-                ) : (
-                  <View style={styles.activeDotSpacer} />
-                )}
+                    style={[
+                      styles.dayHeader,
+                      active && { backgroundColor: colors.goldMuted },
+                    ]}
+                  >
+                    <Text
+                      variant="caption"
+                      style={{
+                        color: active
+                          ? colors.goldAccent
+                          : colors.secondaryText,
+                      }}
+                    >
+                      {day.short}
+                    </Text>
+                    <Text
+                      variant="subtitle"
+                      style={{
+                        fontSize: 15,
+                        color: active ? colors.goldAccent : colors.text,
+                      }}
+                    >
+                      {dateNumber}
+                    </Text>
+                    <View
+                      style={[
+                        styles.activeDot,
+                        {
+                          backgroundColor: active
+                            ? colors.goldAccent
+                            : 'transparent',
+                        },
+                      ]}
+                    />
+                  </View>
+                </Pressable>
               </View>
-            </Pressable>
-          );
-        })}
+            );
+          })}
+        </View>
       </View>
 
       <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        bounces={false}
+        style={styles.verticalScroll}
+        contentContainerStyle={{ width: contentWidth }}
+        showsVerticalScrollIndicator={false}
+        nestedScrollEnabled
       >
         <ScrollView
-          style={styles.verticalScroll}
-          showsVerticalScrollIndicator={false}
-          nestedScrollEnabled
+          horizontal
+          bounces={false}
+          showsHorizontalScrollIndicator={false}
         >
-          <View style={{ width: TIME_GUTTER + dayWidth * 7, height: GRID_HEIGHT }}>
-            {/* Hour lines + labels */}
+          <View style={[styles.grid, { width: contentWidth, height: GRID_HEIGHT }]}>
+            {/* Background hour lines */}
             {hours.map((hour) => {
               const top = (hour - START_HOUR) * HOUR_HEIGHT;
               return (
                 <View
-                  key={hour}
-                  style={[styles.hourRow, { top }]}
+                  key={`line-${hour}`}
                   pointerEvents="none"
+                  style={[styles.hourLineWrap, { top }]}
                 >
                   <Text
                     variant="caption"
@@ -181,80 +201,109 @@ export function ScheduleWeekGrid({
               );
             })}
 
-            {/* Day column dividers */}
-            {WEEKDAYS.map((day, index) => (
-              <View
-                key={`col-${day.key}`}
-                pointerEvents="none"
-                style={[
-                  styles.dayDivider,
-                  {
-                    left: TIME_GUTTER + index * dayWidth,
-                    backgroundColor: colors.border,
-                  },
-                ]}
-              />
-            ))}
-
-            {/* Event blocks */}
-            {WEEKDAYS.map((day, dayIndex) => {
-              const laidOut = byDay[day.key];
-              return laidOut.map((entry) => {
-                const color = CLASS_LEVEL_COLORS[entry.item.level];
-                const textColor = needsDarkText(color) ? '#0D0D0D' : '#FFFFFF';
-                const top = minutesToY(
-                  entry.startMinutes,
-                  START_HOUR,
-                  HOUR_HEIGHT,
-                );
-                const height = durationToHeight(
-                  entry.startMinutes,
-                  entry.endMinutes,
-                  HOUR_HEIGHT,
-                );
-                const width = (dayWidth - 4) / entry.columns;
-                const left =
-                  TIME_GUTTER +
-                  dayIndex * dayWidth +
-                  2 +
-                  entry.column * width;
-
+            {/* Day columns with events */}
+            <View
+              style={[
+                styles.columnsRow,
+                {
+                  marginLeft: TIME_GUTTER,
+                  width: dayWidth * 7,
+                },
+              ]}
+            >
+              {WEEKDAYS.map((day) => {
+                const laidOut = byDay[day.key];
                 return (
-                  <Pressable
-                    key={entry.item.id}
-                    accessibilityRole="button"
-                    accessibilityLabel={`${entry.item.title} ${formatClock(entry.item.startTime)}`}
-                    onPress={() => onPressClass(entry.item)}
-                    style={({ pressed }) => [
-                      styles.eventBlock,
+                  <View
+                    key={day.key}
+                    style={[
+                      styles.dayColumn,
                       {
-                        top,
-                        left,
-                        width: Math.max(width - 2, 18),
-                        height: Math.max(height - 2, 20),
-                        backgroundColor: color,
-                        opacity: pressed ? 0.88 : 1,
+                        width: dayWidth,
+                        borderLeftColor: colors.border,
                       },
                     ]}
                   >
-                    <Text
-                      numberOfLines={2}
-                      style={[styles.eventTitle, { color: textColor }]}
-                    >
-                      {entry.item.title}
-                    </Text>
-                    {height > 36 ? (
-                      <Text
-                        numberOfLines={1}
-                        style={[styles.eventTime, { color: textColor }]}
-                      >
-                        {formatClock(entry.item.startTime)}
-                      </Text>
-                    ) : null}
-                  </Pressable>
+                    {laidOut.map((entry) => {
+                      const color = CLASS_LEVEL_COLORS[entry.item.level];
+                      const textColor = needsDarkText(color)
+                        ? '#0D0D0D'
+                        : '#FFFFFF';
+                      const top = minutesToY(
+                        entry.startMinutes,
+                        START_HOUR,
+                        HOUR_HEIGHT,
+                      );
+                      const height = durationToHeight(
+                        entry.startMinutes,
+                        entry.endMinutes,
+                        HOUR_HEIGHT,
+                      );
+                      const colWidth = (dayWidth - 4) / entry.columns;
+                      const left = 2 + entry.column * colWidth;
+                      const slotWidth = Math.max(colWidth - 2, 16);
+                      const slotHeight = Math.max(height - 2, 18);
+
+                      return (
+                        <View
+                          key={entry.item.id}
+                          style={[
+                            styles.eventSlot,
+                            {
+                              top,
+                              left,
+                              width: slotWidth,
+                              height: slotHeight,
+                            },
+                          ]}
+                        >
+                          <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel={`${entry.item.title} ${formatClock(entry.item.startTime)}`}
+                            onPress={() => onPressClass(entry.item)}
+                            style={({ pressed }) => [
+                              pressed && styles.pressed,
+                            ]}
+                          >
+                            <View
+                              style={[
+                                styles.eventBlock,
+                                {
+                                  backgroundColor: color,
+                                  width: slotWidth,
+                                  height: slotHeight,
+                                },
+                              ]}
+                            >
+                              <Text
+                                numberOfLines={2}
+                                style={[
+                                  styles.eventTitle,
+                                  { color: textColor },
+                                ]}
+                              >
+                                {entry.item.title}
+                              </Text>
+                              {slotHeight > 34 ? (
+                                <Text
+                                  numberOfLines={1}
+                                  style={[
+                                    styles.eventTime,
+                                    { color: textColor },
+                                  ]}
+                                >
+                                  {formatClock(entry.item.startTime)}
+                                </Text>
+                              ) : null}
+                            </View>
+                          </Pressable>
+                        </View>
+                      );
+                    })}
+                  </View>
                 );
-              });
-            })}
+              })}
+            </View>
           </View>
         </ScrollView>
       </ScrollView>
@@ -276,11 +325,15 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xs,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
+  dayHeaders: {
+    flexDirection: 'row',
+  },
   dayHeader: {
     alignItems: 'center',
     paddingVertical: spacing.xs,
     borderRadius: radii.pill,
     gap: 2,
+    marginHorizontal: 2,
   },
   activeDot: {
     width: 4,
@@ -288,15 +341,13 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     marginTop: 2,
   },
-  activeDotSpacer: {
-    width: 4,
-    height: 4,
-    marginTop: 2,
-  },
   verticalScroll: {
-    maxHeight: 420,
+    maxHeight: 440,
   },
-  hourRow: {
+  grid: {
+    position: 'relative',
+  },
+  hourLineWrap: {
     position: 'absolute',
     left: 0,
     right: 0,
@@ -305,28 +356,35 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   hourLabel: {
-    width: TIME_GUTTER - 6,
+    width: TIME_GUTTER - 4,
     textAlign: 'right',
     fontSize: 10,
-    marginTop: -6,
+    marginTop: -5,
     paddingRight: 4,
   },
   hourLine: {
     flex: 1,
     height: StyleSheet.hairlineWidth,
-    marginTop: 0,
   },
-  dayDivider: {
+  columnsRow: {
     position: 'absolute',
     top: 0,
     bottom: 0,
-    width: StyleSheet.hairlineWidth,
+    flexDirection: 'row',
+  },
+  dayColumn: {
+    height: GRID_HEIGHT,
+    borderLeftWidth: StyleSheet.hairlineWidth,
+    position: 'relative',
+  },
+  eventSlot: {
+    position: 'absolute',
+    overflow: 'hidden',
   },
   eventBlock: {
-    position: 'absolute',
     borderRadius: radii.sm,
     paddingHorizontal: 3,
-    paddingVertical: 3,
+    paddingVertical: 2,
     overflow: 'hidden',
   },
   eventTitle: {
@@ -336,10 +394,10 @@ const styles = StyleSheet.create({
   },
   eventTime: {
     fontSize: 8,
-    marginTop: 2,
+    marginTop: 1,
     opacity: 0.9,
   },
   pressed: {
-    opacity: 0.9,
+    opacity: 0.88,
   },
 });
