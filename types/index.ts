@@ -4,6 +4,7 @@ export type {
   AuthStatus,
   AuthUser,
   RegisterPayload,
+  UserRole,
 } from './auth';
 export type {
   ActivityItem,

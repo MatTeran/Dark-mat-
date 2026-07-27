@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "Dark Mat Coach",
+    "slug": "dark-mat-coach",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "scheme": "darkmat-coach",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#090909"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.darkmat.coach"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#090909",
+        "foregroundImage": "./assets/adaptive-icon.png"
+      },
+      "package": "com.darkmat.coach"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#090909",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200
+        }
+      ]
+    ],
+    "experiments": {
+      "autolinkingModuleResolution": true
+    }
+  }
+}
