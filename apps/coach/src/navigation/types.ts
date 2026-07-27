@@ -22,12 +22,28 @@ export type ScheduleStackParamList = {
 export type MembersStackParamList = {
   MembersHome: undefined;
   MemberDetail: { memberId: string };
+  JourneyMember: { memberId: string };
 };
 
 export type MoreStackParamList = {
   MoreHome: undefined;
   Announcements: undefined;
   AnnouncementForm: { announcementId?: string } | undefined;
+  CommandCenter: undefined;
+  Techniques: undefined;
+  TechniqueForm: { techniqueId?: string } | undefined;
+  Challenges: undefined;
+  ChallengeForm: { challengeId?: string } | undefined;
+  Achievements: undefined;
+  AchievementForm: { achievementId?: string } | undefined;
+  Events: undefined;
+  EventForm: { eventId?: string } | undefined;
+  MediaLibrary: undefined;
+  MediaUpload: undefined;
+  Journey: undefined;
+  JourneyMember: { memberId: string };
+  Notifications: undefined;
+  NotificationForm: undefined;
 };
 
 export type MainTabParamList = {

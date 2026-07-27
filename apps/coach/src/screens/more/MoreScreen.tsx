@@ -73,6 +73,62 @@ const LINKS: Array<{
     onPress: (navigation) =>
       (navigation.navigate as (name: string) => void)('Members'),
   },
+  {
+    title: 'Command Center',
+    subtitle: 'Academy pulse and quick actions',
+    icon: 'pulse-outline',
+    tint: '#F4D35E',
+    onPress: (navigation) => navigation.navigate('CommandCenter'),
+  },
+  {
+    title: 'Techniques',
+    subtitle: 'Coach library and favorites',
+    icon: 'book-outline',
+    tint: '#FB7185',
+    onPress: (navigation) => navigation.navigate('Techniques'),
+  },
+  {
+    title: 'Challenges',
+    subtitle: 'XP goals and badges',
+    icon: 'trophy-outline',
+    tint: '#A78BFA',
+    onPress: (navigation) => navigation.navigate('Challenges'),
+  },
+  {
+    title: 'Achievements',
+    subtitle: 'Badge catalog and awards',
+    icon: 'ribbon-outline',
+    tint: '#D4AF37',
+    onPress: (navigation) => navigation.navigate('Achievements'),
+  },
+  {
+    title: 'Events',
+    subtitle: 'Seminars, closures, and RSVPs',
+    icon: 'ticket-outline',
+    tint: '#38BDF8',
+    onPress: (navigation) => navigation.navigate('Events'),
+  },
+  {
+    title: 'Media Library',
+    subtitle: 'Albums and recent uploads',
+    icon: 'albums-outline',
+    tint: '#22C55E',
+    onPress: (navigation) => navigation.navigate('MediaLibrary'),
+  },
+  {
+    title: 'Member Journey',
+    subtitle: 'Read-only XP and progress',
+    icon: 'map-outline',
+    tint: '#F59E0B',
+    onPress: (navigation) => navigation.navigate('Journey'),
+  },
+  {
+    title: 'Notifications',
+    subtitle: 'Draft and simulate sends',
+    icon: 'notifications-outline',
+    tint: '#38BDF8',
+    onPress: (navigation) => navigation.navigate('Notifications'),
+  },
 ];
 
 export function MoreScreen({ navigation }: Props) {

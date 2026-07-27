@@ -10,6 +10,7 @@ import {
 } from '@darkmat/shared';
 
 import { CoachDataProvider } from './CoachDataProvider';
+import { Phase2DataProvider } from './Phase2DataProvider';
 
 function ThemedRoot({ children }: PropsWithChildren) {
   const { colors } = useAppTheme();
@@ -19,7 +20,9 @@ function ThemedRoot({ children }: PropsWithChildren) {
     >
       <SafeAreaProvider>
         <AuthProvider appRole="coach">
-          <CoachDataProvider>{children}</CoachDataProvider>
+          <CoachDataProvider>
+            <Phase2DataProvider>{children}</Phase2DataProvider>
+          </CoachDataProvider>
         </AuthProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

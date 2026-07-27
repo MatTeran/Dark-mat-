@@ -953,26 +953,26 @@ export const CREATE_SHEET_ACTIONS: CreateSheetAction[] = [
   {
     id: 'event',
     title: 'Event',
-    subtitle: 'Coming in a later phase',
+    subtitle: 'Seminar, competition, or academy gathering',
     icon: 'ticket-outline',
     tint: '#38BDF8',
-    available: false,
+    available: true,
   },
   {
     id: 'challenge',
     title: 'Challenge',
-    subtitle: 'Coming in a later phase',
+    subtitle: 'Weekly or monthly member challenge',
     icon: 'trophy-outline',
     tint: '#A78BFA',
-    available: false,
+    available: true,
   },
   {
     id: 'technique',
     title: 'Technique',
-    subtitle: 'Coming in a later phase',
+    subtitle: 'Upload to the technique library',
     icon: 'videocam-outline',
     tint: '#FB7185',
-    available: false,
+    available: true,
   },
 ];
 
