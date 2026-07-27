@@ -8,19 +8,28 @@ Built with React Native, Expo SDK 54, TypeScript, Supabase, NativeWind, React Na
 
 ## Architecture
 
-Clean, modular structure designed to scale:
+Monorepo with a Member app at the repository root and a Coach app under `apps/coach`.
 
 ```
-components/     Reusable UI primitives and layout pieces
-screens/        Feature screens (auth + main)
-navigation/     Typed navigators (auth stack + main tabs)
-services/       Supabase, Stripe, and API facades
-hooks/          Shared hooks and React Query keys
-lib/            Theme, env, providers, query client
-types/          Domain and navigation types
-utils/          Formatting and validation helpers
-assets/         Images and static media
+apps/coach/           Coach Expo app (Phase 1)
+packages/shared/      Shared theme, UI, auth, types, repositories
+supabase/migrations/  Coach Phase 1 tables (announcements, attendance, coach notes, classes)
+components/           Member UI primitives and feature components
+screens/              Member feature screens
+navigation/           Member navigators
+services/             Member Supabase/Stripe facades
+hooks/                Shared hooks and React Query keys
+lib/                  Member theme, env, providers, query client
+types/                Member domain and navigation types
+utils/                Formatting and validation helpers
+assets/               Images and static media
 ```
+
+### Scripts
+
+- `npm start` / `npm run start:member` — Member Expo app
+- `npm run start:coach` — Coach Expo app
+- `npm run typecheck:all` — Member + Coach TypeScript checks
 
 ## Brand
 

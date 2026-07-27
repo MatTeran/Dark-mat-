@@ -1,6 +1,6 @@
 /**
  * Dark Mat brand color palettes.
- * Premium athletic aesthetic — gold accents stay consistent across modes.
+ * Member and Coach share gold accents; Coach uses a deeper charcoal surface scale.
  */
 
 export const darkColors = {
@@ -21,6 +21,16 @@ export const darkColors = {
   overlay: 'rgba(13, 13, 13, 0.72)',
   goldMuted: 'rgba(212, 175, 55, 0.16)',
   goldTintSurface: '#2A2414',
+} as const;
+
+/** Coach Phase 1 surface tokens — calmer, denser charcoal hierarchy. */
+export const coachDarkColors = {
+  ...darkColors,
+  primaryBackground: '#090909',
+  secondaryBackground: '#141414',
+  cardBackground: '#141414',
+  elevatedSurface: '#1B1B1B',
+  overlay: 'rgba(9, 9, 9, 0.78)',
 } as const;
 
 export const lightColors = {
@@ -52,6 +62,14 @@ export type ThemeColors = {
 
 export type ColorToken = keyof typeof darkColors;
 
-export function getColorsForScheme(scheme: 'light' | 'dark'): ThemeColors {
-  return scheme === 'light' ? { ...lightColors } : { ...darkColors };
+export type ThemeVariant = 'member' | 'coach';
+
+export function getColorsForScheme(
+  scheme: 'light' | 'dark',
+  variant: ThemeVariant = 'member',
+): ThemeColors {
+  if (scheme === 'light') {
+    return { ...lightColors };
+  }
+  return variant === 'coach' ? { ...coachDarkColors } : { ...darkColors };
 }
