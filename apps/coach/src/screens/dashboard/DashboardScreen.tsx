@@ -107,6 +107,9 @@ export function DashboardScreen({ navigation }: Props) {
 
   const handleQuickAction = (id: CoachQuickActionId) => {
     switch (id) {
+      case 'openCommandCenter':
+        navigateTab(navigation, 'More', { screen: 'CommandCenter' });
+        break;
       case 'manageCheckIn':
         navigation.navigate('CheckIn', {
           classId: todaysClasses[0]?.id,
@@ -170,6 +173,28 @@ export function DashboardScreen({ navigation }: Props) {
               </View>
             ))}
           </View>
+
+          <Spacer size="md" />
+          <Pressable
+            onPress={() =>
+              navigateTab(navigation, 'More', { screen: 'CommandCenter' })
+            }
+            style={[
+              styles.commandCta,
+              {
+                backgroundColor: colors.goldMuted,
+                borderColor: colors.goldAccent,
+              },
+            ]}
+          >
+            <IconBadge name="pulse" tint={colors.highlightGold} />
+            <View style={styles.commandCopy}>
+              <Text variant="subtitle">Open Command Center</Text>
+              <Text variant="caption" muted>
+                Mission control · what needs attention now
+              </Text>
+            </View>
+          </Pressable>
         </LinearGradient>
       </FadeInHero>
 
@@ -352,5 +377,18 @@ const styles = StyleSheet.create({
   },
   actionLabel: {
     flex: 1,
+  },
+  commandCta: {
+    marginTop: spacing.sm,
+    borderWidth: 1,
+    borderRadius: radii.lg,
+    padding: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  commandCopy: {
+    flex: 1,
+    gap: 2,
   },
 });

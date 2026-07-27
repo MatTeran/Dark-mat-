@@ -24,6 +24,7 @@ export interface CoachQuickCard {
 }
 
 export type CoachQuickActionId =
+  | 'openCommandCenter'
   | 'manageCheckIn'
   | 'createAnnouncement'
   | 'addClass'

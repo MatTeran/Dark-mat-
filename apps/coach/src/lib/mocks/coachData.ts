@@ -902,6 +902,12 @@ export const QUICK_CARDS: CoachQuickCard[] = [
 
 export const QUICK_ACTIONS: CoachQuickAction[] = [
   {
+    id: 'openCommandCenter',
+    label: 'Command Center',
+    icon: 'pulse',
+    tint: '#F4D35E',
+  },
+  {
     id: 'manageCheckIn',
     label: 'Manage Check-In',
     icon: 'qr-code',
@@ -921,7 +927,7 @@ export const QUICK_ACTIONS: CoachQuickAction[] = [
   },
   {
     id: 'manageMembers',
-    label: 'Manage Members',
+    label: 'Member Management',
     icon: 'people-outline',
     tint: '#22C55E',
   },

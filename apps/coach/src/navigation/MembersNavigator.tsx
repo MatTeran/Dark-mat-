@@ -35,7 +35,7 @@ export function MembersNavigator() {
       <Stack.Screen
         name="MemberDetail"
         component={MemberDetailScreen}
-        options={{ title: 'Member' }}
+        options={{ title: 'Member Management' }}
       />
       <Stack.Screen
         name="AddStripe"

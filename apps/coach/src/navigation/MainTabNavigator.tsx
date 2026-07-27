@@ -78,6 +78,8 @@ export function MainTabNavigator() {
         name="Members"
         component={MembersNavigator}
         options={({ route }) => ({
+          title: 'Members',
+          tabBarLabel: 'Members',
           tabBarStyle: shouldHideMembersTabBar(route)
             ? { display: 'none' }
             : tabBarStyle,
