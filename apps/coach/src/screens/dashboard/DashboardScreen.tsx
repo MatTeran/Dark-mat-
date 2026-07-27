@@ -16,6 +16,7 @@ import {
   Screen,
   Spacer,
   Text,
+  fontFamilies,
   radii,
   spacing,
   useAppTheme,
@@ -177,7 +178,7 @@ export function DashboardScreen({ navigation }: Props) {
       <SectionHeader title="Focus" subtitle="Quick pulse on the floor" />
       <View style={styles.cardGrid}>
         {quickCards.map((card, index) => (
-          <FadeInItem key={card.id} index={index}>
+          <FadeInItem key={card.id} index={index} style={styles.quickCardWrap}>
             <Card
               elevated
               style={styles.quickCard}
@@ -198,8 +199,10 @@ export function DashboardScreen({ navigation }: Props) {
               <IconBadge name={card.icon as IconName} tint={card.tint} />
               <Spacer size="sm" />
               <Text variant="title">{card.value}</Text>
-              <Text variant="subtitle">{card.title}</Text>
-              <Text variant="caption" muted>
+              <Text variant="body" style={styles.quickCardTitle}>
+                {card.title}
+              </Text>
+              <Text variant="caption" muted style={styles.quickCardSubtitle}>
                 {card.subtitle}
               </Text>
             </Card>
@@ -306,11 +309,22 @@ const styles = StyleSheet.create({
   cardGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.sm,
+    justifyContent: 'space-between',
+    rowGap: spacing.sm,
+  },
+  quickCardWrap: {
+    width: '48.5%',
   },
   quickCard: {
-    width: '48%',
-    flexGrow: 1,
+    width: '100%',
+    minHeight: 148,
+  },
+  quickCardTitle: {
+    fontFamily: fontFamilies.semibold,
+    marginTop: 2,
+  },
+  quickCardSubtitle: {
+    marginTop: 2,
   },
   list: {
     gap: spacing.sm,

@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import Animated, {
   FadeInDown,
   FadeInUp,
@@ -48,9 +48,13 @@ export function SectionHeader({
 export function FadeInItem({
   children,
   index = 0,
-}: PropsWithChildren<{ index?: number }>) {
+  style,
+}: PropsWithChildren<{ index?: number; style?: StyleProp<ViewStyle> }>) {
   return (
-    <Animated.View entering={FadeInDown.delay(index * 60).springify()}>
+    <Animated.View
+      entering={FadeInDown.delay(index * 60).springify()}
+      style={style}
+    >
       {children}
     </Animated.View>
   );
