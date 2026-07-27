@@ -40,6 +40,13 @@ const LINKS: Array<{
   onPress: (navigation: Nav) => void;
 }> = [
   {
+    title: 'Command Center',
+    subtitle: 'Mission control · what needs attention now',
+    icon: 'pulse-outline',
+    tint: '#F4D35E',
+    onPress: (navigation) => navigation.navigate('CommandCenter'),
+  },
+  {
     title: 'Announcements',
     subtitle: 'Draft, schedule, and publish',
     icon: 'megaphone-outline',
@@ -72,13 +79,6 @@ const LINKS: Array<{
     tint: '#22C55E',
     onPress: (navigation) =>
       (navigation.navigate as (name: string) => void)('Members'),
-  },
-  {
-    title: 'Command Center',
-    subtitle: 'Academy pulse and quick actions',
-    icon: 'pulse-outline',
-    tint: '#F4D35E',
-    onPress: (navigation) => navigation.navigate('CommandCenter'),
   },
   {
     title: 'Techniques',

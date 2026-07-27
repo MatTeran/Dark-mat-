@@ -44,6 +44,21 @@ export function CreateSheetScreen({ navigation }: Props) {
           screen: 'More',
           params: { screen: 'AnnouncementForm', params: undefined },
         });
+      } else if (id === 'event') {
+        navigation.navigate('Main', {
+          screen: 'More',
+          params: { screen: 'EventForm', params: undefined },
+        });
+      } else if (id === 'challenge') {
+        navigation.navigate('Main', {
+          screen: 'More',
+          params: { screen: 'ChallengeForm', params: undefined },
+        });
+      } else if (id === 'technique') {
+        navigation.navigate('Main', {
+          screen: 'More',
+          params: { screen: 'TechniqueForm', params: undefined },
+        });
       }
     }, 180);
   };
