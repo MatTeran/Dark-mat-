@@ -3,13 +3,22 @@
   "version": "1.0.0",
   "main": "index.ts",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
+    "start:member": "expo start",
+    "start:coach": "npm run start --workspace=@darkmat/coach",
     "typecheck": "tsc --noEmit",
-    "lint": "tsc --noEmit"
+    "typecheck:coach": "npm run typecheck --workspace=@darkmat/coach",
+    "typecheck:all": "npm run typecheck && npm run typecheck:coach",
+    "lint": "tsc --noEmit",
+    "lint:all": "npm run typecheck:all"
   },
   "dependencies": {
     "@expo-google-fonts/outfit": "^0.4.3",
