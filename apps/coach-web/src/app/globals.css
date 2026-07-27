@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --ink: #090909;
+  --surface: #141414;
+  --elevated: #1b1b1b;
+  --gold: #d4af37;
+  --gold-bright: #f4d35e;
+  --text: #ffffff;
+  --mute: #a8a8a8;
+  --line: #2a2a2a;
+}
+
+html,
+body {
+  min-height: 100%;
+  background: var(--ink);
+  color: var(--text);
+}
+
+body {
+  font-family: var(--font-outfit), system-ui, sans-serif;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgba(212, 175, 55, 0.35);
+}
