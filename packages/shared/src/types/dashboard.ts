@@ -50,7 +50,6 @@ export interface CreateSheetAction {
   subtitle: string;
   icon: string;
   tint: string;
-  /** Phase 1 only implements a subset; others show coming-soon. */
   available: boolean;
 }
 
@@ -59,5 +58,14 @@ export interface AcademyActivityItem {
   title: string;
   subtitle: string;
   timestamp: string;
-  kind: 'check_in' | 'announcement' | 'reservation' | 'member' | 'class';
+  kind:
+    | 'check_in'
+    | 'announcement'
+    | 'reservation'
+    | 'member'
+    | 'class'
+    | 'technique'
+    | 'challenge'
+    | 'event'
+    | 'achievement';
 }
