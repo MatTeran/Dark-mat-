@@ -3,9 +3,9 @@ import type { AthleteHub } from '../../types/profile';
 export const DEFAULT_ATHLETE_HUB: AthleteHub = {
   avatarUri: null,
   beltProgress: {
-    belt: 'blue',
+    belt: 'white',
     stripes: 2,
-    promotedAt: '2025-11-14T00:00:00.000Z',
+    promotedAt: '2026-03-01T00:00:00.000Z',
     nextStripeHint: 'Keep consistent mat time — next stripe review in ~8 weeks.',
   },
   membership: {

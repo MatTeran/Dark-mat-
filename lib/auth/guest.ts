@@ -7,7 +7,7 @@ export const GUEST_STORAGE_KEY = '@dark-mat/guest-demo-session';
 export const GUEST_USER: AuthUser = {
   id: 'guest-demo-user',
   email: 'guest@darkmat.demo',
-  fullName: 'Demo Athlete',
+  fullName: 'Mat Teran',
 };
 
 export function createGuestSession(): AuthSession {
