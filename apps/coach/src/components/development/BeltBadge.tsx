@@ -1,8 +1,8 @@
 import { StyleSheet, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import {
   Text,
-  radii,
   spacing,
   type BeltRank,
   type BeltStripeCount,
@@ -10,37 +10,32 @@ import {
 
 const BELT_COLORS: Record<
   BeltRank,
-  { fill: string; stripe: string; border: string; label: string }
+  { fill: string; stripe: string; border: string }
 > = {
   white: {
-    fill: '#F4F4F4',
-    stripe: '#1A1A1A',
-    border: 'rgba(212,175,55,0.45)',
-    label: '#111111',
+    fill: '#F2F2F0',
+    stripe: '#141414',
+    border: 'rgba(212,175,55,0.55)',
   },
   blue: {
-    fill: '#1B4F9C',
+    fill: '#1A4F9C',
     stripe: '#F4F4F4',
-    border: 'rgba(212,175,55,0.35)',
-    label: '#FFFFFF',
+    border: 'rgba(212,175,55,0.4)',
   },
   purple: {
     fill: '#5A2D82',
     stripe: '#F4F4F4',
-    border: 'rgba(212,175,55,0.35)',
-    label: '#FFFFFF',
+    border: 'rgba(212,175,55,0.4)',
   },
   brown: {
     fill: '#6B3F24',
     stripe: '#F4F4F4',
-    border: 'rgba(212,175,55,0.35)',
-    label: '#FFFFFF',
+    border: 'rgba(212,175,55,0.4)',
   },
   black: {
-    fill: '#111111',
+    fill: '#0E0E0E',
     stripe: '#F4F4F4',
-    border: 'rgba(212,175,55,0.65)',
-    label: '#F4D35E',
+    border: 'rgba(212,175,55,0.75)',
   },
 };
 
@@ -51,7 +46,7 @@ interface BeltBadgeProps {
   showLabel?: boolean;
 }
 
-/** Premium BJJ belt badge with tape-style stripe marks. */
+/** Authentic BJJ belt: cloth body + right rank sleeve with tape stripes. */
 export function BeltBadge({
   belt,
   stripes,
@@ -59,10 +54,11 @@ export function BeltBadge({
   showLabel = true,
 }: BeltBadgeProps) {
   const palette = BELT_COLORS[belt];
-  const width = size === 'lg' ? 220 : 168;
+  const width = size === 'lg' ? 236 : 180;
   const height = size === 'lg' ? 28 : 22;
-  const tapeWidth = size === 'lg' ? 10 : 8;
-  const gap = 5;
+  const sleeve = size === 'lg' ? 64 : 52;
+  const tapeWidth = size === 'lg' ? 6 : 5;
+  const tapeHeight = height - 10;
 
   return (
     <View style={styles.wrap}>
@@ -77,8 +73,23 @@ export function BeltBadge({
           },
         ]}
       >
-        <View style={styles.barEnd} />
-        <View style={styles.stripeRow}>
+        <LinearGradient
+          colors={['rgba(255,255,255,0.22)', 'transparent', 'rgba(0,0,0,0.18)']}
+          style={StyleSheet.absoluteFill}
+          pointerEvents="none"
+        />
+        <View style={styles.tip} />
+        <View style={styles.bodySpacer} />
+        <View
+          style={[
+            styles.sleeve,
+            {
+              width: sleeve,
+              backgroundColor:
+                belt === 'black' ? 'rgba(30,30,30,0.98)' : 'rgba(0,0,0,0.18)',
+            },
+          ]}
+        >
           {Array.from({ length: 4 }).map((_, index) => {
             const filled = index < stripes;
             return (
@@ -88,10 +99,9 @@ export function BeltBadge({
                   styles.tape,
                   {
                     width: tapeWidth,
-                    height: height - 8,
-                    marginRight: index < 3 ? gap : 0,
+                    height: tapeHeight,
                     backgroundColor: filled ? palette.stripe : 'transparent',
-                    opacity: filled ? 1 : 0.18,
+                    opacity: filled ? 1 : 0.22,
                     borderWidth: filled ? 0 : StyleSheet.hairlineWidth,
                     borderColor: palette.stripe,
                   },
@@ -100,11 +110,10 @@ export function BeltBadge({
             );
           })}
         </View>
-        <View style={styles.barEnd} />
       </View>
       {showLabel ? (
         <Text variant="subtitle">
-          {belt.charAt(0).toUpperCase() + belt.slice(1)} · {stripes} stripe
+          {belt.charAt(0).toUpperCase() + belt.slice(1)} Belt · {stripes} stripe
           {stripes === 1 ? '' : 's'}
         </Text>
       ) : null}
@@ -118,26 +127,30 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   belt: {
-    borderRadius: radii.sm,
+    borderRadius: 3,
     borderWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 10,
     overflow: 'hidden',
   },
-  barEnd: {
-    width: 8,
-    height: '70%',
+  tip: {
+    marginLeft: 6,
+    width: 4,
+    height: '55%',
     borderRadius: 2,
-    backgroundColor: 'rgba(212,175,55,0.55)',
+    backgroundColor: 'rgba(212,175,55,0.65)',
   },
-  stripeRow: {
+  bodySpacer: {
+    flex: 1,
+  },
+  sleeve: {
+    height: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: spacing.sm,
+    gap: 5,
+    borderLeftWidth: StyleSheet.hairlineWidth,
+    borderLeftColor: 'rgba(0,0,0,0.28)',
   },
   tape: {
     borderRadius: 1,
