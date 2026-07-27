@@ -8,10 +8,14 @@ export {
   writeGuestFlag,
 } from './guest';
 export {
+  canEditMemberDevelopment,
+  canFullyManageMemberDevelopment,
   canManageClasses,
   canManageMembers,
   canPublishAnnouncements,
   getUserRole,
   hasAdminAccess,
   hasCoachAccess,
+  hasManagerAccess,
+  hasOwnerAccess,
 } from './roles';

@@ -3,10 +3,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import {
-  Banner,
-  Button,
   Card,
-  Input,
   Screen,
   Spacer,
   Text,
@@ -14,22 +11,43 @@ import {
   type CoachMemberProfile,
 } from '@darkmat/shared';
 
+import { MemberDevelopmentPanel } from '../../components/development/MemberDevelopmentPanel';
 import { SectionHeader, StatusPill } from '../../components/ui/Motion';
 import { useCoachData } from '../../lib/providers/CoachDataProvider';
+import { useMemberDevelopment } from '../../lib/providers/MemberDevelopmentProvider';
 import type { MembersStackParamList } from '../../navigation/types';
 
 type Props = NativeStackScreenProps<MembersStackParamList, 'MemberDetail'>;
 
-export function MemberDetailScreen({ route }: Props) {
-  const { getMember, addCoachNote } = useCoachData();
+export function MemberDetailScreen({ navigation, route }: Props) {
+  const { getMember, syncMemberRank } = useCoachData();
+  const { getBundle, revision } = useMemberDevelopment();
   const [profile, setProfile] = useState<CoachMemberProfile | null>(null);
-  const [note, setNote] = useState('');
-  const [message, setMessage] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     void getMember(route.params.memberId).then(setProfile);
   }, [getMember, route.params.memberId]);
+
+  useEffect(() => {
+    void getBundle(route.params.memberId).then((bundle) => {
+      if (!bundle) {
+        return;
+      }
+      const belt = bundle.development.belt;
+      const stripes = bundle.development.stripes;
+      syncMemberRank(route.params.memberId, belt, stripes);
+      setProfile((current) =>
+        current
+          ? {
+              ...current,
+              belt,
+              stripes,
+              journey: { ...current.journey, belt, stripes },
+            }
+          : current,
+      );
+    });
+  }, [getBundle, revision, route.params.memberId, syncMemberRank]);
 
   if (!profile) {
     return (
@@ -65,6 +83,22 @@ export function MemberDetailScreen({ route }: Props) {
       </View>
 
       <Spacer size="lg" />
+      <MemberDevelopmentPanel
+        memberId={profile.id}
+        onAddStripe={() =>
+          navigation.navigate('AddStripe', { memberId: profile.id })
+        }
+        onPromoteBelt={() =>
+          navigation.navigate('PromoteBelt', { memberId: profile.id })
+        }
+        onEditCompetition={() =>
+          navigation.navigate('CompetitionProfileEdit', {
+            memberId: profile.id,
+          })
+        }
+      />
+
+      <Spacer size="md" />
       <Card elevated>
         <Text variant="label">Membership</Text>
         <Spacer size="xs" />
@@ -87,6 +121,10 @@ export function MemberDetailScreen({ route }: Props) {
         </Text>
         <Text variant="caption" muted>
           Next: {profile.journey.nextMilestone}
+        </Text>
+        <Spacer size="xs" />
+        <Text variant="caption" muted>
+          Journey XP is separate from academy belt promotions.
         </Text>
       </Card>
 
@@ -156,7 +194,7 @@ export function MemberDetailScreen({ route }: Props) {
 
       <Spacer size="md" />
       <Card>
-        <SectionHeader title="Competition History" />
+        <SectionHeader title="Competition Results" />
         {profile.competitionHistory.length === 0 ? (
           <Text variant="caption" muted>
             No competitions logged.
@@ -184,54 +222,6 @@ export function MemberDetailScreen({ route }: Props) {
             </Text>
           ))
         )}
-      </Card>
-
-      <Spacer size="md" />
-      <Card elevated>
-        <SectionHeader
-          title="Private Coach Notes"
-          subtitle="Visible only to coaches"
-        />
-        {message ? (
-          <>
-            <Banner tone="success" message={message} />
-            <Spacer size="sm" />
-          </>
-        ) : null}
-        {profile.coachNotes.map((item) => (
-          <View key={item.id} style={styles.note}>
-            <Text variant="body">{item.body}</Text>
-            <Text variant="caption" muted>
-              {item.authorName} · {new Date(item.createdAt).toLocaleString()}
-            </Text>
-          </View>
-        ))}
-        <Spacer size="sm" />
-        <Input
-          label="Add note"
-          value={note}
-          onChangeText={setNote}
-          placeholder="Private observation…"
-          multiline
-        />
-        <Spacer size="sm" />
-        <Button
-          label="Save Note"
-          loading={loading}
-          disabled={!note.trim()}
-          onPress={async () => {
-            setLoading(true);
-            try {
-              await addCoachNote({ memberId: profile.id, body: note });
-              const refreshed = await getMember(profile.id);
-              setProfile(refreshed);
-              setNote('');
-              setMessage('Private note saved.');
-            } finally {
-              setLoading(false);
-            }
-          }}
-        />
       </Card>
       <Spacer size="xl" />
     </Screen>
@@ -262,9 +252,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
     marginBottom: spacing.xs,
-  },
-  note: {
-    gap: 4,
-    marginBottom: spacing.sm,
   },
 });

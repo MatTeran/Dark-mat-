@@ -10,6 +10,7 @@ import {
 } from '@darkmat/shared';
 
 import { CoachDataProvider } from './CoachDataProvider';
+import { MemberDevelopmentProvider } from './MemberDevelopmentProvider';
 import { Phase2DataProvider } from './Phase2DataProvider';
 
 function ThemedRoot({ children }: PropsWithChildren) {
@@ -21,7 +22,9 @@ function ThemedRoot({ children }: PropsWithChildren) {
       <SafeAreaProvider>
         <AuthProvider appRole="coach">
           <CoachDataProvider>
-            <Phase2DataProvider>{children}</Phase2DataProvider>
+            <Phase2DataProvider>
+              <MemberDevelopmentProvider>{children}</MemberDevelopmentProvider>
+            </Phase2DataProvider>
           </CoachDataProvider>
         </AuthProvider>
       </SafeAreaProvider>

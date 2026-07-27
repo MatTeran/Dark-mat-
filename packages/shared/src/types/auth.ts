@@ -16,8 +16,20 @@ export interface AuthSession {
   expiresAt: number;
 }
 
-/** Future role permissions — prepared for coach/admin gates. */
-export type UserRole = 'member' | 'coach' | 'admin' | 'staff';
+/**
+ * App roles for permission gates.
+ * - member: read-own development (no coach notes)
+ * - coach: create/update member development
+ * - manager / owner: full access
+ * - admin / staff: legacy aliases (admin ≈ owner, staff ≈ coach)
+ */
+export type UserRole =
+  | 'member'
+  | 'coach'
+  | 'manager'
+  | 'owner'
+  | 'admin'
+  | 'staff';
 
 export interface AuthUser {
   id: string;

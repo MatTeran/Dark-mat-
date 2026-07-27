@@ -75,6 +75,11 @@ interface CoachDataContextValue {
   ) => Promise<CoachAnnouncement | null>;
   publishAnnouncement: (id: string) => Promise<CoachAnnouncement | null>;
   addCoachNote: (input: CreateCoachNoteInput) => Promise<CoachNote>;
+  syncMemberRank: (
+    memberId: string,
+    belt: CoachMemberProfile['belt'],
+    stripes: CoachMemberProfile['stripes'],
+  ) => void;
 }
 
 const CoachDataContext = createContext<CoachDataContextValue | null>(null);
@@ -354,6 +359,28 @@ export function CoachDataProvider({ children }: PropsWithChildren) {
     [notesRepo, user?.fullName, user?.id],
   );
 
+  const syncMemberRank = useCallback(
+    (
+      memberId: string,
+      belt: CoachMemberProfile['belt'],
+      stripes: CoachMemberProfile['stripes'],
+    ) => {
+      setMemberProfiles((current) =>
+        current.map((profile) =>
+          profile.id === memberId
+            ? {
+                ...profile,
+                belt,
+                stripes,
+                journey: { ...profile.journey, belt, stripes },
+              }
+            : profile,
+        ),
+      );
+    },
+    [],
+  );
+
   const value = useMemo<CoachDataContextValue>(
     () => ({
       classes,
@@ -380,6 +407,7 @@ export function CoachDataProvider({ children }: PropsWithChildren) {
       updateAnnouncement,
       publishAnnouncement,
       addCoachNote,
+      syncMemberRank,
     }),
     [
       addCoachNote,
@@ -400,6 +428,7 @@ export function CoachDataProvider({ children }: PropsWithChildren) {
       quickCards,
       refresh,
       searchMembers,
+      syncMemberRank,
       updateAnnouncement,
       updateAttendanceStatus,
       updateClass,

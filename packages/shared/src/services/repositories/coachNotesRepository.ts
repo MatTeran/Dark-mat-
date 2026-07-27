@@ -5,7 +5,7 @@ import type {
 import { getSupabaseClient, isSupabaseConfigured } from '../supabase/client';
 
 export interface CoachNotesRepository {
-  listByMember(memberId: string): Promise<CoachNote[]>;
+  listByMember(memberId: string, query?: string): Promise<CoachNote[]>;
   create(
     input: CreateCoachNoteInput,
     author: { id: string; name: string },
@@ -20,9 +20,21 @@ export function createMemoryCoachNotesRepository(
   let notes = [...seed];
 
   return {
-    async listByMember(memberId) {
+    async listByMember(memberId, query) {
+      const needle = query?.trim().toLowerCase() ?? '';
       return notes
-        .filter((note) => note.memberId === memberId)
+        .filter((note) => {
+          if (note.memberId !== memberId) {
+            return false;
+          }
+          if (!needle) {
+            return true;
+          }
+          return (
+            note.body.toLowerCase().includes(needle) ||
+            note.authorName.toLowerCase().includes(needle)
+          );
+        })
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     },
     async create(input, author) {
@@ -80,16 +92,23 @@ function mapRow(row: Record<string, unknown>): CoachNote {
 
 export function createSupabaseCoachNotesRepository(): CoachNotesRepository {
   return {
-    async listByMember(memberId) {
+    async listByMember(memberId, query) {
       const client = getSupabaseClient();
       if (!client) {
         return [];
       }
-      const { data, error } = await client
+      let request = client
         .from('coach_notes')
         .select('*')
         .eq('member_id', memberId)
         .order('created_at', { ascending: false });
+      const needle = query?.trim();
+      if (needle) {
+        request = request.or(
+          `body.ilike.%${needle}%,author_name.ilike.%${needle}%`,
+        );
+      }
+      const { data, error } = await request;
       if (error) {
         throw error;
       }

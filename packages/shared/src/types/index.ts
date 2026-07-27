@@ -56,6 +56,41 @@ export type {
 export type { MembershipPlan, MembershipStatus } from './membership';
 export type { BeltRank, UserProfile } from './user';
 export type {
+  AcademyRoleAssignment,
+  AcademyRoleKey,
+  AddStripeInput,
+  BeltStripeCount,
+  CompetitionDivision,
+  CompetitionExperience,
+  CompetitionProfile,
+  CompetitionRuleSet,
+  CompetitionTeamStatus,
+  MemberDevelopmentBundle,
+  MemberDevelopmentRecord,
+  MemberDevelopmentSummary,
+  PromoteBeltInput,
+  PromotionHistoryEntry,
+  PromotionSideEffects,
+  PromotionType,
+  SetAcademyRolesInput,
+  UpdateCompetitionProfileInput,
+} from './memberDevelopment';
+export {
+  ACADEMY_ROLE_KEYS,
+  BELT_RANKS,
+  BELT_STRIPE_COUNTS,
+  COMPETITION_DIVISIONS,
+  COMPETITION_EXPERIENCES,
+  COMPETITION_RULE_SETS,
+  COMPETITION_TEAM_STATUSES,
+  academyRoleLabel,
+  beltRankLabel,
+  competitionRuleSetLabel,
+  formatTimeAtBelt,
+  nextBeltRank,
+  nextStripeCount,
+} from './memberDevelopment';
+export type {
   CreateTechniqueInput,
   Technique,
   TechniqueDifficulty,

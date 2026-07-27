@@ -23,6 +23,9 @@ export type MembersStackParamList = {
   MembersHome: undefined;
   MemberDetail: { memberId: string };
   JourneyMember: { memberId: string };
+  AddStripe: { memberId: string };
+  PromoteBelt: { memberId: string };
+  CompetitionProfileEdit: { memberId: string };
 };
 
 export type MoreStackParamList = {
