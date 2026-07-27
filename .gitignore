@@ -40,3 +40,8 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Next.js
+apps/coach-web/.next/
+apps/coach-web/out/
+
