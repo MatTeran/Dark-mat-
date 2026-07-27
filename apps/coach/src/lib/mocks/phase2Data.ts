@@ -11,6 +11,7 @@ import type {
 } from '@darkmat/shared';
 
 import { TODAY } from './coachData';
+import { MOCK_PULSE_INSIGHTS } from './pulseInsights';
 
 function addDays(isoDate: string, days: number) {
   const date = new Date(`${isoDate}T12:00:00`);
@@ -802,4 +803,5 @@ export const MOCK_COMMAND_CENTER: CommandCenterData = {
       tint: '#FB7185',
     },
   ],
+  pulseInsights: MOCK_PULSE_INSIGHTS,
 };
