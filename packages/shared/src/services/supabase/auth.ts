@@ -28,10 +28,13 @@ function requireClient() {
 }
 
 function resolveRole(user: User): UserRole | undefined {
-  const metaRole = user.user_metadata?.role;
+  const metaRole =
+    user.app_metadata?.role ?? user.user_metadata?.role;
   if (
     metaRole === 'member' ||
     metaRole === 'coach' ||
+    metaRole === 'manager' ||
+    metaRole === 'owner' ||
     metaRole === 'admin' ||
     metaRole === 'staff'
   ) {

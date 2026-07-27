@@ -1,6 +1,15 @@
-import { TextStyle } from 'react-native';
-
 import { colors, type ThemeColors } from './colors';
+
+/** Platform-agnostic text style shape (RN TextStyle-compatible, web-safe). */
+export type TextStyleLike = {
+  fontFamily?: string;
+  fontSize?: number;
+  letterSpacing?: number;
+  lineHeight?: number;
+  color?: string;
+  textTransform?: 'none' | 'capitalize' | 'uppercase' | 'lowercase';
+  fontWeight?: string | number;
+};
 
 /**
  * Type scale for Dark Mat — expressive display + clean UI body.
@@ -21,48 +30,48 @@ function buildTypography(palette: ThemeColors) {
       fontSize: 40,
       letterSpacing: 2,
       color: palette.text,
-    } satisfies TextStyle,
+    } satisfies TextStyleLike,
 
     hero: {
       fontFamily: fontFamilies.display,
       fontSize: 32,
       letterSpacing: 0.5,
       color: palette.text,
-    } satisfies TextStyle,
+    } satisfies TextStyleLike,
 
     title: {
       fontFamily: fontFamilies.bold,
       fontSize: 24,
       letterSpacing: 0.2,
       color: palette.text,
-    } satisfies TextStyle,
+    } satisfies TextStyleLike,
 
     subtitle: {
       fontFamily: fontFamilies.semibold,
       fontSize: 18,
       color: palette.text,
-    } satisfies TextStyle,
+    } satisfies TextStyleLike,
 
     body: {
       fontFamily: fontFamilies.regular,
       fontSize: 16,
       lineHeight: 24,
       color: palette.text,
-    } satisfies TextStyle,
+    } satisfies TextStyleLike,
 
     bodyMuted: {
       fontFamily: fontFamilies.regular,
       fontSize: 16,
       lineHeight: 24,
       color: palette.secondaryText,
-    } satisfies TextStyle,
+    } satisfies TextStyleLike,
 
     caption: {
       fontFamily: fontFamilies.medium,
       fontSize: 13,
       letterSpacing: 0.4,
       color: palette.secondaryText,
-    } satisfies TextStyle,
+    } satisfies TextStyleLike,
 
     label: {
       fontFamily: fontFamilies.semibold,
@@ -70,14 +79,14 @@ function buildTypography(palette: ThemeColors) {
       letterSpacing: 0.6,
       textTransform: 'uppercase',
       color: palette.secondaryText,
-    } satisfies TextStyle,
+    } satisfies TextStyleLike,
 
     button: {
       fontFamily: fontFamilies.semibold,
       fontSize: 16,
       letterSpacing: 0.3,
       color: palette.primaryBackground,
-    } satisfies TextStyle,
+    } satisfies TextStyleLike,
   } as const;
 }
 

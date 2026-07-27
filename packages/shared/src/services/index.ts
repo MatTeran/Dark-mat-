@@ -1,5 +1,5 @@
-export * as authApi from './supabase/auth';
 export {
+  configureSupabaseAuth,
   getSupabaseClient,
   isSupabaseConfigured,
 } from './supabase/client';

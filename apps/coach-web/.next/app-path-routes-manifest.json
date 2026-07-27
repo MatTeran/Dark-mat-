@@ -1,0 +1,18 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/login/page": "/login",
+  "/page": "/",
+  "/(app)/announcements/new/page": "/announcements/new",
+  "/(app)/announcements/page": "/announcements",
+  "/(app)/command-center/page": "/command-center",
+  "/(app)/check-in/page": "/check-in",
+  "/(app)/development/page": "/development",
+  "/(app)/members/[memberId]/add-stripe/page": "/members/[memberId]/add-stripe",
+  "/(app)/members/[memberId]/page": "/members/[memberId]",
+  "/(app)/schedule/[classId]/edit/page": "/schedule/[classId]/edit",
+  "/(app)/members/[memberId]/promote-belt/page": "/members/[memberId]/promote-belt",
+  "/(app)/members/page": "/members",
+  "/(app)/schedule/[classId]/page": "/schedule/[classId]",
+  "/(app)/schedule/page": "/schedule",
+  "/(app)/schedule/new/page": "/schedule/new"
+}

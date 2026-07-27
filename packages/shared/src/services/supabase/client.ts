@@ -1,14 +1,29 @@
-import 'react-native-url-polyfill/auto';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient, type SupportedStorage } from '@supabase/supabase-js';
 
 import { assertSupabaseConfigured, env } from '../../env';
 
 let client: SupabaseClient | null = null;
+let authStorage: SupportedStorage | undefined;
+let detectSessionInUrl = false;
 
 /**
- * Shared Supabase client with AsyncStorage session persistence.
+ * Platform entry points configure persistence.
+ * - Mobile: AsyncStorage + detectSessionInUrl false
+ * - Web: cookie/local storage adapter + detectSessionInUrl true when needed
+ */
+export function configureSupabaseAuth(options: {
+  storage?: SupportedStorage;
+  detectSessionInUrl?: boolean;
+}): void {
+  authStorage = options.storage;
+  if (typeof options.detectSessionInUrl === 'boolean') {
+    detectSessionInUrl = options.detectSessionInUrl;
+  }
+  client = null;
+}
+
+/**
+ * Shared Supabase client. Storage is optional so Node/Next can boot without RN.
  */
 export function getSupabaseClient(): SupabaseClient | null {
   if (!assertSupabaseConfigured()) {
@@ -18,10 +33,10 @@ export function getSupabaseClient(): SupabaseClient | null {
   if (!client) {
     client = createClient(env.supabaseUrl, env.supabaseAnonKey, {
       auth: {
-        storage: AsyncStorage,
+        storage: authStorage,
         autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: false,
+        persistSession: Boolean(authStorage),
+        detectSessionInUrl,
       },
     });
   }
