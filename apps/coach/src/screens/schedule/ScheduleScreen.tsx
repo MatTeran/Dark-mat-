@@ -3,197 +3,160 @@ import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import {
-  Card,
   Screen,
   Spacer,
   Text,
   radii,
   spacing,
   useAppTheme,
+  type Weekday,
 } from '@darkmat/shared';
 
-import {
-  EmptyState,
-  FadeInItem,
-  SectionHeader,
-  StatusPill,
-} from '../../components/ui/Motion';
+import { CoachClassCard } from '../../components/schedule/CoachClassCard';
+import { ScheduleFilters } from '../../components/schedule/ScheduleFilters';
+import { WeeklyCalendar } from '../../components/schedule/WeeklyCalendar';
 import { useCoachData } from '../../lib/providers/CoachDataProvider';
 import type { ScheduleStackParamList } from '../../navigation/types';
+import {
+  getWeekDates,
+  getWeekdayFromDate,
+  getWeekdayLabel,
+  sortByStartTime,
+  toISODate,
+  type CoachScheduleFilter,
+} from '../../utils/schedule';
 
 type Props = NativeStackScreenProps<ScheduleStackParamList, 'ScheduleHome'>;
-
-type FilterKey = 'all' | 'today' | 'gi' | 'no_gi' | 'kids' | 'open_mat' | 'seminar';
-
-const FILTERS: { key: FilterKey; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'today', label: 'Today' },
-  { key: 'gi', label: 'Gi' },
-  { key: 'no_gi', label: 'No-Gi' },
-  { key: 'kids', label: 'Kids' },
-  { key: 'open_mat', label: 'Open Mat' },
-  { key: 'seminar', label: 'Seminars' },
-];
 
 export function ScheduleScreen({ navigation }: Props) {
   const { colors } = useAppTheme();
   const { classes } = useCoachData();
-  const [filter, setFilter] = useState<FilterKey>('today');
-  const today = new Date().toISOString().slice(0, 10);
+  const [selectedDay, setSelectedDay] = useState<Weekday>(() =>
+    getWeekdayFromDate(new Date()),
+  );
+  const [filter, setFilter] = useState<CoachScheduleFilter>('all');
 
-  const filtered = useMemo(() => {
-    return classes
-      .filter((item) => {
-        if (filter === 'today') return item.date === today;
-        if (filter === 'gi') return item.giType === 'gi';
-        if (filter === 'no_gi') return item.giType === 'no_gi';
-        if (filter === 'kids') return item.audience === 'kids' || item.level === 'kids';
-        if (filter === 'open_mat') return item.isOpenMat;
-        if (filter === 'seminar') return item.isSeminar;
+  const weekDates = useMemo(() => getWeekDates(new Date()), []);
+  const selectedDate = toISODate(weekDates[selectedDay]);
+
+  const dayClasses = useMemo(() => {
+    const matched = classes.filter((item) => {
+      if (item.date !== selectedDate) {
+        return false;
+      }
+      if (filter === 'all') {
         return true;
-      })
-      .sort((a, b) =>
-        `${a.date}${a.startTime}`.localeCompare(`${b.date}${b.startTime}`),
-      );
-  }, [classes, filter, today]);
+      }
+      if (filter === 'open_mat') {
+        return item.isOpenMat || item.level === 'open_mat';
+      }
+      if (filter === 'seminar') {
+        return item.isSeminar || item.level === 'seminar';
+      }
+      if (filter === 'kids') {
+        return item.level === 'kids' || item.audience === 'kids';
+      }
+      return item.level === filter;
+    });
+    return sortByStartTime(matched);
+  }, [classes, filter, selectedDate]);
 
   return (
-    <Screen scroll>
+    <Screen scroll contentStyle={styles.content}>
       <View style={styles.top}>
-        <View>
+        <View style={styles.topCopy}>
           <Text variant="hero">Schedule</Text>
+          <Spacer size="sm" />
           <Text variant="body" muted>
-            Classes, open mats, and seminars
+            Dark Mat · Tracy, California
           </Text>
         </View>
         <Pressable
           onPress={() => navigation.navigate('ClassForm', undefined)}
           style={[styles.addButton, { backgroundColor: colors.goldAccent }]}
         >
-          <Text variant="caption" style={{ color: colors.primaryBackground }}>
+          <Text
+            variant="caption"
+            style={{ color: colors.primaryBackground, fontWeight: '600' }}
+          >
             Add
           </Text>
         </Pressable>
       </View>
 
-      <Spacer size="md" />
+      <Spacer size="lg" />
 
-      <View style={styles.filters}>
-        {FILTERS.map((item) => {
-          const active = item.key === filter;
-          return (
-            <Pressable
-              key={item.key}
-              onPress={() => setFilter(item.key)}
-              style={[
-                styles.chip,
-                {
-                  backgroundColor: active
-                    ? colors.goldMuted
-                    : colors.cardBackground,
-                  borderColor: active ? colors.goldAccent : colors.border,
-                },
-              ]}
-            >
-              <Text
-                variant="caption"
-                style={{ color: active ? colors.goldAccent : colors.secondaryText }}
-              >
-                {item.label}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+      <WeeklyCalendar selected={selectedDay} onSelect={setSelectedDay} />
 
       <Spacer size="lg" />
-      <SectionHeader title="Classes" subtitle={`${filtered.length} shown`} />
 
-      {filtered.length === 0 ? (
-        <EmptyState
-          title="No classes"
-          subtitle="Create a class or switch filters."
-        />
+      <Text variant="label">Filter</Text>
+      <Spacer size="sm" />
+      <ScheduleFilters selected={filter} onSelect={setFilter} />
+
+      <Spacer size="lg" />
+
+      <Text variant="subtitle">{getWeekdayLabel(selectedDay)}</Text>
+      <Spacer size="xs" />
+      <Text variant="caption" muted>
+        {dayClasses.length} class{dayClasses.length === 1 ? '' : 'es'}
+      </Text>
+
+      <Spacer size="md" />
+
+      {dayClasses.length === 0 ? (
+        <View style={styles.empty}>
+          <Text variant="body" muted>
+            No classes match this filter for {getWeekdayLabel(selectedDay)}.
+          </Text>
+        </View>
       ) : (
         <View style={styles.list}>
-          {filtered.map((item, index) => (
-            <FadeInItem key={item.id} index={index}>
-              <Card
-                onPress={() =>
-                  navigation.navigate('ClassDetail', { classId: item.id })
-                }
-              >
-                <View style={styles.row}>
-                  <View style={styles.copy}>
-                    <Text variant="subtitle">{item.title}</Text>
-                    <Text variant="caption" muted>
-                      {item.date} · {item.startTime}–{item.endTime}
-                    </Text>
-                    <Text variant="caption" muted>
-                      {item.instructorName} ·{' '}
-                      {item.giType === 'gi' ? 'Gi' : 'No-Gi'} · {item.audience}
-                    </Text>
-                  </View>
-                  <View style={styles.meta}>
-                    <StatusPill
-                      label={item.status}
-                      color={
-                        item.status === 'cancelled'
-                          ? colors.error
-                          : colors.success
-                      }
-                    />
-                    <Text variant="caption" gold>
-                      {item.reservedCount}/{item.capacity}
-                    </Text>
-                  </View>
-                </View>
-              </Card>
-            </FadeInItem>
+          {dayClasses.map((item) => (
+            <CoachClassCard
+              key={item.id}
+              item={item}
+              onManage={() =>
+                navigation.navigate('ClassDetail', { classId: item.id })
+              }
+              onCheckIn={() =>
+                navigation.navigate('CheckIn', { classId: item.id })
+              }
+            />
           ))}
         </View>
       )}
-      <Spacer size="xl" />
+
+      <View style={styles.bottomSpace} />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  content: {},
   top: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'flex-start',
+    justifyContent: 'space-between',
     gap: spacing.md,
+  },
+  topCopy: {
+    flex: 1,
+    minWidth: 0,
   },
   addButton: {
     borderRadius: radii.pill,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
-  },
-  filters: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xs,
-  },
-  chip: {
-    borderWidth: 1,
-    borderRadius: radii.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+    marginTop: spacing.xs,
   },
   list: {
-    gap: spacing.sm,
-  },
-  row: {
-    flexDirection: 'row',
     gap: spacing.md,
   },
-  copy: {
-    flex: 1,
-    gap: 4,
+  empty: {
+    paddingVertical: spacing.xl,
   },
-  meta: {
-    alignItems: 'flex-end',
-    gap: spacing.xs,
+  bottomSpace: {
+    height: spacing.lg,
   },
 });
