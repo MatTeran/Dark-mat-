@@ -11,7 +11,8 @@
 - Plugin: `expo-notifications`
 - iOS `UIBackgroundModes` includes `remote-notification`
 - Android `POST_NOTIFICATIONS` permission
-- `extra.eas.projectId` placeholder — replace with your EAS project UUID before production push tokens
+- Do **not** set a placeholder `extra.eas.projectId` — Expo Go can hang validating a fake UUID.
+  Add the real EAS project UUID only after `eas init`.
 
 ## Physical device testing
 
