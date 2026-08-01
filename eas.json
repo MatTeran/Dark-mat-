@@ -27,7 +27,15 @@
     }
   },
   "submit": {
-    "production": {},
-    "preview": {}
+    "production": {
+      "ios": {
+        "appleTeamId": "FWTT8453JG"
+      }
+    },
+    "preview": {
+      "ios": {
+        "appleTeamId": "FWTT8453JG"
+      }
+    }
   }
 }
