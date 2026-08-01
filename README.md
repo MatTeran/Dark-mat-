@@ -74,6 +74,12 @@ Auth features included:
 - `npm start` — Expo dev server
 - `npm run ios` / `npm run android` / `npm run web`
 - `npm run typecheck` — TypeScript check
+- `npm run build:ios` — EAS iOS production build (TestFlight / App Store)
+- `npm run submit:ios` — Submit latest iOS build to App Store Connect
+
+## TestFlight
+
+PC-friendly guide: [`docs/TESTFLIGHT.md`](./docs/TESTFLIGHT.md)
 
 ## Navigation map
 

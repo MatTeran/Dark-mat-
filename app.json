@@ -15,11 +15,13 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.darkmat.app",
+      "buildNumber": "1",
       "infoPlist": {
         "UIBackgroundModes": ["remote-notification"],
         "NSCameraUsageDescription": "Dark Mat uses the camera so you can set a profile photo.",
         "NSPhotoLibraryUsageDescription": "Dark Mat uses your photo library so you can set a profile photo.",
-        "NSLocationWhenInUseUsageDescription": "Dark Mat uses your location to find nearby BJJ seminars and tournaments."
+        "NSLocationWhenInUseUsageDescription": "Dark Mat uses your location to find nearby BJJ seminars and tournaments.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -30,6 +32,7 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "package": "com.darkmat.app",
+      "versionCode": 1,
       "predictiveBackGestureEnabled": false,
       "permissions": [
         "android.permission.CAMERA",
