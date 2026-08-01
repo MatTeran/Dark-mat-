@@ -18,22 +18,32 @@ Use **EAS Build** so you can ship to TestFlight from Windows without Xcode.
    - **SKU:** `dark-mat-ios` (any unique string)
 3. Note your **Team ID** (Membership details) and the app’s **Apple ID** (App Information → General → Apple ID)
 
-## One-time project setup (PC Terminal)
+## Project status
+
+- Expo account: `@matblack`
+- EAS project: https://expo.dev/accounts/matblack/projects/dark-mat
+- Project ID: `08f17496-d5c6-4899-9206-db3a1812987c` (already in `app.json`)
+
+## One-time Apple credentials (required on your PC)
+
+Cloud builds need interactive Apple signing setup once:
 
 ```bash
 cd Dark-mat-
+git pull
 git checkout cursor/dark-mat-initial-architecture-acbd
 npm install
 npm install -g eas-cli
-
 eas login
-eas init
+eas build --platform ios --profile production
 ```
 
-`eas init` writes a real `extra.eas.projectId` into `app.json`.  
-Commit that change after it succeeds.
+When prompted:
+1. Log in with your **Apple ID** (Developer account)
+2. Choose **Let EAS manage credentials** (recommended)
+3. Select your team / create Distribution Certificate + Provisioning Profile
 
-Update `eas.json` → `submit.production.ios.appleTeamId` (and preview) with your Team ID.
+After the first interactive credential setup, later builds can use CI/`EXPO_TOKEN`.
 
 Optional — store secrets for production builds:
 
