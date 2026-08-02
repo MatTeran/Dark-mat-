@@ -248,6 +248,7 @@ export function ProfileHomeScreen({ navigation }: Props) {
       <FadeIn delay={100}>
         <View style={styles.tiles}>
           <ProfileHighlightTile
+            wide
             label="Belt"
             title={beltLabel}
             subtitle={stripesLabel}
@@ -255,12 +256,14 @@ export function ProfileHomeScreen({ navigation }: Props) {
             onPress={() => navigation.navigate('BeltRank')}
             media={
               <ProfileMiniBelt
+                size="lg"
                 belt={hub.beltProgress.belt}
                 stripes={hub.beltProgress.stripes}
               />
             }
           />
           <ProfileHighlightTile
+            wide
             label="Membership"
             title={formatMembershipPlan(hub.membership.plan)}
             subtitle={formatMembershipStatus(hub.membership.status)}
@@ -404,7 +407,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   tiles: {
-    flexDirection: 'row',
+    width: '100%',
+    flexDirection: 'column',
     gap: spacing.md,
   },
   bottomSpace: {
