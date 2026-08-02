@@ -32,12 +32,14 @@
   "submit": {
     "production": {
       "ios": {
-        "appleTeamId": "FWTT8453JG"
+        "appleTeamId": "FWTT8453JG",
+        "ascAppId": "6797089797"
       }
     },
     "preview": {
       "ios": {
-        "appleTeamId": "FWTT8453JG"
+        "appleTeamId": "FWTT8453JG",
+        "ascAppId": "6797089797"
       }
     }
   }
