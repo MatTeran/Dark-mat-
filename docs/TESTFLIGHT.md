@@ -65,6 +65,9 @@ eas build --platform ios --profile production
 
 ## Submit to TestFlight
 
+Latest successful production build (example):  
+https://expo.dev/accounts/matblack/projects/dark-mat/builds/c49eb1af-2743-4eb0-b955-4c81f86b5c36
+
 ```bash
 eas submit --platform ios --profile production --latest
 ```
@@ -73,6 +76,21 @@ Or link a specific build URL from the Expo dashboard.
 
 You’ll sign in with an Apple ID that has App Store Connect access.  
 App-specific password: [appleid.apple.com](https://appleid.apple.com) → Sign-In and Security → App-Specific Passwords.
+
+For non-interactive submit later, put the numeric App Store Connect **Apple ID** in `eas.json`:
+
+```json
+"submit": {
+  "production": {
+    "ios": {
+      "appleTeamId": "FWTT8453JG",
+      "ascAppId": "YOUR_NUMERIC_APPLE_ID"
+    }
+  }
+}
+```
+
+Find it in App Store Connect → App → App Information → General → Apple ID.
 
 ## Enable testing
 
