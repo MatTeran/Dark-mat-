@@ -94,3 +94,17 @@ npm run submit:ios     # eas submit ios production --latest
 - Push notifications work more fully in this build than in Expo Go.
 - Stripe Apple Pay needs `merchant.com.darkmat.app` configured in Apple Developer if you enable it.
 - Do **not** put a fake `projectId` in `app.json` before `eas init` (breaks Expo Go).
+- EAS production builds use **Node 22.14.0** (`eas.json`) so `@supabase/supabase-js` engine checks pass.
+
+## If “Install dependencies” fails
+
+Usually `package-lock.json` is out of sync with `package.json` (EAS runs `npm ci`).
+
+```bash
+git pull
+rm -rf node_modules
+npm install
+eas build --platform ios --profile production
+```
+
+Always commit an updated `package-lock.json` after dependency changes before building.
